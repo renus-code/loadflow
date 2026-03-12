@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "WebLog API Contract (Draft)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@humber.ca\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success (201)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"demo@humber.ca\",\n  \"password\": \"Password123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "auth", "register"]
+                }
+              },
+              "code": 201,
+              "body": "{\n  \"message\": \"User registered\"\n}"
+            },
+            {
+              "name": "Error (409)",
+              "code": 409,
+              "body": "{\n  \"error\": {\n    \"code\": \"EMAIL_EXISTS\",\n    \"message\": \"Email already registered\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@humber.ca\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success (200)",
+              "code": 200,
+              "body": "{\n  \"token\": \"jwt_token_here\",\n  \"user\": {\n    \"id\": \"user_1\",\n    \"email\": \"demo@humber.ca\"\n  }\n}"
+            },
+            {
+              "name": "Error (401)",
+              "code": 401,
+              "body": "{\n  \"error\": {\n    \"code\": \"INVALID_CREDENTIALS\",\n    \"message\": \"Email or password is incorrect\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Logs",
+      "item": [
+        {
+          "name": "Get All Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success (200)",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": \"log_101\",\n    \"title\": \"Login issue\",\n    \"message\": \"User cannot log in with correct password.\",\n    \"createdAt\": \"2026-03-01T10:30:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Bug report\",\n  \"message\": \"Navbar breaks on mobile.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success (201)",
+              "code": 201,
+              "body": "{\n  \"id\": \"log_102\",\n  \"title\": \"Bug report\",\n  \"message\": \"Navbar breaks on mobile.\",\n  \"createdAt\": \"2026-03-01T11:00:00Z\"\n}"
+            },
+            {
+              "name": "Error (400)",
+              "code": 400,
+              "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"title and message are required\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Log",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/logs/{{logId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs", "{{logId}}"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success (204)",
+              "code": 204,
+              "body": ""
+            },
+            {
+              "name": "Error (404)",
+              "code": 404,
+              "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Log not found\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "logId",
+      "value": "log_101",
+      "type": "string"
+    }
+  ]
+}

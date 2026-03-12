@@ -1,0 +1,489 @@
+openapi: 3.0.3
+info:
+  title: LoadFlow API
+  version: 1.0.0
+  description: |
+    Contract-first API design for LoadFlow - A lightweight dispatch system for small trucking companies.
+servers:
+  - url: http://localhost:3000
+    description: Local dev environment
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      summary: Get current authenticated user
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users:
+    get:
+      summary: Get all users
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}:
+    get:
+      summary: Get a user by ID
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: user_1
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/loads:
+    get:
+      summary: Get all loads
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of loads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoadResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create a new load
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLoadRequest'
+      responses:
+        '201':
+          description: Load created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/loads/{id}:
+    get:
+      summary: Get load by ID
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: load_101
+      responses:
+        '200':
+          description: Load details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResponse'
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update a load
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: load_101
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                weight:
+                  type: string
+                  example: 40000 lbs
+      responses:
+        '200':
+          description: Load updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResponse'
+
+    delete:
+      summary: Delete a load
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: load_101
+      responses:
+        '204':
+          description: Load deleted (no content)
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/loads/{id}/assign:
+    put:
+      summary: Assign a driver to a load
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: load_101
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [assignedDriverId]
+              properties:
+                assignedDriverId:
+                  type: string
+                  example: user_2
+      responses:
+        '200':
+          description: Load assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResponse'
+
+  /api/loads/{id}/status:
+    put:
+      summary: Update the status of a load
+      tags: [Loads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: load_101
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  example: Delivered
+      responses:
+        '200':
+          description: Load status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResponse'
+
+  /api/pods:
+    post:
+      summary: Upload a Proof of Delivery (POD)
+      tags: [PODs]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePodRequest'
+      responses:
+        '201':
+          description: POD uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, name, role]
+      properties:
+        email:
+          type: string
+          example: demo@loadflow.ca
+        password:
+          type: string
+          example: Password123!
+        name:
+          type: string
+          example: Jane Doe
+        role:
+          type: string
+          example: Dispatcher
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          example: demo@loadflow.ca
+        password:
+          type: string
+          example: Password123!
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user_1
+        email:
+          type: string
+          example: demo@loadflow.ca
+        name:
+          type: string
+          example: Jane Doe
+        role:
+          type: string
+          example: Dispatcher
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: jwt_token_here
+        user:
+          $ref: '#/components/schemas/User'
+
+    CreateLoadRequest:
+      type: object
+      required: [pickupLocation, deliveryLocation, weight]
+      properties:
+        pickupLocation:
+          type: string
+          example: Vancouver, BC
+        deliveryLocation:
+          type: string
+          example: Calgary, AB
+        weight:
+          type: string
+          example: 38000 lbs
+
+    LoadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: load_101
+        pickupLocation:
+          type: string
+          example: Vancouver, BC
+        deliveryLocation:
+          type: string
+          example: Calgary, AB
+        weight:
+          type: string
+          example: 38000 lbs
+        status:
+          type: string
+          example: Pending
+        assignedDriverId:
+          type: string
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-03-01T11:00:00Z
+
+    CreatePodRequest:
+      type: object
+      required: [loadId, imageUrl]
+      properties:
+        loadId:
+          type: string
+          example: load_101
+        imageUrl:
+          type: string
+          example: https://storage.example.com/pod_101.jpg
+
+    PodResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: pod_1
+        loadId:
+          type: string
+          example: load_101
+        imageUrl:
+          type: string
+          example: https://storage.example.com/pod_101.jpg
+        uploadedAt:
+          type: string
+          format: date-time
+          example: 2026-03-12T10:00:00Z
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Required fields are missing
+            details:
+              type: array
+              items:
+                type: string
+              example: []

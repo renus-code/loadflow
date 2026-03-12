@@ -1,0 +1,26 @@
+[
+  {
+    "id": "load_101",
+    "origin": "Toronto, ON",
+    "destination": "Montreal, QC",
+    "weight": "45000 lbs",
+    "status": "In Transit",
+    "createdAt": "2026-03-01T10:30:00Z"
+  },
+  {
+    "id": "load_102",
+    "origin": "Vancouver, BC",
+    "destination": "Calgary, AB",
+    "weight": "38000 lbs",
+    "status": "Pending",
+    "createdAt": "2026-03-01T11:00:00Z"
+  },
+  {
+    "id": "load_103",
+    "origin": "Halifax, NS",
+    "destination": "Ottawa, ON",
+    "weight": "12000 lbs",
+    "status": "Delivered",
+    "createdAt": "2026-03-02T09:15:00Z"
+  }
+]
