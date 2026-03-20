@@ -1,52 +1,71 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav className="bg-white border-b border-white w-full">
-      <div className="max-w-[1400px] mx-auto px-6 h-[80px] flex items-center justify-between">
+    <nav className={`navbar navbar-expand-lg position-fixed w-100 z-3 transition-all ${isScrolled ? 'bg-white shadow-sm py-2' : 'bg-transparent py-4'}`} style={{ top: 0, transition: 'all 0.3s ease' }}>
+      <div className="container-fluid px-3">
         
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#0f172a] flex items-center justify-center text-white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-              <path d="M1 3h15v13H1z" />
-              <path d="M16 8h4l3 3v5h-7V8z" />
-              <circle cx="5.5" cy="18.5" r="2.5" />
-              <circle cx="18.5" cy="18.5" r="2.5" />
-            </svg>
+        <Link href="/" className="navbar-brand d-flex align-items-center gap-2 hover-tilt">
+          <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm" style={{ width: '40px', height: '40px' }}>
+            <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <span className="text-[22px] font-bold text-[#0f172a] tracking-tight font-syne">
-            LoadFlow
+          <span className="fs-3 d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)' }}>
+            <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
           </span>
         </Link>
 
-        {/* CENTER LINKS */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link href="#" className="text-[15px] font-medium text-slate-500 hover:text-[#0f172a] transition-colors">
-            Features
-          </Link>
-          <Link href="#" className="text-[15px] font-medium text-slate-500 hover:text-[#0f172a] transition-colors">
-            Pricing
-          </Link>
-          <Link href="#" className="text-[15px] font-medium text-slate-500 hover:text-[#0f172a] transition-colors">
-            About
-          </Link>
-        </div>
+        {/* Navbar Toggler for mobile */}
+        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon navbar-dark"></span>
+        </button>
 
-        {/* ACTION BUTTONS */}
-        <div className="flex items-center gap-6">
-          <Link
-            href="/login"
-            className="text-[15px] font-semibold text-slate-600 hover:text-[#0f172a] transition-colors"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="bg-[#0f172a] hover:bg-[#1e293b] text-white text-[15px] font-semibold px-6 py-2.5 rounded-lg transition-colors shadow-sm"
-          >
-            Get started
-          </Link>
+        {/* CENTER LINKS & ACTION BUTTONS */}
+        <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
+          <ul className="navbar-nav mx-auto gap-4">
+            <li className="nav-item">
+              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Features</Link>
+            </li>
+            <li className="nav-item">
+              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Solutions</Link>
+            </li>
+            <li className="nav-item">
+              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Pricing</Link>
+            </li>
+          </ul>
+
+          <div className="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+            <Link href="/login" className={`text-decoration-none fw-semibold d-flex align-items-center gap-2 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
+              </svg>
+              <span>Sign in</span>
+            </Link>
+            <Link href="/register" className={`btn ${isScrolled ? 'btn-primary' : 'btn-dark'} fw-semibold px-4 py-2 shadow-sm rounded-3 d-flex align-items-center gap-2`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <line x1="20" y1="8" x2="20" y2="14" />
+                <line x1="23" y1="11" x2="17" y2="11" />
+              </svg>
+              <span>Get started</span>
+            </Link>
+          </div>
         </div>
 
       </div>

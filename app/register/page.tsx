@@ -3,17 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-
-// We extract the TruckIcon to keep the UI clean
-const TruckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M1 3h15v13H1z" />
-    <path d="M16 8h4l3 3v5h-7V8z" />
-    <circle cx="5.5" cy="18.5" r="2.5" />
-    <circle cx="18.5" cy="18.5" r="2.5" />
-  </svg>
-);
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -23,118 +12,155 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
+      setError("Passwords do not match.");
       return;
     }
-    if (email && password) {
-      router.push("/dashboard");
-    } else {
-      alert("Please fill in all required fields.");
+    if (!name || !email || !password) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Registration failed");
+      } else {
+        router.push("/login?registered=true");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-      <main className="flex-1 flex flex-col items-center justify-center p-6 py-12">
+    <div className="d-flex flex-column min-vh-100 bg-dashboard-soft">
+      <main className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
         
         {/* LOGO & HDR */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2.5 mb-6">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white bg-[#0f172a]">
-              <TruckIcon />
+        <div className="text-center mb-4 animate-slide-up">
+          <Link href="/" className="d-flex align-items-center justify-content-center gap-2 mb-4 text-decoration-none hover-tilt">
+            <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow" style={{ width: '48px', height: '48px' }}>
+              <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
-            <span className="font-bold text-[#0f172a] text-2xl font-syne">
-              LoadFlow
+            <span className="fs-2 d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)' }}>
+              <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
             </span>
-          </div>
-          <h1 className="text-3xl font-bold text-[#0f172a] mb-2 font-syne">Create your account</h1>
-          <p className="text-slate-500">Start managing loads in minutes</p>
+          </Link>
+          <h1 className="fs-2 fw-bold text-dark mb-2" style={{ fontFamily: 'var(--font-syne)' }}>Create your account</h1>
+          <p className="text-secondary">Start managing loads in minutes</p>
         </div>
 
-        {/* AUTH CARD */}
-        <div className="bg-white max-w-[500px] w-full rounded-2xl shadow-sm border border-slate-200 p-8">
-          <form onSubmit={handleRegister} className="space-y-5">
+        {/* REGISTER CARD */}
+        <div className="glass-card p-4 p-md-5 rounded-4 shrink-0 mx-auto animate-slide-up delay-100" style={{ width: '100%', maxWidth: '480px' }}>
+          <form onSubmit={handleRegister} className="d-flex flex-column gap-3">
+            {error && (
+              <div className="alert alert-danger py-2 small fw-medium">
+                {error}
+              </div>
+            )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700 block text-left">Full name</label>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label text-dark fw-medium small mb-1">Full name *</label>
                 <input
                   type="text"
                   required
                   placeholder="Jane Smith"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-slate-900 transition-colors shadow-sm"
+                  className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700 block text-left">Company</label>
+              <div className="col-md-6">
+                <label className="form-label text-dark fw-medium small mb-1">Company</label>
                 <input
                   type="text"
                   placeholder="Acme Freight"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-slate-900 transition-colors shadow-sm"
+                  className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 block text-left">Email address</label>
+            <div>
+              <label className="form-label text-dark fw-medium small mb-1">Email address *</label>
               <input
                 type="email"
                 required
                 placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-slate-900 transition-colors shadow-sm"
+                className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 block">Password</label>
+            <div>
+              <label className="form-label text-dark fw-medium small mb-1">Password *</label>
               <input
                 type="password"
                 required
                 placeholder="Min. 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-slate-900 transition-colors shadow-sm"
+                className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 block">Confirm password</label>
+            <div>
+              <label className="form-label text-dark fw-medium small mb-1">Confirm password *</label>
               <input
                 type="password"
                 required
                 placeholder="Repeat password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-slate-900 transition-colors shadow-sm"
+                className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
               />
             </div>
 
-            <p className="text-[13px] text-slate-400 leading-relaxed pt-2">
-              By creating an account, you agree to our <a href="#" className="underline hover:text-slate-600">Terms of Service</a> and <a href="#" className="underline hover:text-slate-600">Privacy Policy</a>.
+            <p className="small text-secondary py-2 mb-0">
+              By creating an account, you agree to our <a href="#" className="text-decoration-none text-dark fw-medium border-bottom border-dark">Terms of Service</a> and <a href="#" className="text-decoration-none text-dark fw-medium border-bottom border-dark">Privacy Policy</a>.
             </p>
 
             <button
               type="submit"
-              className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-medium py-3 rounded-xl shadow-sm transition-all mt-2"
+              disabled={isLoading}
+              className="btn btn-dark btn-lg w-100 fw-bold mt-1 rounded-3 shadow hover-zoom text-white d-flex align-items-center justify-content-center gap-2"
             >
-              Create account
+              {isLoading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                  <span role="status">Creating...</span>
+                </>
+              ) : "Create account"}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-8">
+        <p className="text-center small text-secondary mt-4 pt-2">
           {"Already have an account?"}{" "}
-          <Link href="/login" className="text-[#0f172a] font-bold hover:underline">
+          <Link href="/login" className="text-dark fw-bold text-decoration-none hover-zoom d-inline-block">
             Sign in
           </Link>
         </p>
