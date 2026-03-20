@@ -1,14 +1,24 @@
+/* ─── SMOOTH SCROLL & GLOBAL BASE ───────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --font-sans: var(--font-jakarta);
   --font-syne: var(--font-heading);
+  --scrollbar-width: 6px;
+  --scrollbar-track: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: rgba(99, 102, 241, 0.35);
+  --scrollbar-thumb-hover: rgba(99, 102, 241, 0.6);
 }
 
 body {
   font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 .hover-zoom {
@@ -180,7 +190,7 @@ body {
 }
 
 .focus-within-ring:focus-within {
-  ring: 2px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
   border-color: rgba(99, 102, 241, 0.5) !important;
 }
 
@@ -263,3 +273,66 @@ body {
   letter-spacing: -0.02em;
   filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.15));
 }
+
+/* ─── HIDE SCROLLBARS (keep smooth scroll) ───────────────────────────────── */
+
+/* Hide scrollbar for Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+/* Hide scrollbar for Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for IE / Edge legacy */
+* {
+  -ms-overflow-style: none;
+}
+
+/* ─── MODAL SCROLL — hidden bar, smooth momentum ───────────────────────── */
+.modal-scroll {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.modal-scroll::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* ─── TABLE SCROLL CONTAINER ────────────────────────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25);
+  border-radius: 100px;
+}
+
+/* ─── HOVER FLOAT (for interactive cards and buttons) ──────────────────── */
+.hover-float {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.hover-float:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18) !important;
+}

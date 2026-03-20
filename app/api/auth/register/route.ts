@@ -5,7 +5,10 @@ import User from '@/models/User';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role } = await req.json();
+    const { name, email: rawEmail, password, role } = await req.json();
+
+    // Normalize email to lowercase for case-insensitive handling
+    const email = rawEmail?.toLowerCase().trim();
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -13,7 +16,7 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    // Check if user already exists
+    // Check if user already exists (case-insensitive — email is stored lowercase)
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });

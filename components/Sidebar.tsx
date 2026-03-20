@@ -32,7 +32,6 @@ export default function Sidebar() {
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", Icon: GridIcon },
-    { href: "/dashboard/create", label: "Create Load", Icon: PlusIcon },
   ];
 
   return (

@@ -6,7 +6,10 @@ import User from '@/models/User';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email: rawEmail, password } = await req.json();
+
+    // Normalize email — treat User@Example.com the same as user@example.com
+    const email = rawEmail?.toLowerCase().trim();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -14,7 +17,7 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    // Check if user exists
+    // Check if user exists (email stored lowercase in DB)
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

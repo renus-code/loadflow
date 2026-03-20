@@ -1,25 +1,329 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+
+// ─── STATE / PROVINCE DATA ────────────────────────────────────────────────────
+const US_STATES: [string, string][] = [
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['FL','Florida'],['GA','Georgia'],
+  ['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],
+  ['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],
+  ['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],
+  ['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],
+  ['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],
+  ['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],
+  ['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],
+  ['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],
+  ['DC','District of Columbia'],
+];
+
+const CA_PROVINCES: [string, string][] = [
+  ['AB','Alberta'],['BC','British Columbia'],['MB','Manitoba'],['NB','New Brunswick'],
+  ['NL','Newfoundland and Labrador'],['NS','Nova Scotia'],['ON','Ontario'],
+  ['PE','Prince Edward Island'],['QC','Quebec'],['SK','Saskatchewan'],
+  ['NT','Northwest Territories'],['NU','Nunavut'],['YT','Yukon'],
+];
+
+// Maps code OR full name (lowercase) → { name, country } for API lookup
+const STATE_MAP = new Map<string, { name: string; country: string }>();
+US_STATES.forEach(([code, name]) => {
+  STATE_MAP.set(code.toUpperCase(), { name, country: 'United States' });
+  STATE_MAP.set(name.toLowerCase(), { name, country: 'United States' });
+});
+CA_PROVINCES.forEach(([code, name]) => {
+  STATE_MAP.set(code.toUpperCase(), { name, country: 'Canada' });
+  STATE_MAP.set(name.toLowerCase(), { name, country: 'Canada' });
+});
+
+// Resolve a typed value (code or full name) → STATE_MAP entry
+function resolveState(input: string) {
+  if (!input) return undefined;
+  // Try exact code match first (e.g. "IL"), then by full name
+  return STATE_MAP.get(input.toUpperCase()) ?? STATE_MAP.get(input.toLowerCase());
+}
+
+// ─── CITY FETCH HOOK ──────────────────────────────────────────────────────────
+function useCities(stateInput: string) {
+  const [cities, setCities] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchCities = useCallback(async (input: string) => {
+    // Strip " — Full Name" suffix if user selected a datalist option like "IL — Illinois"
+    const code = input.includes(' — ') ? input.split(' — ')[0].trim() : input;
+    const info = resolveState(code);
+    if (!info) { setCities([]); return; }
+    setLoading(true);
+    try {
+      const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: info.country, state: info.name }),
+      });
+      const json = await res.json();
+      setCities(json?.data ?? []);
+    } catch {
+      setCities([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (stateInput) fetchCities(stateInput);
+    else setCities([]);
+  }, [stateInput, fetchCities]);
+
+  return { cities, loading };
+}
+
+// ─── REUSABLE FIELD STYLE ─────────────────────────────────────────────────────
+const FIELD = "form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50";
+
+// All states + provinces as flat list for filtering
+const ALL_REGIONS: [string, string, string][] = [
+  ...US_STATES.map(([c, n]): [string, string, string] => [c, n, '🇺🇸']),
+  ...CA_PROVINCES.map(([c, n]): [string, string, string] => [c, n, '🇨🇦']),
+];
+
+// ─── STATE/PROVINCE CUSTOM COMBOBOX ─────────────────────────────────────────────
+function StateProvinceSelect({ value, onChange, id }: { value: string; onChange: (v: string) => void; id?: string }) {
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Keep query in sync when parent resets the value (e.g. form reset)
+  useEffect(() => { setQuery(value); }, [value]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Filter: code starts with query (case-insensitive) OR full name starts with query
+  const q = query.trim().toUpperCase();
+  const filtered = q.length === 0 ? ALL_REGIONS : ALL_REGIONS.filter(
+    ([code, name]) => code.startsWith(q) || name.toUpperCase().startsWith(q)
+  );
+
+  const select = (code: string) => {
+    onChange(code);
+    setQuery(code);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={ref} className="position-relative">
+      <input
+        id={id}
+        required
+        autoComplete="off"
+        spellCheck={false}
+        className={FIELD}
+        value={query}
+        placeholder="Type code (IL, ON…) or province name"
+        onChange={e => {
+          const val = e.target.value.toUpperCase();
+          setQuery(val);
+          onChange(val); // keep parent in sync while typing
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+      />
+      {open && filtered.length > 0 && (
+        <ul
+          className="list-unstyled position-absolute w-100 bg-white border border-secondary border-opacity-10 rounded-4 shadow mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}
+        >
+          {filtered.map(([code, name, flag]) => (
+            <li key={code}>
+              <button
+                type="button"
+                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2"
+                style={{ borderRadius: 0 }}
+                onMouseDown={() => select(code)}
+              >
+                <span className="fw-bold text-primary" style={{ minWidth: '2rem' }}>{code}</span>
+                <span className="text-secondary">{name}</span>
+                <span className="ms-auto">{flag}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── CITY CUSTOM COMBOBOX ──────────────────────────────────────────────────────────
+function CitySelect({ stateCode, value, onChange, id }: { stateCode: string; value: string; onChange: (v: string) => void; id?: string }) {
+  const { cities, loading } = useCities(stateCode);
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setQuery(value); }, [value]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Filter: city name starts with typed query
+  const q = query.trim().toLowerCase();
+  const filtered = cities.filter(city => city.toLowerCase().startsWith(q));
+
+  const select = (city: string) => {
+    onChange(city);
+    setQuery(city);
+    setOpen(false);
+  };
+
+  const placeholder = loading
+    ? 'Loading cities…'
+    : stateCode
+    ? 'Type or select city…'
+    : 'Select state / province first…';
+
+  return (
+    <div ref={ref} className="position-relative">
+      <input
+        id={id}
+        required
+        autoComplete="off"
+        className={FIELD}
+        value={query}
+        placeholder={placeholder}
+        disabled={loading}
+        onChange={e => {
+          setQuery(e.target.value);
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+      />
+      {open && filtered.length > 0 && (
+        <ul
+          className="list-unstyled position-absolute w-100 bg-white border border-secondary border-opacity-10 rounded-4 shadow mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}
+        >
+          {filtered.map(city => (
+            <li key={city}>
+              <button
+                type="button"
+                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium"
+                style={{ borderRadius: 0 }}
+                onMouseDown={() => select(city)}
+              >
+                {city}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── LOCATION BLOCK (shared by pickup + delivery) ─────────────────────────────
+interface LocationBlockProps {
+  prefix: 'pickup' | 'delivery';
+  data: Record<string, string>;
+  onChange: (field: string, value: string) => void;
+}
+
+function LocationBlock({ prefix, data, onChange }: LocationBlockProps) {
+  const P = (f: string) => `${prefix}${f.charAt(0).toUpperCase() + f.slice(1)}`;
+  const isPickup = prefix === 'pickup';
+
+  return (
+    <div className="d-flex flex-column gap-3">
+      {/* State / Province — first */}
+      <div>
+        <label className="small fw-semibold text-secondary mb-1 px-1">State / Province *</label>
+        <StateProvinceSelect
+          id={P('state')}
+          value={data[P('state')]}
+          onChange={v => { onChange(P('state'), v); onChange(P('city'), ''); }}
+        />
+      </div>
+
+      {/* City — depends on state */}
+      <div>
+        <label className="small fw-semibold text-secondary mb-1 px-1">City *</label>
+        <CitySelect
+          id={P('city')}
+          stateCode={data[P('state')]}
+          value={data[P('city')]}
+          onChange={v => onChange(P('city'), v)}
+        />
+      </div>
+
+      {/* Street Address */}
+      <div>
+        <label className="small fw-semibold text-secondary mb-1 px-1">Street Address *</label>
+        <input required className={FIELD} value={data[P('address')]} onChange={e => onChange(P('address'), e.target.value)}
+          placeholder={isPickup ? '123 Origin St' : '456 Destination Blvd'} />
+      </div>
+
+      {/* Postal + Appointment # on same row */}
+      <div className="row g-2">
+        <div className="col-5">
+          <label className="small fw-semibold text-secondary mb-1 px-1">Postal Code *</label>
+          <input required className={FIELD} value={data[P('postalCode')]} onChange={e => onChange(P('postalCode'), e.target.value)}
+            placeholder={isPickup ? 'M5V 2L7' : '75201'} />
+        </div>
+        <div className="col-7">
+          <label className="small fw-semibold text-secondary mb-1 px-1">Appointment # *</label>
+          <input required className={FIELD} value={data[P('appointmentNumber')]} onChange={e => onChange(P('appointmentNumber'), e.target.value)}
+            placeholder={isPickup ? 'P-12345' : 'D-67890'} />
+        </div>
+      </div>
+
+      {/* Date + Time */}
+      <div className="row g-2">
+        <div className="col-7">
+          <label className="small fw-semibold text-secondary mb-1 px-1">{isPickup ? 'Pickup' : 'Delivery'} Date *</label>
+          <input required type="date" className={FIELD} value={data[P('date')]} onChange={e => onChange(P('date'), e.target.value)} />
+        </div>
+        <div className="col-5">
+          <label className="small fw-semibold text-secondary mb-1 px-1">Time *</label>
+          <input required type="time" className={FIELD} value={data[P('time')]} onChange={e => onChange(P('time'), e.target.value)} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Update the interface to match MongoDB model
 interface Load {
   _id: string;
-  pickupLocation: string;
-  deliveryLocation: string;
-  trailerNumber: string;
-  truckNumber: string;
+  loadNumber: string;
+  pickupAddress: string;
+  pickupCity: string;
+  pickupState: string;
+  pickupPostalCode: string;
   pickupAppointmentNumber: string;
+  pickupDate: string;
   pickupTime: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  deliveryState: string;
+  deliveryPostalCode: string;
+  deliveryAppointmentNumber: string;
+  deliveryDate: string;
   deliveryTime: string;
-  deliveryAppointmentTime: string;
-  address: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  weight: number;
   quantity: number;
-  status: 'Pending' | 'Assigned' | 'Transit' | 'Delivered';
+  quantityUnit: string;
+  weight: number;
+  weightUnit: string;
+  status: 'Pending' | 'Assigned' | 'Transit' | 'In Transit' | 'Delivered';
   createdAt: string;
 }
 
@@ -64,22 +368,29 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    pickupLocation: "",
-    deliveryLocation: "",
-    trailerNumber: "",
-    truckNumber: "",
+    loadNumber: "",
+    pickupAddress: "",
+    pickupCity: "",
+    pickupState: "",
+    pickupPostalCode: "",
     pickupAppointmentNumber: "",
+    pickupDate: new Date().toISOString().split('T')[0],
     pickupTime: "",
+    deliveryAddress: "",
+    deliveryCity: "",
+    deliveryState: "",
+    deliveryPostalCode: "",
+    deliveryAppointmentNumber: "",
+    deliveryDate: new Date().toISOString().split('T')[0],
     deliveryTime: "",
-    deliveryAppointmentTime: "",
-    address: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    appointmentTime: new Date().toISOString().split('T')[0],
+    quantity: "",
+    quantityUnit: "pallets",
     weight: "",
-    quantity: ""
+    weightUnit: "lbs"
   });
+
+  // Generic field setter for use by LocationBlock
+  const setField = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
 
   const fetchLoads = async () => {
     try {
@@ -111,21 +422,25 @@ export default function Dashboard() {
       if (res.ok) {
         setShowModal(false);
         setFormData({
-          pickupLocation: "",
-          deliveryLocation: "",
-          trailerNumber: "",
-          truckNumber: "",
+          loadNumber: "",
+          pickupAddress: "",
+          pickupCity: "",
+          pickupState: "",
+          pickupPostalCode: "",
           pickupAppointmentNumber: "",
+          pickupDate: new Date().toISOString().split('T')[0],
           pickupTime: "",
+          deliveryAddress: "",
+          deliveryCity: "",
+          deliveryState: "",
+          deliveryPostalCode: "",
+          deliveryAppointmentNumber: "",
+          deliveryDate: new Date().toISOString().split('T')[0],
           deliveryTime: "",
-          deliveryAppointmentTime: "",
-          address: "",
-          city: "",
-          state: "",
-          postalCode: "",
-          appointmentTime: new Date().toISOString().split('T')[0],
+          quantity: "",
+          quantityUnit: "pallets",
           weight: "",
-          quantity: ""
+          weightUnit: "lbs"
         });
         fetchLoads();
       }
@@ -269,14 +584,14 @@ export default function Dashboard() {
         </div>
 
         <div className="card-body p-0">
-          <div className="table-responsive">
+          <div className="table-scroll">
             <table className="table table-hover mb-0 align-middle">
               <thead>
                 <tr className="bg-light bg-opacity-50">
-                  <th className="fw-bold text-secondary py-4 px-4 px-md-5 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Route</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Trailer</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Weight</th>
+                  <th className="fw-bold text-secondary py-4 px-4 px-md-5 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Load #</th>
                   <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Pickup</th>
+                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Delivery</th>
+                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Weight/Qty</th>
                   <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest text-end" style={{ fontSize: '0.7rem' }}>Actions</th>
                   <th className="fw-bold text-secondary py-4 px-4 px-md-5 border-0 text-uppercase tracking-widest text-end" style={{ fontSize: '0.7rem' }}>Status</th>
                 </tr>
@@ -302,20 +617,23 @@ export default function Dashboard() {
                       style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}
                     >
                       <td className="px-4 px-md-5 py-4">
-                        <div className="fw-bold text-dark fs-6">{load.pickupLocation}</div>
-                        <div className="small text-muted fw-medium mt-1 d-flex align-items-center gap-2">
-                           <span className="opacity-50 bg-secondary rounded-circle d-inline-block" style={{width: '4px', height: '4px'}}></span>
-                           {load.deliveryLocation}
+                        <span className="fw-bold text-dark fs-6">{load.loadNumber || 'N/A'}</span>
+                      </td>
+                      <td className="px-3 px-md-4 py-4">
+                        <div className="fw-bold text-dark fs-6">{load.pickupCity || 'Unknown'}, {load.pickupState || ''}</div>
+                        <div className="small text-muted fw-medium mt-1">
+                          {load.pickupDate ? new Date(load.pickupDate).toLocaleDateString() : ''} {load.pickupTime || ''}
                         </div>
                       </td>
                       <td className="px-3 px-md-4 py-4">
-                        <span className="fw-bold text-secondary" style={{fontSize: '0.9rem'}}>{load.trailerNumber}</span>
+                        <div className="fw-bold text-dark fs-6">{load.deliveryCity || 'Unknown'}, {load.deliveryState || ''}</div>
+                        <div className="small text-muted fw-medium mt-1">
+                          {load.deliveryDate ? new Date(load.deliveryDate).toLocaleDateString() : ''} {load.deliveryTime || ''}
+                        </div>
                       </td>
                       <td className="px-3 px-md-4 py-4">
-                        <span className="badge bg-light text-dark border-0 fw-bold px-3 py-2 rounded-3">{load.weight} lbs</span>
-                      </td>
-                      <td className="px-3 px-md-4 py-4 text-secondary fw-semibold">
-                        {new Date(load.createdAt).toLocaleDateString()}
+                        <div className="fw-bold text-dark mb-1">{load.weight || 0} {load.weightUnit || ''}</div>
+                        <div className="small text-muted">{load.quantity || 0} {load.quantityUnit || ''}</div>
                       </td>
                       <td className="px-3 px-md-4 py-4 text-end">
                         <button 
@@ -364,85 +682,70 @@ export default function Dashboard() {
       {showModal && (
         <div className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center animate-fade-in" style={{ zIndex: 2000 }}>
           <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-          <div className="card border-0 shadow-2xl rounded-5 p-4 p-md-5 glass-card position-relative z-1 animate-slide-up" style={{ width: '95%', maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="card border-0 shadow-2xl rounded-5 p-4 p-md-5 glass-card position-relative z-1 animate-slide-up modal-scroll" style={{ width: '95%', maxWidth: '850px', maxHeight: '90vh' }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h3 className="fs-3 fw-bold text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Create New Load</h3>
               <button className="btn-close shadow-none" onClick={() => setShowModal(false)}></button>
             </div>
             <form onSubmit={handleCreateLoad} className="row g-4">
               <div className="col-12">
-                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Basic Information</h5>
+                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>General Info</h5>
                 <hr className="mt-2 mb-0 opacity-10" />
               </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Pickup Location</label>
-                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.pickupLocation} onChange={e => setFormData({...formData, pickupLocation: e.target.value})} placeholder="Origin City, State" />
+              <div className="col-md-12">
+                <label className="small fw-bold text-secondary mb-2 px-1">Load Number *</label>
+                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.loadNumber} onChange={e => setFormData({...formData, loadNumber: e.target.value})} placeholder="LD-882299" />
               </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Delivery Location</label>
-                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.deliveryLocation} onChange={e => setFormData({...formData, deliveryLocation: e.target.value})} placeholder="Destination City, State" />
+
+              {/* ── PICKUP ── */}
+              <div className="col-lg-6">
+                <div className="p-4 rounded-4 bg-light bg-opacity-50 border border-secondary border-opacity-10 h-100">
+                  <h5 className="fw-bold text-primary mb-3" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    📦 Pickup Details
+                  </h5>
+                  <LocationBlock prefix="pickup" data={formData as unknown as Record<string, string>} onChange={setField} />
+                </div>
               </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Truck Number</label>
-                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.truckNumber} onChange={e => setFormData({...formData, truckNumber: e.target.value})} placeholder="TRK-999" />
+
+              {/* ── DELIVERY ── */}
+              <div className="col-lg-6">
+                <div className="p-4 rounded-4 bg-light bg-opacity-50 border border-secondary border-opacity-10 h-100">
+                  <h5 className="fw-bold text-primary mb-3" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    🚚 Delivery Details
+                  </h5>
+                  <LocationBlock prefix="delivery" data={formData as unknown as Record<string, string>} onChange={setField} />
+                </div>
               </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Trailer Number</label>
-                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.trailerNumber} onChange={e => setFormData({...formData, trailerNumber: e.target.value})} placeholder="TRL-12345" />
+
+              <div className="col-12 mt-4">
+                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Logistics Info</h5>
+                <hr className="mt-2 mb-0 opacity-10" />
               </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Weight (lbs)</label>
-                <input required type="number" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="45000" />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Quantity</label>
+              <div className="col-md-3">
+                <label className="small fw-bold text-secondary mb-2 px-1">Quantity *</label>
                 <input required type="number" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder="24" />
               </div>
-
-              <div className="col-12 mt-5">
-                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Appointments & Logistics</h5>
-                <hr className="mt-2 mb-0 opacity-10" />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Pickup Appt #</label>
-                <input className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.pickupAppointmentNumber} onChange={e => setFormData({...formData, pickupAppointmentNumber: e.target.value})} placeholder="P-123456" />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Pickup Time</label>
-                <input type="time" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.pickupTime} onChange={e => setFormData({...formData, pickupTime: e.target.value})} />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Pickup Date</label>
-                <input required type="date" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.appointmentTime} onChange={e => setFormData({...formData, appointmentTime: e.target.value})} />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Delivery Time</label>
-                <input type="time" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.deliveryTime} onChange={e => setFormData({...formData, deliveryTime: e.target.value})} />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Delivery Appt Time</label>
-                <input type="time" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.deliveryAppointmentTime} onChange={e => setFormData({...formData, deliveryAppointmentTime: e.target.value})} />
-              </div>
-
-              <div className="col-12 mt-5">
-                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Destination Details</h5>
-                <hr className="mt-2 mb-0 opacity-10" />
-              </div>
-              <div className="col-md-6">
-                <label className="small fw-bold text-secondary mb-2 px-1">Address</label>
-                <input className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Trucker Way" />
+              <div className="col-md-3">
+                <label className="small fw-bold text-secondary mb-2 px-1">Unit *</label>
+                <select className="form-select rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.quantityUnit} onChange={e => setFormData({...formData, quantityUnit: e.target.value})}>
+                  <option value="skids">Skids</option>
+                  <option value="pallets">Pallets</option>
+                  <option value="packages">Packages</option>
+                  <option value="pieces">Pieces</option>
+                  <option value="box">Box</option>
+                  <option value="cases">Cases</option>
+                </select>
               </div>
               <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">City</label>
-                <input className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} placeholder="Chicago" />
+                <label className="small fw-bold text-secondary mb-2 px-1">Weight *</label>
+                <input required type="number" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="45000" />
               </div>
               <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">State</label>
-                <input className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} placeholder="IL" />
-              </div>
-              <div className="col-md-4">
-                <label className="small fw-bold text-secondary mb-2 px-1">Postal Code</label>
-                <input className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.postalCode} onChange={e => setFormData({...formData, postalCode: e.target.value})} placeholder="60601" />
+                <label className="small fw-bold text-secondary mb-2 px-1">Unit *</label>
+                <select className="form-select rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.weightUnit} onChange={e => setFormData({...formData, weightUnit: e.target.value})}>
+                  <option value="lbs">lbs</option>
+                  <option value="kg">kg</option>
+                </select>
               </div>
 
               <div className="col-12 mt-5">

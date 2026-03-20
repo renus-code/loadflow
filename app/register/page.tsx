@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,7 +23,7 @@ export default function Register() {
       setError("Passwords do not match.");
       return;
     }
-    if (!name || !email || !password) {
+    if (!firstName || !lastName || !email || !password) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -35,7 +35,11 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ 
+          name: `${firstName} ${lastName}`.trim(), 
+          email, 
+          password 
+        }),
       });
 
       const data = await res.json();
@@ -81,23 +85,24 @@ export default function Register() {
             
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label text-dark fw-medium small mb-1">Full name *</label>
+                <label className="form-label text-dark fw-medium small mb-1">First name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="Jane Smith"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Jane"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label text-dark fw-medium small mb-1">Company</label>
+                <label className="form-label text-dark fw-medium small mb-1">Last name *</label>
                 <input
                   type="text"
-                  placeholder="Acme Freight"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  required
+                  placeholder="Smith"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
                 />
               </div>

@@ -42,43 +42,51 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { 
-      pickupLocation, 
-      deliveryLocation, 
-      trailerNumber, 
-      truckNumber,
+      loadNumber,
+      pickupAddress,
+      pickupCity,
+      pickupState,
+      pickupPostalCode,
       pickupAppointmentNumber,
+      pickupDate,
       pickupTime,
+      deliveryAddress,
+      deliveryCity,
+      deliveryState,
+      deliveryPostalCode,
+      deliveryAppointmentNumber,
+      deliveryDate,
       deliveryTime,
-      deliveryAppointmentTime,
-      address,
-      city,
-      state,
-      postalCode,
-      appointmentTime, 
-      weight, 
-      quantity 
+      quantity,
+      quantityUnit,
+      weight,
+      weightUnit
     } = body;
 
-    if (!pickupLocation || !deliveryLocation || !trailerNumber || !truckNumber || !appointmentTime || !weight || !quantity) {
-      return NextResponse.json({ error: "Missing required fields (Pickup, Delivery, Trailer, Truck, Appt Time, Weight, Quantity)" }, { status: 400 });
+    if (!loadNumber || !pickupAddress || !pickupCity || !pickupState || !pickupPostalCode || !deliveryAddress || !deliveryCity || !deliveryState || !deliveryPostalCode || !quantity || !quantityUnit || !weight || !weightUnit) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const newLoad = await Load.create({
-      pickupLocation,
-      deliveryLocation,
-      trailerNumber,
-      truckNumber,
+      loadNumber,
+      pickupAddress,
+      pickupCity,
+      pickupState,
+      pickupPostalCode,
       pickupAppointmentNumber,
+      pickupDate: new Date(pickupDate),
       pickupTime,
+      deliveryAddress,
+      deliveryCity,
+      deliveryState,
+      deliveryPostalCode,
+      deliveryAppointmentNumber,
+      deliveryDate: new Date(deliveryDate),
       deliveryTime,
-      deliveryAppointmentTime,
-      address,
-      city,
-      state,
-      postalCode,
-      appointmentTime: new Date(appointmentTime),
-      weight: Number(weight),
       quantity: Number(quantity),
+      quantityUnit,
+      weight: Number(weight),
+      weightUnit,
       status: 'Pending'
     });
 
