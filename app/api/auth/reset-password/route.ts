@@ -1,0 +1,48 @@
+import { NextRequest, NextResponse } from 'next/server';
+import connectToDatabase from '@/lib/mongodb';
+import User from '@/models/User';
+import bcrypt from 'bcryptjs';
+
+export async function POST(req: NextRequest) {
+  try {
+    const { email: rawEmail, password, confirmPassword } = await req.json();
+    const email = rawEmail?.toLowerCase().trim();
+
+    if (!email || !password || !confirmPassword) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
+
+    if (password !== confirmPassword) {
+      return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!user.resetPasswordApproved) {
+      return NextResponse.json({ 
+        error: 'Password reset has not been approved by an administrator yet.' 
+      }, { status: 403 });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    user.passwordHash = passwordHash;
+    user.resetPasswordApproved = false;
+    user.resetPasswordRequested = false;
+    await user.save();
+
+    return NextResponse.json({ 
+      message: 'Password reset successful. You can now sign in with your new password.' 
+    }, { status: 200 });
+  } catch (error: unknown) {
+    console.error('Reset password error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

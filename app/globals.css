@@ -6,12 +6,14 @@ html {
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent-orange: #ff8c00;
+  --accent-emerald: #2bdd66;
   --font-sans: var(--font-jakarta);
   --font-syne: var(--font-heading);
   --scrollbar-width: 6px;
   --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: rgba(99, 102, 241, 0.35);
-  --scrollbar-thumb-hover: rgba(99, 102, 241, 0.6);
+  --scrollbar-thumb: rgba(255, 140, 0, 0.35);
+  --scrollbar-thumb-hover: rgba(255, 140, 0, 0.6);
 }
 
 body {
@@ -247,6 +249,162 @@ body {
   background-attachment: fixed;
 }
 
+/* ─── HYPER-PREMIUM THEME (FOODEARTH INSPIRED) ──────────────────────────── */
+.premium-bg {
+  background: linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8)),
+              url('/premium_logistics_bg.png') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+/* BOOTSTRAP OVERRIDES FOR PREMIUM GLASS */
+.premium-bg .card {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.premium-bg .table {
+  --bs-table-bg: transparent !important;
+  color: #dee5ff !important;
+}
+
+.glass-card-stitch {
+  background: rgba(15, 25, 50, 0.65) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.premium-header-accent {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 15px;
+}
+
+.premium-header-accent::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 5px;
+  background: var(--accent-orange);
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+}
+
+.premium-header-accent-emerald::after {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 15px rgba(43, 221, 102, 0.4);
+}
+
+.stat-icon-bg {
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  font-size: 8rem !important;
+  opacity: 0.04;
+  transform: rotate(-15deg);
+  pointer-events: none;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #fff;
+}
+
+.glass-card-stitch:hover .stat-icon-bg {
+  opacity: 0.12;
+  transform: rotate(0deg) scale(1.15);
+}
+
+.glass-card-stitch {
+  background: rgba(10, 20, 42, 0.65) !important;
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
+}
+
+.mesh-gradient-premium {
+  /* Legacy fallback, kept for compatibility */
+  background-color: #060e20;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(105, 246, 184, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 140, 0, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.glass-card-v4 {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.glass-card-v4:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.6);
+}
+
+.glow-orb {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.4;
+  pointer-events: none;
+  animation: orb-float 20s infinite alternate ease-in-out;
+}
+
+@keyframes orb-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 50px) scale(1.2); }
+}
+
+.glow-emerald { background: radial-gradient(circle, #2bdd66 0%, transparent 70%); }
+.glow-indigo { background: radial-gradient(circle, #6366f1 0%, transparent 70%); }
+.glow-purple { background: radial-gradient(circle, #a855f7 0%, transparent 70%); }
+
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #2bdd66 0%, #10b981 50%, #2bdd66 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
+.glass-wash {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-wash::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(30deg);
+  transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+
+.glass-wash:hover::after {
+  left: 120%;
+}
+
 /* Custom Brand Logo Classes based on provided image */
 .brand-text-load {
   background: linear-gradient(to bottom, #d1d5db 0%, #4b5563 100%);
@@ -327,12 +485,101 @@ body {
   border-radius: 100px;
 }
 
-/* ─── HOVER FLOAT (for interactive cards and buttons) ──────────────────── */
-.hover-float {
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+/* ─── PHASE 15: HYPER-PREMIUM VISUAL UTILITIES ─────────────────────────── */
+.glass-card-premium {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.hover-float:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18) !important;
-}
+.glass-card-premium:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-8px);
+  box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.35);
+}
+
+/* Light Mode specific adjustments for white backgrounds */
+.bg-white .glass-card-premium {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+.bg-white .glass-card-premium:hover {
+  background: #ffffff;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+}
+
+.icon-orb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  z-index: 1;
+  transition: all 0.4s ease;
+}
+
+.icon-orb::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: inherit;
+  filter: blur(20px);
+  opacity: 0.15;
+  border-radius: inherit;
+  z-index: -1;
+  transition: opacity 0.4s ease;
+}
+
+.icon-orb:hover::before {
+  opacity: 0.4;
+}
+
+.glow-primary { background: linear-gradient(135deg, #6366f1, #818cf8); }
+.glow-success { background: linear-gradient(135deg, #2bdd66, #10b981); }
+.glow-warning { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.glow-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.glow-info { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+
+.stat-value-premium {
+  font-family: var(--font-syne);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #1f2937 0%, #4b5563 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.premium-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.premium-input:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2) !important;
+  outline: none !important;
+}
+
+.premium-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Critical fix for visibility */
+input.premium-input {
+  color: white !important;
+}

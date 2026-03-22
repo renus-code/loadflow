@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ user }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Auth verification error:', error);
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   }

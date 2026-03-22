@@ -37,13 +37,13 @@ export default function Navbar() {
         <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
           <ul className="navbar-nav mx-auto gap-4">
             <li className="nav-item">
-              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Features</Link>
+              <Link href="/#features" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Features</Link>
             </li>
             <li className="nav-item">
-              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Solutions</Link>
+              <Link href="/#solutions" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Solutions</Link>
             </li>
             <li className="nav-item">
-              <Link href="#" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Pricing</Link>
+              <Link href="/#pricing" className={`nav-link fw-medium nav-link-animated px-0 ${isScrolled ? 'text-dark' : 'text-white'}`} style={isScrolled ? {} : { textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Pricing</Link>
             </li>
           </ul>
 

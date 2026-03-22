@@ -1,156 +1,178 @@
 "use client";
 
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
-  const [error, setError] = useState("");
+export default function Login() {
+  const router = useRouter();
+  const [serverError, setServerError] = useState("");
+  const [isLocked, setIsLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>();
 
-    if (!email || !password) {
-      setError("Please enter valid credentials.");
-      return;
-    }
-
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError("");
+    setIsLocked(false);
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-
-      const data = await res.json();
-
+      const json = await res.json();
       if (!res.ok) {
-        setError(data.error || "Invalid credentials");
+        if (json.locked) {
+          setIsLocked(true);
+        } else {
+          setServerError(json.error || "Invalid credentials");
+        }
       } else {
         router.push("/dashboard");
       }
     } catch {
-      setError("An unexpected error occurred");
+      setServerError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100 bg-dashboard-soft">
-      <main className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
-        {/* LOGO & HDR */}
-        <div className="text-center mb-4 animate-slide-up">
-          <Link
-            href="/"
-            className="d-flex align-items-center justify-content-center gap-2 mb-4 text-decoration-none hover-tilt"
-          >
-            <div
-              className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow"
-              style={{ width: "48px", height: "48px" }}
-            >
-              <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+    <div className="d-flex flex-column min-vh-100 premium-bg position-relative overflow-hidden">
+      <div className="glow-orb glow-emerald" style={{ top: '10%', left: '-5%' }}></div>
+      <div className="glow-orb glow-indigo" style={{ bottom: '20%', right: '-10%' }}></div>
+
+      <main className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 z-1">
+        <div className="text-center mb-5 animate-slide-up">
+          <Link href="/" className="d-flex align-items-center justify-content-center gap-3 mb-4 text-decoration-none hover-tilt">
+            <div className="rounded-3 overflow-hidden d-flex align-items-center justify-content-center shadow-lg border border-white border-opacity-20" style={{ width: "60px", height: "60px", background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+              <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
             </div>
-            <span className="fs-2 d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)' }}>
+            <span className="fs-1 d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.03em' }}>
               <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
             </span>
           </Link>
-          <h1
-            className="fs-2 fw-bold text-dark mb-2"
-            style={{ fontFamily: "var(--font-syne)" }}
-          >
-            Welcome back
-          </h1>
-          <p className="text-secondary">Sign in to your LoadFlow account</p>
+          <h1 className="display-6 fw-bold text-white mb-2" style={{ fontFamily: "var(--font-syne)" }}>Welcome Back</h1>
+          <p className="text-white text-opacity-75 fs-5">Sign in to your secure command center</p>
         </div>
 
-        {/* LOGIN CARD */}
-        <div
-          className="glass-card p-4 p-md-5 rounded-4 shrink-0 mx-auto animate-slide-up delay-100"
-          style={{ width: "100%", maxWidth: "420px" }}
-        >
-          <form onSubmit={handleLogin} className="d-flex flex-column gap-3">
-            {error && (
-              <div className="alert alert-danger py-2 small fw-medium">
-                {error}
+        <div className="glass-card-stitch p-4 p-md-5 rounded-4 mx-auto animate-slide-up delay-100" style={{ width: "100%", maxWidth: "440px" }}>
+          {isLocked ? (
+            /* ── LOCKED ACCOUNT SCREEN ─────────────────────────────────────── */
+            <div className="text-center py-3 animate-fade-in">
+              <div className="mb-4">
+                <div className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                  style={{ width: 72, height: 72, background: 'rgba(239,68,68,0.15)', border: '2px solid rgba(239,68,68,0.3)' }}>
+                  <i className="bi bi-lock-fill text-danger" style={{ fontSize: '2rem' }}></i>
+                </div>
+                <h3 className="text-white fw-bold mb-2" style={{ fontFamily: 'var(--font-syne)' }}>Account Locked</h3>
+                <p className="text-white text-opacity-70 small mb-4">
+                  Too many failed login attempts. Your account has been frozen for security.
+                  Please contact an administrator to unlock it, or submit a password reset request.
+                </p>
+              </div>
+              <div className="d-flex flex-column gap-3">
+                <Link
+                  href="/forgot-password"
+                  className="btn btn-lg w-100 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, var(--accent-orange) 0%, #ff6b00 100%)', border: 'none', color: 'white', padding: '14px' }}
+                >
+                  <i className="bi bi-key-fill"></i> Request Password Reset
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-outline-light btn-lg w-100 fw-bold rounded-3"
+                  onClick={() => setIsLocked(false)}
+                >
+                  <i className="bi bi-arrow-left me-2"></i>Try Again
+                </button>
+              </div>
+              <p className="text-white text-opacity-40 small mt-4">
+                <i className="bi bi-info-circle me-1"></i>
+                An admin can unlock your account from the User Management panel.
+              </p>
+            </div>
+          ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="d-flex flex-column gap-4" noValidate>
+            {serverError && (
+              <div className="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-20 text-danger py-3 small fw-medium">
+                <i className="bi bi-exclamation-triangle-fill me-2"></i>{serverError}
               </div>
             )}
 
-            <div>
-              <label className="form-label text-dark fw-medium small mb-1">
-                Email address
-              </label>
+            <div className="form-group">
+              <label className="form-label text-white text-opacity-90 fw-semibold small mb-2 ms-1">Email Address</label>
               <input
                 type="email"
-                required
                 placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
+                className={`form-control form-control-lg premium-input shadow-none py-3 px-4 rounded-3 focus-within-ring ${errors.email ? 'border-danger' : ''}`}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" }
+                })}
               />
+              {errors.email && <p className="text-danger small mt-1 ms-1"><i className="bi bi-exclamation-circle me-1"></i>{errors.email.message}</p>}
             </div>
 
-            <div>
-              <label className="form-label text-dark fw-medium small mb-1">
-                Password
-              </label>
+            <div className="form-group">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <label className="form-label text-white text-opacity-90 fw-semibold small mb-0 ms-1">Secure Password</label>
+                <Link href="/forgot-password" className="text-decoration-none small fw-medium hover-zoom transition-all" style={{ color: 'var(--accent-orange)' }}>
+                  Forgot access?
+                </Link>
+              </div>
               <input
                 type="password"
-                required
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-control form-control-lg bg-white bg-opacity-75 text-dark border-secondary border-opacity-25 shadow-sm"
+                className={`form-control form-control-lg premium-input shadow-none py-3 px-4 rounded-3 focus-within-ring ${errors.password ? 'border-danger' : ''}`}
+                {...register("password", { required: "Password is required" })}
               />
-              <div className="text-end mt-2">
-                <a
-                  href="#"
-                  className="text-decoration-none small fw-semibold text-secondary hover-zoom d-inline-block"
-                >
-                  Forgot password?
-                </a>
-              </div>
+              {errors.password && <p className="text-danger small mt-1 ms-1"><i className="bi bi-exclamation-circle me-1"></i>{errors.password.message}</p>}
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="btn btn-dark btn-lg w-100 fw-bold mt-2 rounded-3 shadow hover-zoom text-white d-flex align-items-center justify-content-center gap-2"
+              className="btn btn-lg w-100 fw-bold mt-2 rounded-3 shadow-lg hover-float transition-all d-flex align-items-center justify-content-center gap-2"
+              style={{ background: 'linear-gradient(135deg, var(--accent-orange) 0%, #ff6b00 100%)', border: 'none', color: 'white', padding: '14px' }}
             >
               {isLoading ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    aria-hidden="true"
-                  ></span>
-                  <span role="status">Signing in...</span>
-                </>
+                <><span className="spinner-border spinner-border-sm" aria-hidden="true"></span><span role="status">Authenticating...</span></>
               ) : (
-                "Sign in"
+                <><span>Sign In to Dashboard</span><i className="bi bi-arrow-right fs-5"></i></>
               )}
             </button>
           </form>
+          )}
         </div>
 
-        <p className="text-center small text-secondary mt-4 pt-2">
-          {"Don't have an account?"}{" "}
-          <Link
-            href="/register"
-            className="text-dark fw-bold text-decoration-none hover-zoom d-inline-block"
-          >
-            Create one
+        <p className="text-center small text-white text-opacity-60 mt-5 pt-2 animate-fade-in delay-300">
+          {"New to the fleet?"}{" "}
+          <Link href="/register" className="text-white fw-bold text-decoration-none hover-glow-orange border-bottom border-white border-opacity-25 pb-1 ms-1">
+            Create Your Account
           </Link>
         </p>
       </main>
+
+      <style jsx>{`
+        .hover-glow-orange:hover {
+          color: var(--accent-orange) !important;
+          border-color: var(--accent-orange) !important;
+          text-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
+        }
+      `}</style>
     </div>
   );
 }

@@ -10,12 +10,13 @@ const authPaths = ['/login', '/register'];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+
   const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
 
   const token = request.cookies.get('token')?.value;
   let isValidToken = false;
-  let userPayload = null;
+
 
   if (token) {
     try {
@@ -23,15 +24,23 @@ export async function proxy(request: NextRequest) {
         process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod'
       );
       const { payload } = await jwtVerify(token, secret);
-      isValidToken = true;
-      userPayload = payload;
-    } catch (error) {
+      isValidToken = !!payload;
+    } catch {
       isValidToken = false;
     }
   }
 
   // If the user is trying to access a protected route without a valid token
   if (isProtectedPath && !isValidToken) {
+    // If it's an API route, return 401 Unauthorized instead of redirecting
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Please log in to access this resource' },
+        { status: 401 }
+      );
+    }
+    
+    // For page routes, redirect to login
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }

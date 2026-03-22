@@ -1,97 +1,79 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import Load from "@/models/Load";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
-
-async function getUserFromToken(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload;
-  } catch (error) {
-    return null;
-  }
-}
+import Load, { IStop } from "@/models/Load";
+import { getUserFromRequest, requireRole } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const user = await getUserFromToken(req);
+    const user = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Currently showing all loads, but could filter by user.id if Load had a creator field
-    const loads = await Load.find({}).sort({ createdAt: -1 });
+    let filter = {};
+    if (user.role === 'Driver') {
+      filter = { assignedDriverId: user.id };
+    }
+
+    const loads = await Load.find(filter)
+      .populate('assignedDriverId', 'name email')
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 });
+      
     return NextResponse.json(loads);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "An error occurred" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
-    const user = await getUserFromToken(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const user = await getUserFromRequest(req);
+    if (!requireRole(user, ['Admin', 'Dispatcher'])) {
+      return NextResponse.json({ error: "Forbidden: Only Dispatchers and Admins can create loads" }, { status: 403 });
     }
 
+    await dbConnect();
+    console.log("[Loads API] POST request received - Multi-stop support");
     const body = await req.json();
     const { 
       loadNumber,
-      pickupAddress,
-      pickupCity,
-      pickupState,
-      pickupPostalCode,
-      pickupAppointmentNumber,
-      pickupDate,
-      pickupTime,
-      deliveryAddress,
-      deliveryCity,
-      deliveryState,
-      deliveryPostalCode,
-      deliveryAppointmentNumber,
-      deliveryDate,
-      deliveryTime,
+      pickups,
+      deliveries,
       quantity,
       quantityUnit,
       weight,
       weightUnit
     } = body;
 
-    if (!loadNumber || !pickupAddress || !pickupCity || !pickupState || !pickupPostalCode || !deliveryAddress || !deliveryCity || !deliveryState || !deliveryPostalCode || !quantity || !quantityUnit || !weight || !weightUnit) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!loadNumber || !pickups || !Array.isArray(pickups) || pickups.length === 0 || 
+        !deliveries || !Array.isArray(deliveries) || deliveries.length === 0 || 
+        !quantity || !quantityUnit || !weight || !weightUnit) {
+      return NextResponse.json({ error: "Missing or invalid required fields (loadNumber, pickups, deliveries, quantity, weight)" }, { status: 400 });
     }
 
     const newLoad = await Load.create({
       loadNumber,
-      pickupAddress,
-      pickupCity,
-      pickupState,
-      pickupPostalCode,
-      pickupAppointmentNumber,
-      pickupDate: new Date(pickupDate),
-      pickupTime,
-      deliveryAddress,
-      deliveryCity,
-      deliveryState,
-      deliveryPostalCode,
-      deliveryAppointmentNumber,
-      deliveryDate: new Date(deliveryDate),
-      deliveryTime,
+      pickups: pickups.map((p: IStop) => ({
+        ...p,
+        date: new Date(p.date)
+      })),
+      deliveries: deliveries.map((d: IStop) => ({
+        ...d,
+        date: new Date(d.date)
+      })),
       quantity: Number(quantity),
       quantityUnit,
       weight: Number(weight),
       weightUnit,
-      status: 'Pending'
+      createdBy: user!.id,
+      status: 'PENDING'
     });
 
     return NextResponse.json(newLoad, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "An error occurred" }, { status: 500 });
   }
 }
+

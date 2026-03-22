@@ -3,62 +3,92 @@ import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
-    <div className="d-flex flex-column min-vh-100 bg-dashboard-soft">
+    <div className="d-flex flex-column min-vh-100 bg-dashboard-soft scroll-smooth">
       <Navbar />
-      
+
       <main className="flex-grow-1 d-flex flex-column">
         {/* HERO SECTION */}
-        <section 
-          className="position-relative d-flex align-items-center overflow-hidden bg-dark" 
-          style={{ 
-            minHeight: '90vh', 
+        <section
+          className="position-relative d-flex align-items-center overflow-hidden bg-dark"
+          style={{
+            minHeight: "90vh",
             backgroundImage: "url('/truck%20&%20trailer.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
           }}
         >
-          {/* Soft gradient just behind the text to ensure readability, while keeping the rest of the image 100% clear */}
-          <div 
+          <div
             className="position-absolute w-50 h-100 z-0 d-none d-lg-block"
-            style={{ 
-              background: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)',
-              left: 0, top: 0
+            style={{
+              background:
+                "linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
+              left: 0,
+              top: 0,
             }}
           ></div>
-          <div 
+          <div
             className="position-absolute w-100 h-100 z-0 d-block d-lg-none"
-            style={{ 
-              background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
-              left: 0, bottom: 0
+            style={{
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)",
+              left: 0,
+              bottom: 0,
             }}
           ></div>
 
           <div className="container position-relative z-1 py-5 mt-5">
             <div className="row align-items-center">
               <div className="col-12 col-lg-7 text-center text-lg-start pt-5 mt-4">
-                <h1 className="display-4 fw-bolder text-white mb-4 lh-base animate-slide-in-left" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                  <span style={{ color: '#2bdd66' }}>Driven to</span> Deliver. <br className="d-none d-lg-inline"/>
-                  Trusted to <span style={{ color: '#2bdd66' }}>Lead.</span>
+                <h1
+                  className="display-4 fw-bolder text-white mb-4 lh-base animate-slide-in-left"
+                  style={{
+                    fontFamily: "var(--font-syne)",
+                    letterSpacing: "-0.02em",
+                    textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  <span style={{ color: "#2bdd66" }}>Driven to</span> Deliver.{" "}
+                  <br className="d-none d-lg-inline" />
+                  Trusted to <span style={{ color: "#2bdd66" }}>Lead.</span>
                 </h1>
-                
-                <p className="lead text-light mb-5 fw-medium animate-slide-in-left delay-100" style={{ opacity: 0.9, textShadow: '0 2px 5px rgba(0,0,0,0.6)', fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto' }}>
-                  Canada – U.S. Cross Border Trucking,<br/>
+
+                <p
+                  className="lead text-light mb-5 fw-medium animate-slide-in-left delay-100"
+                  style={{
+                    opacity: 0.9,
+                    textShadow: "0 2px 5px rgba(0,0,0,0.6)",
+                    fontSize: "1.25rem",
+                    maxWidth: "600px",
+                    margin: "0 auto",
+                  }}
+                >
+                  Canada – U.S. Cross Border Trucking,
+                  <br />
                   Built on Precision, Power, and Performance
                 </p>
-                
+
                 <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start mt-4 animate-slide-in-left delay-200">
                   <Link
                     href="/register"
                     className="btn btn-lg fw-bold px-5 py-3 shadow-lg d-flex align-items-center justify-content-center hover-zoom text-dark"
-                    style={{ backgroundColor: '#2bdd66', border: 'none', borderRadius: '4px', fontSize: '1.15rem' }}
+                    style={{
+                      backgroundColor: "#2bdd66",
+                      border: "none",
+                      borderRadius: "4px",
+                      fontSize: "1.15rem",
+                    }}
                   >
                     Start for free
                   </Link>
                   <Link
                     href="/dashboard"
                     className="btn btn-outline-light btn-lg fw-bold px-5 py-3 d-flex align-items-center justify-content-center gap-2 hover-zoom"
-                    style={{ borderRadius: '4px', borderWidth: '2px', fontSize: '1.15rem' }}
+                    style={{
+                      borderRadius: "4px",
+                      borderWidth: "2px",
+                      fontSize: "1.15rem",
+                    }}
                   >
                     View dashboard &rarr;
                   </Link>
@@ -68,130 +98,697 @@ export default function Home() {
           </div>
         </section>
 
-        {/* STATISTICS SECTION */}
-        <section className="py-5 border-bottom border-secondary border-opacity-10 bg-white bg-opacity-50 backdrop-blur-md">
-          <div className="container py-4">
-            <div className="row text-center gy-4">
+        {/* HYPER-PREMIUM STATISTICS SECTION */}
+        <section className="py-5 bg-white position-relative overflow-hidden border-bottom border-secondary border-opacity-10">
+          <div className="container py-4 position-relative z-1">
+            <div className="row text-center g-4">
+              {/* Stat 1: Multi-Stop Loads */}
               <div className="col-12 col-sm-6 col-lg-3">
-                <h3 className="display-5 fw-bold text-primary mb-2" style={{ fontFamily: 'var(--font-syne)' }}>48,000+</h3>
-                <p className="text-secondary fw-medium mb-0">Loads delivered</p>
-              </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <h3 className="display-5 fw-bold text-success mb-2" style={{ fontFamily: 'var(--font-syne)' }}>99.4%</h3>
-                <p className="text-secondary fw-medium mb-0">On-time rate</p>
-              </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <h3 className="display-5 fw-bold text-warning mb-2" style={{ fontFamily: 'var(--font-syne)' }}>3,200+</h3>
-                <p className="text-secondary fw-medium mb-0">Active carriers</p>
-              </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <h3 className="display-5 fw-bold text-danger mb-2" style={{ fontFamily: 'var(--font-syne)' }}>$2.1B</h3>
-                <p className="text-secondary fw-medium mb-0">Freight moved</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURES SECTION */}
-        <section className="py-5">
-          <div className="container py-5">
-            <div className="text-center mb-5">
-              <h2 className="display-5 fw-bold text-dark" style={{ fontFamily: 'var(--font-syne)' }}>Everything you need to manage loads</h2>
-            </div>
-
-            <div className="row g-4">
-              {/* Feature 1 */}
-              <div className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg rounded-4 p-4 text-start hover-zoom glass-card" style={{ transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                  <div className="card-body p-2">
-                    <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow" style={{ width: '64px', height: '64px' }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
-                        <path d="M1 3h15v13H1z" />
-                        <path d="M16 8h4l3 3v5h-7V8z" />
-                        <circle cx="5.5" cy="18.5" r="2.5" />
-                        <circle cx="18.5" cy="18.5" r="2.5" />
-                      </svg>
-                    </div>
-                    <h4 className="card-title fw-bold text-dark mb-3">Real-time Tracking</h4>
-                    <p className="card-text text-secondary mb-0" style={{ fontSize: '1.05rem' }}>
-                      Live GPS updates on every load. Know where your freight is at all times.
-                    </p>
+                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                  <div className="icon-orb glow-primary mb-3">
+                    <i className="bi bi-truck text-white fs-3"></i>
                   </div>
-                </div>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg rounded-4 p-4 text-start hover-zoom glass-card" style={{ transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                  <div className="card-body p-2">
-                     <div className="bg-success bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow" style={{ width: '64px', height: '64px' }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                        <line x1="12" y1="22.08" x2="12" y2="12" />
-                      </svg>
-                    </div>
-                    <h4 className="card-title fw-bold text-dark mb-3">Smart Dispatch</h4>
-                    <p className="card-text text-secondary mb-0" style={{ fontSize: '1.05rem' }}>
-                      AI-powered matching connects your loads with the best available carriers.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg rounded-4 p-4 text-start hover-zoom glass-card" style={{ transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                  <div className="card-body p-2">
-                     <div className="bg-danger bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow" style={{ width: '64px', height: '64px' }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
-                        <rect x="2" y="5" width="20" height="14" rx="2" />
-                        <line x1="2" y1="10" x2="22" y2="10" />
-                      </svg>
-                    </div>
-                    <h4 className="card-title fw-bold text-dark mb-3">Instant Payments</h4>
-                    <p className="card-text text-secondary mb-0" style={{ fontSize: '1.05rem' }}>
-                      Automated invoicing and same-day payments for delivered loads.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CALL TO ACTION SECTION */}
-        <section className="py-5 text-center border-top border-secondary border-opacity-10 bg-white bg-opacity-50 backdrop-blur-md">
-          <div className="container py-5">
-             <div className="row justify-content-center py-4">
-               <div className="col-md-8">
-                  <h2 className="display-5 fw-bold text-dark mb-3" style={{ fontFamily: 'var(--font-syne)' }}>
-                    Ready to streamline your operations?
-                  </h2>
-                  <p className="lead text-secondary mb-5 fw-medium">
-                    Join thousands of freight professionals already using LoadFlow.
+                  <h3 className="stat-value-premium display-6 mb-1">
+                    5000+
+                  </h3>
+                  <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
+                    Multi-Stop Loads
                   </p>
+                </div>
+              </div>
+              {/* Stat 2: Sync Rate */}
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                  <div className="icon-orb glow-success mb-3">
+                    <i className="bi bi-arrow-repeat text-white fs-3"></i>
+                  </div>
+                  <h3 className="stat-value-premium display-6 mb-1">
+                    99.9%
+                  </h3>
+                  <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
+                    Board Sync Rate
+                  </p>
+                </div>
+              </div>
+              {/* Stat 3: Verified Drivers */}
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                  <div className="icon-orb glow-warning mb-3">
+                    <i className="bi bi-person-check text-white fs-3"></i>
+                  </div>
+                  <h3 className="stat-value-premium display-6 mb-1">
+                    30
+                  </h3>
+                  <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
+                    Certified Drivers
+                  </p>
+                </div>
+              </div>
+              {/* Stat 4: Digital POD Value */}
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                  <div className="icon-orb glow-danger mb-3">
+                    <i className="bi bi-file-earmark-check text-white fs-3"></i>
+                  </div>
+                  <h3 className="stat-value-premium display-6 mb-1">
+                    $1.2B
+                  </h3>
+                  <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
+                    Digital POD Value
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HYPER-PREMIUM FEATURES SECTION */}
+        <section id="features" className="py-5 bg-white">
+          <div className="container py-5">
+            <div className="text-center mb-5 max-w-700 mx-auto">
+              <h6
+                className="text-success fw-bold text-uppercase tracking-widest mb-3"
+                style={{ fontSize: "0.9rem" }}
+              >
+                Tailored Features
+              </h6>
+              <h2
+                className="display-5 fw-bold text-dark mb-4"
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Everything you need to lead.
+              </h2>
+              <p className="lead text-secondary">
+                Built for the high-stakes demands of North American freight
+                movement.
+              </p>
+            </div>
+
+            <div className="row g-4 pt-4">
+              {/* Feature 1: Multi-Stop Dispatching */}
+              <div className="col-md-4">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                  <div className="card-body p-2">
+                    <div className="icon-orb glow-primary mb-4 shadow-primary-glow">
+                      <i className="bi bi-layers-half text-white fs-2"></i>
+                    </div>
+                    <h4
+                      className="card-title fw-bold text-dark mb-3"
+                      style={{ fontFamily: "var(--font-syne)" }}
+                    >
+                      Multi-Stop Dispatching
+                    </h4>
+                    <p
+                      className="card-text text-secondary mb-0"
+                      style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
+                    >
+                      Effortless management of complex freight with unlimited
+                      pickup and delivery stations per load. Scale your routes
+                      without limits.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 2: Real-Time Sync */}
+              <div className="col-md-4">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                  <div className="card-body p-2">
+                    <div className="icon-orb glow-success mb-4 shadow-success-glow">
+                      <i className="bi bi-arrow-repeat text-white fs-2"></i>
+                    </div>
+                    <h4
+                      className="card-title fw-bold text-dark mb-3"
+                      style={{ fontFamily: "var(--font-syne)" }}
+                    >
+                      Real-Time Board Sync
+                    </h4>
+                    <p
+                      className="card-text text-secondary mb-0"
+                      style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
+                    >
+                      High-velocity data synchronization across your entire
+                      fleet. Instant dashboard updates keep dispatchers and
+                      drivers perfectly in sync.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 3: Digital POD */}
+              <div className="col-md-4">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                  <div className="card-body p-2">
+                    <div className="icon-orb glow-info mb-4 shadow-info-glow">
+                      <i className="bi bi-file-earmark-check text-white fs-2"></i>
+                    </div>
+                    <h4
+                      className="card-title fw-bold text-dark mb-3"
+                      style={{ fontFamily: "var(--font-syne)" }}
+                    >
+                      Digital POD Control
+                    </h4>
+                    <p
+                      className="card-text text-secondary mb-0"
+                      style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
+                    >
+                      Secure document management with instant Proof of Delivery
+                      (POD) uploads and verification. Accelerate your billing
+                      cycle from the road.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HYPER-PREMIUM SOLUTIONS SECTION */}
+        <section
+          id="solutions"
+          className="py-5 bg-dark text-white position-relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #0a0f1e 0%, #050814 100%)",
+          }}
+        >
+          {/* Animated Nebula Glows */}
+          <div className="position-absolute top-0 start-0 w-100 h-100 z-0 opacity-50">
+            <div
+              className="position-absolute top-0 start-0 w-50 h-50 rounded-circle"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(43, 221, 102, 0.15) 0%, transparent 70%)",
+                transform: "translate(-20%, -20%)",
+                filter: "blur(100px)",
+              }}
+            ></div>
+            <div
+              className="position-absolute bottom-0 end-0 w-50 h-50 rounded-circle"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)",
+                transform: "translate(20%, 20%)",
+                filter: "blur(100px)",
+              }}
+            ></div>
+          </div>
+
+          <div className="container py-5 position-relative z-1">
+            <div className="row align-items-center g-5">
+              <div className="col-lg-6">
+                <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-success bg-opacity-10 border border-success border-opacity-20 mb-4">
+                  <span
+                    className="bg-success rounded-circle"
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      boxShadow: "0 0 10px var(--accent-emerald)",
+                    }}
+                  ></span>
+                  <p
+                    className="text-success fw-bold text-uppercase small tracking-widest mb-0"
+                    style={{ fontSize: "0.7rem" }}
+                  >
+                    Global Infrastructure
+                  </p>
+                </div>
+
+                <h2
+                  className="display-4 fw-bold mb-4 pe-lg-5"
+                  style={{ fontFamily: "var(--font-syne)", lineHeight: "1.2" }}
+                >
+                  Tailored for <span style={{ color: "#2bdd66" }}>Freight</span>{" "}
+                  Momentum
+                </h2>
+
+                <p
+                  className="lead text-white text-opacity-70 mb-5 pe-lg-5"
+                  style={{ fontSize: "1.25rem" }}
+                >
+                  We provide the mission-critical infrastructure for modern load
+                  management, from multi-stop routing to secure digital
+                  proof-of-delivery.
+                </p>
+
+                <div className="d-flex flex-column gap-4">
+                  <div
+                    className="d-flex align-items-start gap-4 p-4 rounded-4 border border-white border-opacity-5 hover-float transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      backdropFilter: "blur(20px)",
+                    }}
+                  >
+                    <div className="shrink-0 bg-success bg-opacity-10 rounded-3 p-3 border border-success border-opacity-20 shadow-glow-emerald">
+                      <i className="bi bi-diagram-3 text-success fs-3"></i>
+                    </div>
+                    <div>
+                      <h5 className="fw-bold mb-2">
+                        Infinite Route Complexity
+                      </h5>
+                      <p className="text-white text-opacity-60 mb-0 small">
+                        Scale your operations with support for complex multi-leg
+                        journeys and unlimited stop-off segments.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="d-flex align-items-start gap-4 p-4 rounded-4 border border-white border-opacity-5 hover-float transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      backdropFilter: "blur(20px)",
+                    }}
+                  >
+                    <div className="shrink-0 bg-info bg-opacity-10 rounded-3 p-3 border border-info border-opacity-20 text-info">
+                      <i className="bi bi-map fs-3"></i>
+                    </div>
+                    <div>
+                      <h5 className="fw-bold mb-2 text-white">
+                        Intelligent Region Mapping
+                      </h5>
+                      <p className="text-white text-opacity-60 mb-0 small">
+                        Precision targeting for North American freight with
+                        dynamic city and province-specific database
+                        intelligence.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="d-flex align-items-start gap-4 p-4 rounded-4 border border-white border-opacity-5 hover-float transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      backdropFilter: "blur(20px)",
+                    }}
+                  >
+                    <div className="shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 border border-warning border-opacity-20 text-warning">
+                      <i className="bi bi-people fs-3"></i>
+                    </div>
+                    <div>
+                      <h5 className="fw-bold mb-2 text-white">
+                        Role-Based Freight Control
+                      </h5>
+                      <p className="text-white text-opacity-60 mb-0 small">
+                        Unified command structure with dedicated Admin,
+                        Dispatcher, and Driver permission hierarchies.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-lg-6">
+                <div className="position-relative">
+                  <div
+                    className="position-absolute translate-middle top-50 start-50 w-75 h-75 bg-success bg-opacity-20 rounded-circle z-0"
+                    style={{ filter: "blur(100px)" }}
+                  ></div>
+
+                  <div className="rounded-5 overflow-hidden shadow-2xl border border-white border-opacity-20 z-1 position-relative hover-tilt ripple-effect">
+                    <img
+                      src="/truck%20&%20trailer.png"
+                      alt="Logistics Solution"
+                      className="img-fluid"
+                      style={{
+                        transform: "scale(1.1)",
+                        filter: "brightness(0.9) contrast(1.1)",
+                      }}
+                    />
+
+                    <div
+                      className="position-absolute bottom-0 start-0 w-100 p-4"
+                      style={{
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                      }}
+                    >
+                      <div
+                        className="d-flex align-items-center gap-3 p-3 rounded-4 border border-white border-opacity-10"
+                        style={{
+                          background: "rgba(255,255,255,0.1)",
+                          backdropFilter: "blur(10px)",
+                        }}
+                      >
+                        <div
+                          className="shrink-0 bg-success rounded-circle p-2 d-flex align-items-center justify-content-center"
+                          style={{ width: "35px", height: "35px" }}
+                        >
+                          <i className="bi bi-graph-up-arrow text-white small"></i>
+                        </div>
+                        <div>
+                          <p
+                            className="text-white text-opacity-60 mb-0"
+                            style={{ fontSize: "0.65rem" }}
+                          >
+                            Border Efficiency
+                          </p>
+                          <h6 className="fw-bold text-white mb-0 small">
+                            +32% Faster Clearing
+                          </h6>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HYPER-PREMIUM PRICING SECTION */}
+        <section
+          id="pricing"
+          className="py-5 bg-dashboard-soft position-relative overflow-hidden"
+        >
+          {/* Subtle background texture */}
+          <div
+            className="position-absolute top-0 start-0 w-100 h-100 opacity-05 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
+            }}
+          ></div>
+
+          <div className="container py-5 position-relative z-1">
+            <div className="text-center mb-5 max-w-700 mx-auto">
+              <h2
+                className="display-5 fw-bold text-dark mb-3"
+                style={{ fontFamily: "var(--font-syne)" }}
+              >
+                Simple, Transparent Pricing
+              </h2>
+              <p className="lead text-secondary">
+                No hidden fees. Just direct, high-octane logistics power.
+              </p>
+            </div>
+
+            <div className="row g-4 justify-content-center pt-4">
+              {/* Carrier Basic */}
+              <div className="col-md-4">
+                <div className="card h-100 border-0 shadow-lg rounded-5 overflow-hidden glass-card transition-all hover-float">
+                  <div className="p-5 bg-white bg-opacity-50 border-bottom text-center">
+                    <h5 className="fw-bold text-secondary text-uppercase tracking-widest small mb-3">
+                      Starter
+                    </h5>
+                    <h3 className="fw-bold text-dark">Carrier Basic</h3>
+                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
+                      <span className="display-5 fw-bold text-dark">$0</span>
+                      <span className="text-secondary fw-semibold">/mo</span>
+                    </div>
+                  </div>
+                  <div className="card-body p-5 d-flex flex-column">
+                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5">
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        10 Active Dispatch Loads
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Standard Route Tracking
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Email Support
+                      </li>
+                    </ul>
+                    <Link
+                      href="/register"
+                      className="btn btn-outline-dark w-100 fw-bold py-3 mt-auto rounded-3"
+                    >
+                      Get Started
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dispatcher Pro */}
+              <div className="col-md-4">
+                <div
+                  className="card h-100 border-0 shadow-2xl rounded-5 overflow-hidden z-1 position-relative transition-all hover-float"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #111827 0%, #050814 100%)",
+                    transform: "scale(1.08)",
+                  }}
+                >
+                  <div className="position-absolute top-0 end-0 p-3">
+                    <span
+                      className="badge bg-success text-dark fw-bold px-3 py-2 rounded-3"
+                      style={{ boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)" }}
+                    >
+                      RECOMMENDED
+                    </span>
+                  </div>
+                  <div className="p-5 border-bottom border-white border-opacity-10 text-center mt-3">
+                    <h5 className="fw-bold text-success text-uppercase tracking-widest small mb-3">
+                      Scale
+                    </h5>
+                    <h3 className="fw-bold text-white">Dispatcher Pro</h3>
+                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
+                      <span className="display-5 fw-bold text-white">$49</span>
+                      <span className="text-white text-opacity-50 fw-semibold">
+                        /mo
+                      </span>
+                    </div>
+                  </div>
+                  <div className="card-body p-5 d-flex flex-column">
+                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5 text-white">
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Unlimited Dispatch Board
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Real-Time Board Sync
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Digital POD Management
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Priority Fleet Support
+                      </li>
+                    </ul>
+                    <Link
+                      href="/register"
+                      className="btn btn-primary w-100 fw-bold py-3 mt-auto rounded-3 shadow-success-glow border-0"
+                      style={{ backgroundColor: "#2bdd66", color: "#000" }}
+                    >
+                      Go Pro Now
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enterprise */}
+              <div className="col-md-4">
+                <div className="card h-100 border-0 shadow-lg rounded-5 overflow-hidden glass-card transition-all hover-float">
+                  <div className="p-5 bg-white bg-opacity-50 border-bottom text-center">
+                    <h5 className="fw-bold text-secondary text-uppercase tracking-widest small mb-3">
+                      Custom
+                    </h5>
+                    <h3 className="fw-bold text-dark">Enterprise</h3>
+                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
+                      <span className="display-5 fw-bold text-dark">
+                        Custom
+                      </span>
+                    </div>
+                  </div>
+                  <div className="card-body p-5 d-flex flex-column">
+                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5">
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Fleet Systems API
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Dedicated Success Team
+                      </li>
+                      <li className="d-flex align-items-center gap-3">
+                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
+                        Advanced Region Mapping
+                      </li>
+                    </ul>
+                    <button className="btn btn-outline-dark w-100 fw-bold py-3 mt-auto rounded-3">
+                      Request Demo
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HYPER-PREMIUM CALL TO ACTION */}
+        <section className="py-5 position-relative overflow-hidden bg-dark">
+          {/* Animated Background Gradient */}
+          <div className="position-absolute top-50 start-50 translate-middle w-100 h-100 z-0 bg-dark">
+            <div
+              className="position-absolute top-0 start-0 w-100 h-100 opacity-20"
+              style={{
+                background:
+                  "radial-gradient(circle at 70% 30%, rgba(43, 221, 102, 0.2), transparent 50%), radial-gradient(circle at 30% 70%, rgba(99, 102, 241, 0.1), transparent 50%)",
+              }}
+            ></div>
+          </div>
+
+          <div className="container py-5 position-relative z-1 text-center">
+            <div className="row justify-content-center py-5">
+              <div className="col-md-9 col-lg-7">
+                <h2
+                  className="display-4 fw-bold text-white mb-4"
+                  style={{ fontFamily: "var(--font-syne)", lineHeight: "1.2" }}
+                >
+                  Ready to transform your{" "}
+                  <span className="text-gradient-emerald">moving parts?</span>
+                </h2>
+                <p
+                  className="lead text-white text-opacity-60 mb-5 fw-medium mx-auto"
+                  style={{ maxWidth: "480px" }}
+                >
+                  Join 3,200+ carriers leveraging the power of AI-driven
+                  cross-border logistics.
+                </p>
+                <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
                   <Link
                     href="/register"
-                    className="btn btn-dark btn-lg fw-semibold px-5 py-3 rounded-3 shadow-sm"
+                    className="btn btn-lg fw-bold px-5 py-3 rounded-3 shadow-success-glow border-0 hover-zoom"
+                    style={{
+                      backgroundColor: "#2bdd66",
+                      color: "#000",
+                      fontSize: "1.2rem",
+                    }}
                   >
-                    Create free account
+                    Create Free Account
                   </Link>
-               </div>
-             </div>
+                  <Link
+                    href="/login"
+                    className="btn btn-outline-light btn-lg fw-bold px-5 py-3 rounded-3 border-2 hover-zoom"
+                    style={{ fontSize: "1.2rem" }}
+                  >
+                    Sign In &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white bg-opacity-75 backdrop-blur-md border-top border-secondary border-opacity-10 py-4 mt-auto">
-        <div className="container d-flex flex-column flex-md-row align-items-center justify-content-between">
-          <div className="fs-5 text-dark mb-2 mb-md-0 d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)' }}>
-            <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
+      <footer className="bg-dark border-top border-white border-opacity-05 py-5 mt-auto text-white">
+        <div className="container px-4">
+          <div className="row g-5">
+            <div className="col-lg-8">
+              <div
+                className="fs-4 fw-bold mb-4 d-flex align-items-center"
+                style={{ fontFamily: "var(--font-syne)" }}
+              >
+                <span style={{ color: "#fff" }}>Load</span>
+                <span style={{ color: "#2bdd66" }}>Flow</span>
+              </div>
+              <p className="text-white text-opacity-50 pe-lg-5 mb-4">
+                The world&apos;s most advanced cross-border logistics platform.
+                Precision. Power. Performance.
+              </p>
+              <div className="d-flex gap-3">
+                <a
+                  href="#"
+                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
+                  style={{ width: "36px", height: "36px" }}
+                >
+                  <i className="bi bi-twitter"></i>
+                </a>
+                <a
+                  href="#"
+                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
+                  style={{ width: "36px", height: "36px" }}
+                >
+                  <i className="bi bi-linkedin"></i>
+                </a>
+                <a
+                  href="#"
+                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
+                  style={{ width: "36px", height: "36px" }}
+                >
+                  <i className="bi bi-facebook"></i>
+                </a>
+              </div>
+            </div>
+            <div className="col-6 col-md-4 col-lg-4">
+              <h6 className="fw-bold mb-4 text-white">Platform</h6>
+              <ul className="list-unstyled d-flex flex-column gap-2 text-white text-opacity-50 small">
+                <li>
+                  <a
+                    href="#features"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#solutions"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Solutions
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#pricing"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Pricing
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/api-docs"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    API Reference
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/login"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Sign In
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/register"
+                    className="text-reset text-decoration-none hover-emerald"
+                  >
+                    Create Account
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
-          <p className="text-secondary small mb-0 fw-medium">
-            &copy; 2026 LoadFlow Inc. All rights reserved.
-          </p>
+          <div className="border-top border-white border-opacity-05 mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <p className="text-white text-opacity-40 small mb-0 fw-medium">
+              &copy; 2026 LoadFlow Inc. All rights reserved.
+            </p>
+            <div className="d-flex gap-4 small text-white text-opacity-40">
+              <span className="text-reset">Precision. Power. Performance.</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

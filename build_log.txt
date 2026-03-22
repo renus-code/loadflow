@@ -1,0 +1,20 @@
+Γû▓ Next.js 16.2.1 (Turbopack)
+- Environments: .env.local
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.5s
+  Running TypeScript ...
+Failed to type check.
+
+./app/api/loads/[id]/route.ts:61:9
+Type error: 'user' is possibly 'null'.
+
+  59 |   try {
+  60 |     const user = await getUserFromRequest(req);
+> 61 |     if (user.role !== 'Admin') {
+     |         ^
+  62 |       return NextResponse.json({ error: "Forbidden: Only Admins can delete loads" }, { sta...
+  63 |     }
+  64 |
+Next.js build worker exited with code: 1 and signal: null

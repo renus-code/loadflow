@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
+import DispatchTable from "@/components/DispatchTable";
+import LoadDetailsModal from "@/components/LoadDetailsModal";
+import { User } from "@/context/AuthContext";
+import { ILoad } from "@/models/Load";
 
 // ─── STATE / PROVINCE DATA ────────────────────────────────────────────────────
 const US_STATES: [string, string][] = [
@@ -24,7 +29,6 @@ const CA_PROVINCES: [string, string][] = [
   ['NT','Northwest Territories'],['NU','Nunavut'],['YT','Yukon'],
 ];
 
-// Maps code OR full name (lowercase) → { name, country } for API lookup
 const STATE_MAP = new Map<string, { name: string; country: string }>();
 US_STATES.forEach(([code, name]) => {
   STATE_MAP.set(code.toUpperCase(), { name, country: 'United States' });
@@ -35,20 +39,15 @@ CA_PROVINCES.forEach(([code, name]) => {
   STATE_MAP.set(name.toLowerCase(), { name, country: 'Canada' });
 });
 
-// Resolve a typed value (code or full name) → STATE_MAP entry
 function resolveState(input: string) {
   if (!input) return undefined;
-  // Try exact code match first (e.g. "IL"), then by full name
   return STATE_MAP.get(input.toUpperCase()) ?? STATE_MAP.get(input.toLowerCase());
 }
 
-// ─── CITY FETCH HOOK ──────────────────────────────────────────────────────────
 function useCities(stateInput: string) {
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
   const fetchCities = useCallback(async (input: string) => {
-    // Strip " — Full Name" suffix if user selected a datalist option like "IL — Illinois"
     const code = input.includes(' — ') ? input.split(' — ')[0].trim() : input;
     const info = resolveState(code);
     if (!info) { setCities([]); return; }
@@ -61,96 +60,41 @@ function useCities(stateInput: string) {
       });
       const json = await res.json();
       setCities(json?.data ?? []);
-    } catch {
-      setCities([]);
-    } finally {
-      setLoading(false);
-    }
+    } catch { setCities([]); } finally { setLoading(false); }
   }, []);
-
   useEffect(() => {
     if (stateInput) fetchCities(stateInput);
     else setCities([]);
   }, [stateInput, fetchCities]);
-
   return { cities, loading };
 }
 
-// ─── REUSABLE FIELD STYLE ─────────────────────────────────────────────────────
-const FIELD = "form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50";
+const FIELD = "form-control rounded-4 p-3 border border-white border-opacity-50 bg-white bg-opacity-60 backdrop-blur-sm shadow-sm focus-ring-primary transition-all";
 
-// All states + provinces as flat list for filtering
 const ALL_REGIONS: [string, string, string][] = [
   ...US_STATES.map(([c, n]): [string, string, string] => [c, n, '🇺🇸']),
   ...CA_PROVINCES.map(([c, n]): [string, string, string] => [c, n, '🇨🇦']),
 ];
 
-// ─── STATE/PROVINCE CUSTOM COMBOBOX ─────────────────────────────────────────────
 function StateProvinceSelect({ value, onChange, id }: { value: string; onChange: (v: string) => void; id?: string }) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  // Keep query in sync when parent resets the value (e.g. form reset)
   useEffect(() => { setQuery(value); }, [value]);
-
-  // Close on outside click
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  // Filter: code starts with query (case-insensitive) OR full name starts with query
   const q = query.trim().toUpperCase();
-  const filtered = q.length === 0 ? ALL_REGIONS : ALL_REGIONS.filter(
-    ([code, name]) => code.startsWith(q) || name.toUpperCase().startsWith(q)
-  );
-
-  const select = (code: string) => {
-    onChange(code);
-    setQuery(code);
-    setOpen(false);
-  };
-
+  const filtered = q.length === 0 ? ALL_REGIONS : ALL_REGIONS.filter(([code, name]) => code.startsWith(q) || name.toUpperCase().startsWith(q));
   return (
     <div ref={ref} className="position-relative">
-      <input
-        id={id}
-        required
-        autoComplete="off"
-        spellCheck={false}
-        className={FIELD}
-        value={query}
-        placeholder="Type code (IL, ON…) or province name"
-        onChange={e => {
-          const val = e.target.value.toUpperCase();
-          setQuery(val);
-          onChange(val); // keep parent in sync while typing
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-      />
+      <input id={id} required autoComplete="off" spellCheck={false} className={FIELD} value={query} placeholder="State/Province (e.g. ON, IL)" onChange={e => { setQuery(e.target.value.toUpperCase()); onChange(e.target.value.toUpperCase()); setOpen(true); }} onFocus={() => setOpen(true)} />
       {open && filtered.length > 0 && (
-        <ul
-          className="list-unstyled position-absolute w-100 bg-white border border-secondary border-opacity-10 rounded-4 shadow mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}
-        >
+        <ul className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1" style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}>
           {filtered.map(([code, name, flag]) => (
-            <li key={code}>
-              <button
-                type="button"
-                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2"
-                style={{ borderRadius: 0 }}
-                onMouseDown={() => select(code)}
-              >
-                <span className="fw-bold text-primary" style={{ minWidth: '2rem' }}>{code}</span>
-                <span className="text-secondary">{name}</span>
-                <span className="ms-auto">{flag}</span>
-              </button>
-            </li>
+            <li key={code}><button type="button" className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2" onMouseDown={() => { onChange(code); setQuery(code); setOpen(false); }}><span className="fw-bold text-primary" style={{ minWidth: '2rem' }}>{code}</span><span className="text-secondary">{name}</span><span className="ms-auto">{flag}</span></button></li>
           ))}
         </ul>
       )}
@@ -158,623 +102,440 @@ function StateProvinceSelect({ value, onChange, id }: { value: string; onChange:
   );
 }
 
-// ─── CITY CUSTOM COMBOBOX ──────────────────────────────────────────────────────────
 function CitySelect({ stateCode, value, onChange, id }: { stateCode: string; value: string; onChange: (v: string) => void; id?: string }) {
   const { cities, loading } = useCities(stateCode);
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => { setQuery(value); }, [value]);
-
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  // Filter: city name starts with typed query
   const q = query.trim().toLowerCase();
   const filtered = cities.filter(city => city.toLowerCase().startsWith(q));
-
-  const select = (city: string) => {
-    onChange(city);
-    setQuery(city);
-    setOpen(false);
-  };
-
-  const placeholder = loading
-    ? 'Loading cities…'
-    : stateCode
-    ? 'Type or select city…'
-    : 'Select state / province first…';
-
   return (
     <div ref={ref} className="position-relative">
-      <input
-        id={id}
-        required
-        autoComplete="off"
-        className={FIELD}
-        value={query}
-        placeholder={placeholder}
-        disabled={loading}
-        onChange={e => {
-          setQuery(e.target.value);
-          onChange(e.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-      />
+      <input id={id} required autoComplete="off" className={FIELD} value={query} placeholder={loading ? 'Loading...' : 'City'} disabled={loading} onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} />
       {open && filtered.length > 0 && (
-        <ul
-          className="list-unstyled position-absolute w-100 bg-white border border-secondary border-opacity-10 rounded-4 shadow mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}
-        >
-          {filtered.map(city => (
-            <li key={city}>
-              <button
-                type="button"
-                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium"
-                style={{ borderRadius: 0 }}
-                onMouseDown={() => select(city)}
-              >
-                {city}
-              </button>
-            </li>
-          ))}
+        <ul className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1" style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}>
+          {filtered.map(city => (<li key={city}><button type="button" className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium" onMouseDown={() => { onChange(city); setQuery(city); setOpen(false); }}>{city}</button></li>))}
         </ul>
       )}
     </div>
   );
 }
 
-// ─── LOCATION BLOCK (shared by pickup + delivery) ─────────────────────────────
-interface LocationBlockProps {
-  prefix: 'pickup' | 'delivery';
-  data: Record<string, string>;
-  onChange: (field: string, value: string) => void;
-}
-
-function LocationBlock({ prefix, data, onChange }: LocationBlockProps) {
-  const P = (f: string) => `${prefix}${f.charAt(0).toUpperCase() + f.slice(1)}`;
-  const isPickup = prefix === 'pickup';
-
+function LocationBlock({ type, index, data, onChange, onRemove, isRemovable }: { type: 'pickups' | 'deliveries', index: number, data: any, onChange: any, onRemove: any, isRemovable: boolean }) {
+  const isPickup = type === 'pickups';
   return (
-    <div className="d-flex flex-column gap-3">
-      {/* State / Province — first */}
-      <div>
-        <label className="small fw-semibold text-secondary mb-1 px-1">State / Province *</label>
-        <StateProvinceSelect
-          id={P('state')}
-          value={data[P('state')]}
-          onChange={v => { onChange(P('state'), v); onChange(P('city'), ''); }}
-        />
+    <div className={`card border-0 shadow-sm rounded-4 p-4 bg-white bg-opacity-70 backdrop-blur-sm stop-card h-100 position-relative transition-all`} style={{ borderLeft: `6px solid ${isPickup ? '#6366f1' : '#10b981'}` }}>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="badge rounded-pill bg-light text-primary fw-bold px-3 py-2 border shadow-sm stop-label d-flex align-items-center gap-2">
+          {type === 'pickups' ? '📦 PICKUP' : '🚚 DELIVERY'} #{index + 1}
+        </span>
+        {isRemovable && (
+          <button type="button" className="btn btn-link text-danger p-0 text-decoration-none opacity-50 hover-opacity-100 transition-all" onClick={onRemove} title="Remove Stop">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        )}
       </div>
-
-      {/* City — depends on state */}
-      <div>
-        <label className="small fw-semibold text-secondary mb-1 px-1">City *</label>
-        <CitySelect
-          id={P('city')}
-          stateCode={data[P('state')]}
-          value={data[P('city')]}
-          onChange={v => onChange(P('city'), v)}
-        />
-      </div>
-
-      {/* Street Address */}
-      <div>
-        <label className="small fw-semibold text-secondary mb-1 px-1">Street Address *</label>
-        <input required className={FIELD} value={data[P('address')]} onChange={e => onChange(P('address'), e.target.value)}
-          placeholder={isPickup ? '123 Origin St' : '456 Destination Blvd'} />
-      </div>
-
-      {/* Postal + Appointment # on same row */}
-      <div className="row g-2">
-        <div className="col-5">
-          <label className="small fw-semibold text-secondary mb-1 px-1">Postal Code *</label>
-          <input required className={FIELD} value={data[P('postalCode')]} onChange={e => onChange(P('postalCode'), e.target.value)}
-            placeholder={isPickup ? 'M5V 2L7' : '75201'} />
+      <div className="d-flex flex-column gap-3">
+        <div className="row g-3">
+          <div className="col-12"><label htmlFor={`${type}-${index}-address`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">Address *</label><input id={`${type}-${index}-address`} required className={FIELD} value={data.address} onChange={e => onChange(type, index, 'address', e.target.value)} placeholder="123 Industrial Way" /></div>
+          <div className="col-md-6"><label htmlFor={`${type}-${index}-state`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">State / Province *</label><StateProvinceSelect id={`${type}-${index}-state`} value={data.state} onChange={v => { onChange(type, index, 'state', v); onChange(type, index, 'city', ''); }} /></div>
+          <div className="col-md-6"><label htmlFor={`${type}-${index}-city`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">City *</label><CitySelect id={`${type}-${index}-city`} stateCode={data.state} value={data.city} onChange={v => onChange(type, index, 'city', v)} /></div>
         </div>
-        <div className="col-7">
-          <label className="small fw-semibold text-secondary mb-1 px-1">Appointment # *</label>
-          <input required className={FIELD} value={data[P('appointmentNumber')]} onChange={e => onChange(P('appointmentNumber'), e.target.value)}
-            placeholder={isPickup ? 'P-12345' : 'D-67890'} />
+        <div className="row g-3">
+          <div className="col-md-5"><label className="small fw-bold text-secondary mb-1 opacity-75">Postal Code *</label><input required className={FIELD} value={data.postalCode} onChange={e => onChange(type, index, 'postalCode', e.target.value)} placeholder="M5V 2L7" /></div>
+          <div className="col-md-7"><label className="small fw-bold text-secondary mb-1 opacity-75">Appt / PO # *</label><input required className={FIELD} value={data.appointmentNumber} onChange={e => onChange(type, index, 'appointmentNumber', e.target.value)} placeholder="A-998811" /></div>
         </div>
-      </div>
-
-      {/* Date + Time */}
-      <div className="row g-2">
-        <div className="col-7">
-          <label className="small fw-semibold text-secondary mb-1 px-1">{isPickup ? 'Pickup' : 'Delivery'} Date *</label>
-          <input required type="date" className={FIELD} value={data[P('date')]} onChange={e => onChange(P('date'), e.target.value)} />
-        </div>
-        <div className="col-5">
-          <label className="small fw-semibold text-secondary mb-1 px-1">Time *</label>
-          <input required type="time" className={FIELD} value={data[P('time')]} onChange={e => onChange(P('time'), e.target.value)} />
+        <div className="row g-3">
+          <div className="col-md-7"><label className="small fw-bold text-secondary mb-1 opacity-75">Date *</label><input required type="date" className={FIELD} value={data.date} onChange={e => onChange(type, index, 'date', e.target.value)} /></div>
+          <div className="col-md-5"><label className="small fw-bold text-secondary mb-1 opacity-75">Time *</label><input required type="time" className={FIELD} value={data.time} onChange={e => onChange(type, index, 'time', e.target.value)} /></div>
         </div>
       </div>
     </div>
   );
 }
 
-// Update the interface to match MongoDB model
+// ─── INTERFACES ───────────────────────────────────────────────────────────────
+interface Stop { address: string; city: string; state: string; postalCode: string; appointmentNumber: string; date: string; time: string; status: string; }
 interface Load {
-  _id: string;
-  loadNumber: string;
-  pickupAddress: string;
-  pickupCity: string;
-  pickupState: string;
-  pickupPostalCode: string;
-  pickupAppointmentNumber: string;
-  pickupDate: string;
-  pickupTime: string;
-  deliveryAddress: string;
-  deliveryCity: string;
-  deliveryState: string;
-  deliveryPostalCode: string;
-  deliveryAppointmentNumber: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  quantity: number;
-  quantityUnit: string;
-  weight: number;
-  weightUnit: string;
-  status: 'Pending' | 'Assigned' | 'Transit' | 'In Transit' | 'Delivered';
-  createdAt: string;
+  _id: string; loadNumber: string; pickups: Stop[]; deliveries: Stop[]; quantity: number; quantityUnit: string; weight: number; weightUnit: string;
+  status: "PENDING" | "IN_TRANSIT" | "PICKED_UP" | "DELIVERED" | "CANCELLED" | "COMPLETED";
+  createdAt: string; trailerNumber?: string; truckNumber?: string; assignedDriverId?: { _id: string; name: string };
+  podUrl?: string;
 }
 
-function formatStatus(status: string) {
-  const baseClasses = "badge rounded-pill py-2 px-3 fw-bold border shadow-sm transition-all hover-glow";
-  switch (status) {
-    case "Transit":
-    case "In Transit":
-      return (
-        <span className={`${baseClasses} bg-info bg-opacity-10 text-info border-info border-opacity-25`}>
-          <span className="d-inline-block rounded-circle bg-info me-2 pulse-slow" style={{ width: '8px', height: '8px' }}></span>
-          In Transit
-        </span>
-      );
-    case "Delivered":
-      return (
-        <span className={`${baseClasses} bg-success bg-opacity-10 text-success border-success border-opacity-25`}>
-          <span className="d-inline-block rounded-circle bg-success me-2" style={{ width: '8px', height: '8px' }}></span>
-          Delivered
-        </span>
-      );
-    case "Pending":
-      return (
-        <span className={`${baseClasses} bg-warning bg-opacity-10 text-dark border-warning border-opacity-25`}>
-          <span className="d-inline-block rounded-circle bg-warning me-2" style={{ width: '8px', height: '8px' }}></span>
-          Pending
-        </span>
-      );
-    default:
-      return (
-        <span className={`${baseClasses} bg-secondary bg-opacity-10 text-secondary border-secondary border-opacity-25`}>
-          <span className="d-inline-block rounded-circle bg-secondary me-2" style={{ width: '8px', height: '8px' }}></span>
-          {status}
-        </span>
-      );
-  }
-}
-
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function Dashboard() {
+  const { user } = useAuth();
   const [loads, setLoads] = useState<Load[]>([]);
+  const [drivers, setDrivers] = useState<{ _id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    loadNumber: "",
-    pickupAddress: "",
-    pickupCity: "",
-    pickupState: "",
-    pickupPostalCode: "",
-    pickupAppointmentNumber: "",
-    pickupDate: new Date().toISOString().split('T')[0],
-    pickupTime: "",
-    deliveryAddress: "",
-    deliveryCity: "",
-    deliveryState: "",
-    deliveryPostalCode: "",
-    deliveryAppointmentNumber: "",
-    deliveryDate: new Date().toISOString().split('T')[0],
-    deliveryTime: "",
-    quantity: "",
-    quantityUnit: "pallets",
-    weight: "",
-    weightUnit: "lbs"
+  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
+  const [activeTab, setActiveTab] = useState<"loads" | "users">("loads");
+  const [uploadingPodLoadId, setUploadingPodLoadId] = useState<string | null>(null);
+
+  const todayStr = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
-  // Generic field setter for use by LocationBlock
-  const setField = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
+  const initialStop = { address: "", city: "", state: "", postalCode: "", appointmentNumber: "", date: new Date().toISOString().split("T")[0], time: "", status: "PENDING" };
+  const [formData, setFormData] = useState({ loadNumber: "", pickups: [{ ...initialStop }], deliveries: [{ ...initialStop }], quantity: "", quantityUnit: "pallets", weight: "", weightUnit: "lbs" });
 
-  const fetchLoads = async () => {
+  const setFormDataField = (field: string, value: string | number) => setFormData((prev) => ({ ...prev, [field]: value }));
+  const setStopField = (type: "pickups" | "deliveries", index: number, field: string, value: string) => {
+    setFormData((prev) => {
+      const newStops = [...prev[type]];
+      newStops[index] = { ...newStops[index], [field]: value };
+      return { ...prev, [type]: newStops };
+    });
+  };
+  const addStop = (type: "pickups" | "deliveries") => setFormData((prev) => ({ ...prev, [type]: [...prev[type], { ...initialStop }] }));
+  const removeStop = (type: "pickups" | "deliveries", index: number) => {
+    setFormData((prev) => {
+      if (prev[type].length <= 1) return prev;
+      const newStops = [...prev[type]];
+      newStops.splice(index, 1);
+      return { ...prev, [type]: newStops };
+    });
+  };
+
+  const fetchLoads = useCallback(async () => {
     try {
       const res = await fetch("/api/loads");
       if (res.ok) {
-        const data = await res.json();
+        let data = await res.json();
+        // Role-based filtering for drivers (handled by API too, but extra safety)
+        if (user?.role === 'Driver') {
+          data = data.filter((l: ILoad) => (l.assignedDriverId as any)?._id === user.id || (l.assignedDriverId as any) === user.id);
+        }
         setLoads(data);
       }
-    } catch (error) {
-      console.error("Failed to fetch loads:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    } catch (error) { console.error("Failed to fetch loads:", error); } 
+    finally { setIsLoading(false); }
+  }, [user]);
+
+  const fetchDrivers = useCallback(async () => {
+    try {
+      if (user?.role === "Admin" || user?.role === "Dispatcher") {
+        const res = await fetch("/api/users");
+        if (res.ok) {
+          const data = await res.json();
+          setDrivers(data.filter((u: { role: string }) => u.role === "Driver"));
+        }
+      }
+    } catch (error) { console.error("Failed to fetch drivers:", error); }
+  }, [user?.role]);
 
   useEffect(() => {
-    setMounted(true);
-    fetchLoads();
+    if (user) {
+      fetchLoads();
+      fetchDrivers();
+    }
+  }, [user, fetchLoads, fetchDrivers]);
+
+  // LISTEN FOR SIDEBAR EVENT
+  useEffect(() => {
+    const handleOpenModal = () => {
+      setEditingLoadId(null);
+      resetForm();
+      setShowModal(true);
+    };
+    window.addEventListener('open-create-load', handleOpenModal);
+    return () => window.removeEventListener('open-create-load', handleOpenModal);
   }, []);
+
+  const resetForm = () => setFormData({ loadNumber: "", pickups: [{ ...initialStop }], deliveries: [{ ...initialStop }], quantity: "", quantityUnit: "pallets", weight: "", weightUnit: "lbs" });
 
   const handleCreateLoad = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/loads", {
-        method: "POST",
+      const url = editingLoadId ? `/api/loads/${editingLoadId}` : "/api/loads";
+      const method = editingLoadId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (res.ok) {
         setShowModal(false);
-        setFormData({
-          loadNumber: "",
-          pickupAddress: "",
-          pickupCity: "",
-          pickupState: "",
-          pickupPostalCode: "",
-          pickupAppointmentNumber: "",
-          pickupDate: new Date().toISOString().split('T')[0],
-          pickupTime: "",
-          deliveryAddress: "",
-          deliveryCity: "",
-          deliveryState: "",
-          deliveryPostalCode: "",
-          deliveryAppointmentNumber: "",
-          deliveryDate: new Date().toISOString().split('T')[0],
-          deliveryTime: "",
-          quantity: "",
-          quantityUnit: "pallets",
-          weight: "",
-          weightUnit: "lbs"
-        });
+        setEditingLoadId(null);
+        resetForm();
         fetchLoads();
       }
-    } catch (error) {
-      console.error("Failed to create load:", error);
-    }
+    } catch (error) { console.error("Failed to save load:", error); }
   };
 
-  const handleDeleteLoad = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this dispatch?")) return;
-    try {
-      const res = await fetch(`/api/loads/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchLoads();
-      }
-    } catch (error) {
-      console.error("Failed to delete load:", error);
-    }
+  const handleEditLoad = (load: Load) => {
+    setEditingLoadId(load._id);
+    setFormData({
+      loadNumber: load.loadNumber,
+      pickups: load.pickups.map(p => ({ ...p, date: p.date.split('T')[0] })),
+      deliveries: load.deliveries.map(d => ({ ...d, date: d.date.split('T')[0] })),
+      quantity: load.quantity.toString(),
+      quantityUnit: load.quantityUnit,
+      weight: load.weight.toString(),
+      weightUnit: load.weightUnit
+    } as any);
+    setShowModal(true);
   };
 
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
-    try {
-      const res = await fetch(`/api/loads/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        fetchLoads();
-      }
-    } catch (error) {
-      console.error("Failed to update status:", error);
-    }
-  };
+  const filteredLoads = loads.filter(l => {
+    const matchesStatus = statusFilter === 'ALL' || l.status === statusFilter;
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      l.loadNumber.toLowerCase().includes(searchLower) ||
+      (l.assignedDriverId as any)?.name?.toLowerCase().includes(searchLower) ||
+      l.pickups.some(p => p.city.toLowerCase().includes(searchLower)) ||
+      l.deliveries.some(d => d.city.toLowerCase().includes(searchLower));
+    
+    return matchesStatus && matchesSearch;
+  });
 
-  const todayStr = mounted ? new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }) : "Loading...";
-
-  const totalLoads = loads.length;
-  const inTransit = loads.filter(l => (l.status as string) === "In Transit" || l.status === "Transit").length;
-  const delivered = loads.filter(l => l.status === "Delivered").length;
-  const pending = loads.filter(l => l.status === "Pending").length;
+  const totalLoadsCount = loads.length;
+  const transitCount = loads.filter((l) => l.status === "IN_TRANSIT").length;
+  const deliveredCount = loads.filter((l) => l.status === "DELIVERED").length;
+  const completedCount = loads.filter((l) => l.status === "COMPLETED").length;
 
   return (
-    <div className="container-fluid px-0 px-md-3 pb-5" style={{ maxWidth: '1280px' }}>
-      {/* HEADER SECTION */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3 animate-fade-in">
-        <div>
-          <h1 className="fs-1 fw-bold text-dark m-0 tracking-tight text-glow-primary" style={{ fontFamily: 'var(--font-syne)' }}>
-            Overview
+    <div className="container-fluid px-0 animate-fade-in" style={{ maxWidth: "1600px" }}>
+      {/* DASHBOARD HEADER */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 mt-3 gap-4 border-bottom pb-4 border-opacity-10 border-white">
+        <div className="text-start">
+          <h1 className="display-4 fw-black text-white m-0 tracking-tight premium-header-accent" style={{ fontFamily: "var(--font-syne)", letterSpacing: '-0.05em' }}>
+            {user?.role === 'Driver' ? 'My Fleet' : <>{'Logistics '.split('').map((char, i) => <span key={i} className="text-gradient-emerald">{char}</span>)} Overview</>}
           </h1>
-          <p className="text-secondary mt-1 fw-medium mb-0 opacity-75">{todayStr}</p>
+          <p className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest" style={{ letterSpacing: '0.2rem' }}>{todayStr}</p>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="btn border-0 text-white fw-bold px-4 py-3 d-inline-flex align-items-center gap-2 rounded-4 shadow-lg hover-shadow-sm transition-all bg-gradient-primary hover-float" 
-          style={{ letterSpacing: '0.02em' }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          Create Load
-        </button>
+        
+        {/* QUICK SEARCH & FILTER - PREMIUM GLASS */}
+        <div className="d-flex gap-2 bg-white bg-opacity-5 p-2 rounded-pill shadow-lg border border-white border-opacity-10 transition-all hover-bg-white-10">
+          <div className="input-group input-group-sm border-end border-white border-opacity-10 pe-3" style={{ maxWidth: '280px' }}>
+             <span className="input-group-text bg-transparent border-0 text-white opacity-25">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+             </span>
+             <input type="text" className="form-control border-0 bg-transparent text-white shadow-none px-1 small fw-medium" placeholder="Search loads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
+          <select className="form-select form-select-sm border-0 bg-dark bg-opacity-50 shadow-none small fw-bold cursor-pointer w-auto pe-4 text-white rounded-pill" style={{ color: '#2bdd66' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+             <option value="ALL" className="bg-dark text-white">All Status</option>
+             {['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'COMPLETED'].map(s => <option key={s} value={s} className="bg-dark text-white">{s.replace('_', ' ')}</option>)}
+          </select>
+        </div>
       </div>
 
-      {/* ... (stats cards remain same) ... */}
-
-      {/* STATS CARDS */}
+      {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
       <div className="row g-4 mb-5">
         {[
-          { 
-            label: "Total Loads", value: totalLoads, sub: "Real-time sync",
-            gradient: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-            icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>,
-            trend: "+12%"
-          },
-          { 
-            label: "In Transit", value: inTransit, sub: "Live tracking",
-            gradient: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
-            icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
-            trend: "+4%"
-          },
-          { 
-            label: "Delivered", value: delivered, sub: "Full validation",
-            gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-            icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 10 0 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>,
-            trend: "+22%"
-          },
-          { 
-            label: "Pending", value: pending, sub: "Awaiting action",
-            gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-            icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>,
-            trend: "-2%"
-          },
+          user?.role === 'Driver' 
+            ? { label: "My Assignments", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "local_shipping", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" }
+            : { label: "Active Loads", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "local_shipping", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" },
+          
+          user?.role === 'Driver'
+            ? { label: "Running", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" }
+            : { label: "In Transit", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" },
+            
+          user?.role === 'Driver'
+            ? { label: "Reached", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" }
+            : { label: "Awaiting Verify", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" },
+            
+          user?.role === 'Driver'
+            ? { label: "Done", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" }
+            : { label: "Completed", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" },
         ].map((stat, i) => (
-          <div key={i} className={`col-12 col-sm-6 col-lg-3 animate-slide-up delay-${(i + 1) * 100}`}>
-            <div className="card h-100 border-0 shadow-lg rounded-4 p-4 glass-card hover-float overflow-hidden" style={{ transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}>
-              <div 
-                className="position-absolute top-0 end-0 opacity-10" 
-                style={{ transform: 'translate(20%, -20%) scale(2)', color: 'white' }}
-              >
-                {stat.icon}
-              </div>
-              <div className="card-body p-0 d-flex flex-column position-relative z-1">
-                <div className="d-flex justify-content-between align-items-start mb-4">
-                  <div 
-                    className="rounded-4 shadow-lg d-flex align-items-center justify-content-center text-white" 
-                    style={{ width: '56px', height: '56px', background: stat.gradient }}
-                  >
-                    {stat.icon}
-                  </div>
-                  <div className={`d-flex align-items-center ${stat.trend.startsWith('+') ? 'text-success' : 'text-danger'} fw-bold gap-1 bg-white bg-opacity-75 px-3 py-1 rounded-pill shadow-sm border border-light`}>
-                    {stat.trend}
-                  </div>
-                </div>
-                <div className="fs-1 fw-bold text-dark mb-1 tracking-tight" style={{ fontFamily: 'var(--font-syne)', lineHeight: 1 }}>{stat.value}</div>
-                <div className="text-secondary fw-bold mb-1 opacity-75">{stat.label}</div>
-                <div className="text-muted small fw-medium opacity-50">{stat.sub}</div>
+          <div key={i} className="col-12 col-md-6 col-xl-3">
+            <div className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all`} style={{ animationDelay: `${i * 100}ms`, background: stat.bg }}>
+              <div className="position-absolute top-0 start-0 h-100" style={{ width: '6px', background: stat.color }}></div>
+              <p className="text-uppercase fw-black mb-4" style={{ fontSize: '12px', letterSpacing: '0.2rem', color: '#a3aac4' }}>{stat.label}</p>
+              <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
+                 <h3 className="fw-black mb-0" style={{ color: '#fff', fontSize: '3.5rem', fontFamily: 'var(--font-syne)', letterSpacing: '-0.05em', lineHeight: '1' }}>{stat.value}</h3>
+                 <span className="material-symbols-outlined stat-icon-bg">{stat.icon}</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* LOADS TABLE CONTAINER */}
-      <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up delay-500">
-        <div className="card-header bg-white bg-opacity-50 border-bottom border-secondary border-opacity-10 px-4 px-md-5 py-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-          <h2 className="fs-4 fw-bold text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Recent Dispatches</h2>
-          <div className="d-flex flex-wrap gap-2 p-1 bg-dark bg-opacity-5 rounded-4 border border-secondary border-opacity-10">
-            {['All', 'In Transit', 'Pending', 'Delivered'].map((filter, i) => (
-              <button 
-                key={filter}
-                className={`btn btn-sm rounded-3 px-4 py-2 fw-bold transition-all ${i === 0 ? 'bg-white shadow-sm text-dark' : 'text-secondary border-0 hover-bg-white'}`}
-              >
-                {filter}
+      {/* DISPATCH table SECTION - GLASS V4 */}
+      <div className="card border border-white border-opacity-10 shadow-2xl rounded-5 overflow-hidden bg-glass-5 backdrop-blur-3xl animate-slide-up">
+        <div className="px-5 py-4 border-bottom border-white border-opacity-10 d-flex align-items-center justify-content-between bg-glass-5">
+           <h3 className="fs-4 fw-black text-white m-0 d-flex align-items-center gap-3 premium-header-accent premium-header-accent-emerald" style={{ fontFamily: "var(--font-syne)" }}>
+             <div className="d-flex align-items-center gap-2">
+               Real-time <span className="text-emerald" style={{ color: '#2bdd66' }}>Board</span>
+             </div>
+           </h3>
+           <div className="d-flex gap-2">
+              <button className="btn btn-sm btn-dark border border-white border-opacity-10 bg-glass-5 text-white shadow-sm rounded-pill px-4 py-2 fw-black transition-all hover-bg-white-10" onClick={fetchLoads}>
+                 <svg className="me-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                 Sync Data
               </button>
-            ))}
-          </div>
+           </div>
         </div>
-
-        <div className="card-body p-0">
-          <div className="table-scroll">
-            <table className="table table-hover mb-0 align-middle">
-              <thead>
-                <tr className="bg-light bg-opacity-50">
-                  <th className="fw-bold text-secondary py-4 px-4 px-md-5 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Load #</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Pickup</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Delivery</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest" style={{ fontSize: '0.7rem' }}>Weight/Qty</th>
-                  <th className="fw-bold text-secondary py-4 px-3 px-md-4 border-0 text-uppercase tracking-widest text-end" style={{ fontSize: '0.7rem' }}>Actions</th>
-                  <th className="fw-bold text-secondary py-4 px-4 px-md-5 border-0 text-uppercase tracking-widest text-end" style={{ fontSize: '0.7rem' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="px-5 py-5 text-center">
-                      <div className="animate-pulse text-secondary fw-medium">Loading live dispatch data...</div>
-                    </td>
-                  </tr>
-                ) : loads.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-5 py-5 text-center text-muted fw-medium">
-                      No loads found. Click &quot;Create Load&quot; to get started.
-                    </td>
-                  </tr>
-                ) : (
-                  loads.map((load, index) => (
-                    <tr 
-                      key={load._id} 
-                      className={`animate-fade-in delay-${(index % 4 + 1) * 100} hover-row transition-all`}
-                      style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}
-                    >
-                      <td className="px-4 px-md-5 py-4">
-                        <span className="fw-bold text-dark fs-6">{load.loadNumber || 'N/A'}</span>
-                      </td>
-                      <td className="px-3 px-md-4 py-4">
-                        <div className="fw-bold text-dark fs-6">{load.pickupCity || 'Unknown'}, {load.pickupState || ''}</div>
-                        <div className="small text-muted fw-medium mt-1">
-                          {load.pickupDate ? new Date(load.pickupDate).toLocaleDateString() : ''} {load.pickupTime || ''}
-                        </div>
-                      </td>
-                      <td className="px-3 px-md-4 py-4">
-                        <div className="fw-bold text-dark fs-6">{load.deliveryCity || 'Unknown'}, {load.deliveryState || ''}</div>
-                        <div className="small text-muted fw-medium mt-1">
-                          {load.deliveryDate ? new Date(load.deliveryDate).toLocaleDateString() : ''} {load.deliveryTime || ''}
-                        </div>
-                      </td>
-                      <td className="px-3 px-md-4 py-4">
-                        <div className="fw-bold text-dark mb-1">{load.weight || 0} {load.weightUnit || ''}</div>
-                        <div className="small text-muted">{load.quantity || 0} {load.quantityUnit || ''}</div>
-                      </td>
-                      <td className="px-3 px-md-4 py-4 text-end">
-                        <button 
-                          onClick={() => handleDeleteLoad(load._id)}
-                          className="btn btn-outline-danger btn-sm border-0 rounded-circle p-2 hover-shadow-sm transition-all"
-                          title="Delete Dispatch"
-                          aria-label="Delete Dispatch"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                        </button>
-                      </td>
-                      <td className="px-4 px-md-5 py-4 text-end">
-                        <div className="dropdown d-inline-block">
-                          <div 
-                            className="cursor-pointer" 
-                            data-bs-toggle="dropdown" 
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {formatStatus(load.status)}
-                          </div>
-                          <ul className="dropdown-menu dropdown-menu-end rounded-4 shadow-lg border-0 p-2 animate-slide-up">
-                            <li><h6 className="dropdown-header small text-uppercase opacity-50 fw-bold">Update Status</h6></li>
-                            {['Pending', 'In Transit', 'Delivered'].map(s => (
-                              <li key={s}>
-                                <button 
-                                  className="dropdown-item rounded-3 fw-bold small py-2" 
-                                  onClick={() => handleStatusUpdate(load._id, s)}
-                                >
-                                  {s}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="table-responsive">
+          {isLoading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>
+            </div>
+          ) : filteredLoads.length === 0 ? (
+            <div className="text-center py-5">
+              <div className="opacity-10 mb-4 d-flex justify-content-center text-white">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <h3 className="fs-5 fw-black text-white opacity-40">No Dispatch Records</h3>
+              <p className="text-white opacity-20 small">Satellite systems are clear. Try adjusting your filters.</p>
+            </div>
+          ) : (
+            <DispatchTable loads={filteredLoads as any} onRowClick={(load) => setSelectedLoad(load as any)} />
+          )}
         </div>
       </div>
 
-      {/* NEW DISPATCH MODAL */}
+      {/* MODALS */}
+      {selectedLoad && (
+        <LoadDetailsModal 
+          load={selectedLoad as any} 
+          user={user} 
+          drivers={drivers} 
+          onClose={() => setSelectedLoad(null)} 
+          onUpdate={() => { fetchLoads(); setSelectedLoad(null); }} 
+        />
+      )}
+
       {showModal && (
-        <div className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center animate-fade-in" style={{ zIndex: 2000 }}>
-          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-          <div className="card border-0 shadow-2xl rounded-5 p-4 p-md-5 glass-card position-relative z-1 animate-slide-up modal-scroll" style={{ width: '95%', maxWidth: '850px', maxHeight: '90vh' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 className="fs-3 fw-bold text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Create New Load</h3>
-              <button className="btn-close shadow-none" onClick={() => setShowModal(false)}></button>
+        <div className="position-fixed top-0 start-0 w-100 vh-100 d-flex justify-content-center p-3 p-md-5 animate-fade-in overflow-y-auto no-scrollbar py-5" style={{ zIndex: 99999 }}>
+          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-60 backdrop-blur-2xl" style={{ position: 'fixed' }} onClick={() => { setShowModal(false); window.dispatchEvent(new CustomEvent('close-create-load')); }}></div>
+          <div className="card border-0 shadow-2xl rounded-5 glass-modal-v3 position-relative z-index-modal animate-slide-up my-auto" style={{ maxWidth: "1000px", width: "100%", borderRadius: '2.5rem' }}>
+            <div className="d-flex justify-content-between align-items-center sticky-top glass-header-v3 p-4 p-md-5 pb-3 rounded-top-5" style={{ zIndex: 20, marginTop: '-1rem', marginLeft: '-0.5rem', marginRight: '-0.5rem' }}>
+              <h3 className="fs-1 fw-black text-dark m-0 d-flex align-items-center gap-2" style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.05em" }}>
+                {editingLoadId ? 'Edit' : 'Create New'} <span style={{ color: '#2bdd66' }}>Load</span>
+              </h3>
+              <button className="btn-close shadow-none opacity-40 hover-opacity-100 transition-all scale-125" onClick={() => { setShowModal(false); setEditingLoadId(null); resetForm(); window.dispatchEvent(new CustomEvent('close-create-load')); }} title="Close Modal"></button>
             </div>
-            <form onSubmit={handleCreateLoad} className="row g-4">
-              <div className="col-12">
-                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>General Info</h5>
-                <hr className="mt-2 mb-0 opacity-10" />
-              </div>
-              <div className="col-md-12">
-                <label className="small fw-bold text-secondary mb-2 px-1">Load Number *</label>
-                <input required className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.loadNumber} onChange={e => setFormData({...formData, loadNumber: e.target.value})} placeholder="LD-882299" />
-              </div>
-
-              {/* ── PICKUP ── */}
-              <div className="col-lg-6">
-                <div className="p-4 rounded-4 bg-light bg-opacity-50 border border-secondary border-opacity-10 h-100">
-                  <h5 className="fw-bold text-primary mb-3" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    📦 Pickup Details
-                  </h5>
-                  <LocationBlock prefix="pickup" data={formData as unknown as Record<string, string>} onChange={setField} />
+            <form onSubmit={handleCreateLoad} className="p-4 p-md-5 pt-0 row g-5">
+              <div className="col-12 text-start">
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(43, 221, 102, 0.1)', border: '1px solid rgba(43, 221, 102, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                  <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>General Information</h5>
+                </div>
+                <hr className="mt-2 mb-4 opacity-5" />
+                <div className="px-1">
+                  <label htmlFor="loadNumberField" className="small fw-bold text-secondary mb-2 px-1 opacity-75">Load Reference Number *</label>
+                  <input id="loadNumberField" required className={FIELD} value={formData.loadNumber} onChange={(e) => setFormDataField("loadNumber", e.target.value)} placeholder="e.g. #LD-882299" />
                 </div>
               </div>
 
-              {/* ── DELIVERY ── */}
-              <div className="col-lg-6">
-                <div className="p-4 rounded-4 bg-light bg-opacity-50 border border-secondary border-opacity-10 h-100">
-                  <h5 className="fw-bold text-primary mb-3" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    🚚 Delivery Details
-                  </h5>
-                  <LocationBlock prefix="delivery" data={formData as unknown as Record<string, string>} onChange={setField} />
+              <div className="col-12 text-start">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05"></path><path d="M12 22.08V12"></path></svg></div>
+                    <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Pickup Stops</h5>
+                  </div>
+                  <button type="button" className="btn btn-sm btn-emerald-pill fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all" onClick={() => addStop("pickups")}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Add Station
+                  </button>
+                </div>
+                <hr className="mt-2 mb-4 opacity-5" />
+                <div className="row g-4">
+                  {formData.pickups.map((stop, idx) => (
+                    <div key={idx} className="col-lg-6">
+                      <LocationBlock type="pickups" index={idx} data={stop} onChange={setStopField} onRemove={() => removeStop("pickups", idx)} isRemovable={formData.pickups.length > 1} />
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="col-12 mt-4">
-                <h5 className="fw-bold text-primary mb-0" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Logistics Info</h5>
-                <hr className="mt-2 mb-0 opacity-10" />
+              <div className="col-12 mt-4 text-start">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+                    <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Delivery Stops</h5>
+                  </div>
+                  <button type="button" className="btn btn-sm btn-emerald-pill fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all" onClick={() => addStop("deliveries")}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Add Destination
+                  </button>
+                </div>
+                <hr className="mt-2 mb-4 opacity-5" />
+                <div className="row g-4">
+                  {formData.deliveries.map((stop, idx) => (
+                    <div key={idx} className="col-lg-6">
+                      <LocationBlock type="deliveries" index={idx} data={stop} onChange={setStopField} onRemove={() => removeStop("deliveries", idx)} isRemovable={formData.deliveries.length > 1} />
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">Quantity *</label>
-                <input required type="number" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder="24" />
+
+              <div className="col-12 mt-5 text-start">
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+                  <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Cargo Logistics</h5>
+                </div>
+                <hr className="mt-2 mb-4 opacity-5" />
               </div>
-              <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">Unit *</label>
-                <select className="form-select rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.quantityUnit} onChange={e => setFormData({...formData, quantityUnit: e.target.value})}>
-                  <option value="skids">Skids</option>
-                  <option value="pallets">Pallets</option>
-                  <option value="packages">Packages</option>
-                  <option value="pieces">Pieces</option>
-                  <option value="box">Box</option>
-                  <option value="cases">Cases</option>
+
+              <div className="col-md-3 text-start">
+                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Quantity *</label>
+                <input required type="number" className={FIELD} value={formData.quantity} onChange={(e) => setFormDataField("quantity", e.target.value)} placeholder="24" />
+              </div>
+              <div className="col-md-3 text-start">
+                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Unit *</label>
+                <select className={FIELD} value={formData.quantityUnit} onChange={(e) => setFormDataField("quantityUnit", e.target.value)}>
+                  <option value="skids">Skids</option><option value="pallets">Pallets</option><option value="packages">Packages</option><option value="pieces">Pieces</option><option value="box">Box</option><option value="cases">Cases</option>
                 </select>
               </div>
-              <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">Weight *</label>
-                <input required type="number" className="form-control rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="45000" />
+              <div className="col-md-3 text-start">
+                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Weight *</label>
+                <input required type="number" className={FIELD} value={formData.weight} onChange={(e) => setFormDataField("weight", e.target.value)} placeholder="45000" />
               </div>
-              <div className="col-md-3">
-                <label className="small fw-bold text-secondary mb-2 px-1">Unit *</label>
-                <select className="form-select rounded-4 p-3 border-secondary border-opacity-10 bg-light bg-opacity-50" value={formData.weightUnit} onChange={e => setFormData({...formData, weightUnit: e.target.value})}>
-                  <option value="lbs">lbs</option>
-                  <option value="kg">kg</option>
+              <div className="col-md-3 text-start">
+                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Weight Unit *</label>
+                <select className={FIELD} value={formData.weightUnit} onChange={(e) => setFormDataField("weightUnit", e.target.value)}>
+                  <option value="lbs">lbs</option><option value="kg">kg</option>
                 </select>
               </div>
 
-              <div className="col-12 mt-5">
-                <button type="submit" className="btn btn-dark w-100 rounded-4 py-3 fw-bold fs-5 shadow-lg bg-gradient-primary border-0 transition-all hover-float">
-                  Create Load
+              <div className="col-12 mt-5 pb-5 px-1">
+                <button type="submit" className="btn btn-emerald w-100 rounded-pill py-4 fw-black fs-4 shadow-emerald-lg transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3">
+                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                   {editingLoadId ? 'Confirm & Update Dispatch' : 'Complete & Launch Dispatch'}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-      
+
       <style jsx>{`
-        .hover-bg-white:hover { background-color: white !important; }
-        .hover-row:hover { 
-          background-color: rgba(99, 102, 241, 0.02) !important;
-          transform: scale(1.002);
-          box-shadow: inset 4px 0 0 #6366f1;
-        }
-        .animate-float { animation: float 4s ease-in-out infinite; }
-        .hover-float:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
+        .section-label { font-family: var(--font-syne); }
+        .hover-float:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .active-scale-95:active { transform: scale(0.95); }
         .tracking-tight { letter-spacing: -0.025em; }
-        .tracking-widest { letter-spacing: 0.1em; }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.2); }
-        }
-        .pulse-slow { animation: pulse-slow 2s infinite; }
-        .backdrop-blur-sm { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .z-index-modal { z-index: 100000; }
+        .glass-modal-v3 { background: rgba(255, 255, 255, 0.9) !important; backdrop-filter: blur(15px); border: 1.5px solid rgba(255, 255, 255, 0.8); }
+        .glass-header-v3 { background: rgba(255, 255, 255, 0.5) !important; backdrop-filter: blur(8px); }
+        .shadow-2xl { box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25); }
+        .shadow-emerald-lg { box-shadow: 0 20px 50px -10px rgba(43, 221, 102, 0.4); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-emerald-pill { background: #2bdd66; color: #000; border: none; }
+        .btn-emerald-pill:hover { background: #16a34a; color: #fff; }
+        .btn-emerald { background: #2bdd66; color: #000; border: none; }
+        .btn-emerald:hover { background: #16a34a; color: #fff; }
+        .stop-card { background: rgba(255, 255, 255, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .stop-card:hover { transform: translateY(-10px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important; }
+        .fw-black { font-weight: 900; }
+        input::placeholder { opacity: 0.3; }
       `}</style>
     </div>
   );

@@ -1,25 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IStop {
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  appointmentNumber: string;
+  date: Date;
+  time: string;
+  status: 'PENDING' | 'PICKED_UP' | 'DELIVERED';
+}
+
 export interface ILoad extends Document {
   loadNumber: string;
   
-  // Pickup Information
-  pickupAddress: string;
-  pickupCity: string;
-  pickupState: string;
-  pickupPostalCode: string;
-  pickupAppointmentNumber: string;
-  pickupDate: Date;
-  pickupTime: string;
-
-  // Delivery Information
-  deliveryAddress: string;
-  deliveryCity: string;
-  deliveryState: string;
-  deliveryPostalCode: string;
-  deliveryAppointmentNumber: string;
-  deliveryDate: Date;
-  deliveryTime: string;
+  pickups: IStop[];
+  deliveries: IStop[];
 
   // Logistics & Details
   quantity: number;
@@ -27,30 +23,31 @@ export interface ILoad extends Document {
   weight: number;
   weightUnit: 'lbs' | 'kg';
   
-  status: 'Pending' | 'Assigned' | 'Transit' | 'In Transit' | 'Delivered';
+  trailerNumber?: string;
+  truckNumber?: string;
+  assignedDriverId?: mongoose.Types.ObjectId | null;
+  createdBy: mongoose.Types.ObjectId;
+  
+  status: 'PENDING' | 'IN_TRANSIT' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
   createdAt: Date;
 }
+
+const StopSchema = new Schema({
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  postalCode: { type: String, required: true },
+  appointmentNumber: { type: String, required: true },
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  status: { type: String, enum: ['PENDING', 'PICKED_UP', 'DELIVERED'], default: 'PENDING' },
+}, { _id: false });
 
 const LoadSchema: Schema = new Schema({
   loadNumber: { type: String, required: true },
   
-  // Pickup
-  pickupAddress: { type: String, required: true },
-  pickupCity: { type: String, required: true },
-  pickupState: { type: String, required: true },
-  pickupPostalCode: { type: String, required: true },
-  pickupAppointmentNumber: { type: String, required: true },
-  pickupDate: { type: Date, required: true },
-  pickupTime: { type: String, required: true },
-
-  // Delivery
-  deliveryAddress: { type: String, required: true },
-  deliveryCity: { type: String, required: true },
-  deliveryState: { type: String, required: true },
-  deliveryPostalCode: { type: String, required: true },
-  deliveryAppointmentNumber: { type: String, required: true },
-  deliveryDate: { type: Date, required: true },
-  deliveryTime: { type: String, required: true },
+  pickups: { type: [StopSchema], required: true, validate: [(v: IStop[]) => v.length > 0, 'At least one pickup is required'] },
+  deliveries: { type: [StopSchema], required: true, validate: [(v: IStop[]) => v.length > 0, 'At least one delivery is required'] },
 
   // Logistics
   quantity: { type: Number, required: true },
@@ -66,13 +63,23 @@ const LoadSchema: Schema = new Schema({
     enum: ['lbs', 'kg'] 
   },
 
+  truckNumber: { type: String, default: null },
+  trailerNumber: { type: String, default: null },
+  assignedDriverId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  
   status: { 
     type: String, 
     required: true, 
-    enum: ['Pending', 'Assigned', 'Transit', 'In Transit', 'Delivered'],
-    default: 'Pending' 
+    enum: ['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'],
+    default: 'PENDING' 
   },
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Load || mongoose.model<ILoad>('Load', LoadSchema);
+if (mongoose.models.Load) {
+  delete mongoose.models.Load;
+}
+
+export default mongoose.model<ILoad>('Load', LoadSchema);
+
