@@ -22,6 +22,11 @@ const UsersIcon = () => (
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
+const UserSettingsIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -67,11 +72,16 @@ export default function Sidebar() {
         
         <Link
           href="/dashboard"
-          className={`d-flex align-items-center gap-3 px-3 py-3 rounded-4 text-decoration-none fw-bold transition-all ${pathname === '/dashboard' ? 'bg-emerald-glow text-white shadow-emerald' : 'text-white-50 hover-bg-white-5 hover-text-white'}`}
+          className={`d-flex align-items-center gap-3 px-3 py-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 ${
+            pathname === '/dashboard' 
+            ? 'bg-emerald-glow text-white shadow-emerald border-emerald' 
+            : 'text-white-50 hover-bg-white-5 hover-text-white'
+          }`}
         >
           <LayoutGridIcon />
           <span>Dashboard</span>
         </Link>
+
 
         {user?.role === 'Dispatcher' && (
           <div className="mt-4 mb-2">
@@ -90,7 +100,11 @@ export default function Sidebar() {
         {user?.role === 'Admin' && (
            <Link
               href="/dashboard/users"
-              className={`d-flex align-items-center gap-3 px-3 py-3 rounded-4 text-decoration-none fw-bold transition-all ${pathname === '/dashboard/users' ? 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 shadow-sm' : 'text-white-50 hover-bg-white-5 hover-text-white'}`}
+              className={`d-flex align-items-center gap-3 px-3 py-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 ${
+                pathname === '/dashboard/users' 
+                ? 'bg-admin-glow text-white shadow-admin border-admin' 
+                : 'text-white-50 hover-bg-white-5 hover-text-white'
+              }`}
            >
               <UsersIcon />
               User Management
@@ -117,6 +131,17 @@ export default function Sidebar() {
         .shadow-2xl { box-shadow: 15px 0 60px -10px rgba(0, 0, 0, 0.6); }
         .bg-emerald-glow { background: linear-gradient(135deg, rgba(43, 221, 102, 0.25) 0%, rgba(43, 221, 102, 0.1) 100%); border: 1px solid rgba(43, 221, 102, 0.4) !important; color: #2bdd66 !important; box-shadow: 0 0 30px rgba(43, 221, 102, 0.15); }
         .shadow-emerald { box-shadow: 0 8px 25px -5px rgba(43, 221, 102, 0.4); }
+        .border-emerald { border: 1px solid rgba(43, 221, 102, 0.4) !important; }
+        
+        .bg-admin-glow { background: linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(30, 64, 175, 0.1) 100%); color: #3b82f6 !important; position: relative; }
+        .bg-admin-glow::after { content: ''; position: absolute; left: 0; width: 4px; height: 50%; top: 25%; background: #3b82f6; border-radius: 0 4px 4px 0; box-shadow: 0 0 10px #3b82f6; }
+        .shadow-admin { box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.3); }
+        .border-admin { border: 1px solid rgba(59, 130, 246, 0.4) !important; }
+        
+        .bg-profile-glow { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 100%); color: #a78bfa !important; border: 1px solid rgba(139, 92, 246, 0.4) !important; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
+        .shadow-profile { box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.4); }
+        .border-profile { border: 1px solid rgba(139, 92, 246, 0.4) !important; }
+        
         .btn-emerald { background: linear-gradient(135deg, rgba(43, 221, 102, 0.8) 0%, rgba(43, 221, 102, 0.6) 100%); color: #000; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(43, 221, 102, 0.3); backdrop-filter: blur(10px); }
         .btn-emerald:hover { background: linear-gradient(135deg, rgba(43, 221, 102, 0.95) 0%, rgba(43, 221, 102, 0.75) 100%); color: #000; transform: translateY(-3px) scale(1.03); box-shadow: 0 15px 40px rgba(43, 221, 102, 0.5); }
         .btn-emerald-active { background: rgba(43, 221, 102, 0.2) !important; color: #2bdd66 !important; border: 1px solid rgba(43, 221, 102, 0.5) !important; pointer-events: none; }

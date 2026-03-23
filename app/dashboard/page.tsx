@@ -177,7 +177,7 @@ export default function Dashboard() {
   const [loads, setLoads] = useState<Load[]>([]);
   const [drivers, setDrivers] = useState<{ _id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { searchTerm } = useSearch();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -244,6 +244,10 @@ export default function Dashboard() {
     if (user) {
       fetchLoads();
       fetchDrivers();
+      
+      // AUTOMATIC SYNC: Poll every 15 seconds
+      const interval = setInterval(fetchLoads, 15000);
+      return () => clearInterval(interval);
     }
   }, [user, fetchLoads, fetchDrivers]);
 
@@ -296,17 +300,15 @@ export default function Dashboard() {
   const filteredLoads = loads.filter(l => {
     const matchesStatus = statusFilter === 'ALL' || l.status === statusFilter;
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
-      l.loadNumber.toLowerCase().includes(searchLower) ||
-      (l.assignedDriverId as any)?.name?.toLowerCase().includes(searchLower) ||
-      l.pickups.some(p => p.city.toLowerCase().includes(searchLower)) ||
-      l.deliveries.some(d => d.city.toLowerCase().includes(searchLower));
+    const matchesSearch = !searchTerm || l.loadNumber.toLowerCase().includes(searchLower);
     
     return matchesStatus && matchesSearch;
   });
 
   const totalLoadsCount = loads.length;
-  const transitCount = loads.filter((l) => l.status === "IN_TRANSIT").length;
+  const activeLoadsCount = loads.filter((l) => l.status !== "COMPLETED" && l.status !== "CANCELLED").length;
+  const pendingCount = loads.filter((l) => l.status === "PENDING" || !l.status).length;
+  const transitCount = loads.filter((l) => l.status === "IN_TRANSIT" || l.status === "PICKED_UP").length;
   const deliveredCount = loads.filter((l) => l.status === "DELIVERED").length;
   const completedCount = loads.filter((l) => l.status === "COMPLETED").length;
 
@@ -320,14 +322,6 @@ export default function Dashboard() {
           </h1>
           <p className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest" style={{ letterSpacing: '0.2rem' }}>{todayStr}</p>
         </div>
-        
-        {/* QUICK FILTER - PREMIUM GLASS */}
-        <div className="d-flex gap-2 bg-white bg-opacity-5 p-2 rounded-pill shadow-lg border border-white border-opacity-10 transition-all hover-bg-white-10">
-          <select className="form-select form-select-sm border-0 bg-dark bg-opacity-50 shadow-none small fw-bold cursor-pointer w-auto pe-4 text-white rounded-pill" style={{ color: '#2bdd66' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-             <option value="ALL" className="bg-dark text-white">All Status</option>
-             {['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'COMPLETED'].map(s => <option key={s} value={s} className="bg-dark text-white">{s.replace('_', ' ')}</option>)}
-          </select>
-        </div>
       </div>
 
       {user?.role === 'Admin' && (
@@ -339,23 +333,17 @@ export default function Dashboard() {
       {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
       <div className="row g-4 mb-5">
         {[
-          user?.role === 'Driver' 
-            ? { label: "My Assignments", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "local_shipping", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" }
-            : { label: "Active Loads", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "local_shipping", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" },
+          { label: "All Loads", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "inventory_2", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" },
+
+          { label: "Pending", value: pendingCount, color: "#00d4ff", glow: "nebula-glow-cyan", icon: "pending_actions", bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)" },
           
-          user?.role === 'Driver'
-            ? { label: "Running", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" }
-            : { label: "In Transit", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" },
+          { label: "In Transit", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" },
             
-          user?.role === 'Driver'
-            ? { label: "Reached", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" }
-            : { label: "Awaiting Verify", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" },
+          { label: "Awaiting Verify", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" },
             
-          user?.role === 'Driver'
-            ? { label: "Done", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" }
-            : { label: "Completed", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" },
+          { label: "Completed", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" },
         ].map((stat, i) => (
-          <div key={i} className="col-12 col-md-6 col-xl-3">
+          <div key={i} className="col-12 col-sm-6 col-md-4 col-xl">
             <div className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all`} style={{ animationDelay: `${i * 100}ms`, background: stat.bg }}>
               <div className="position-absolute top-0 start-0 h-100" style={{ width: '6px', background: stat.color }}></div>
               <p className="text-uppercase fw-black mb-4" style={{ fontSize: '12px', letterSpacing: '0.2rem', color: '#a3aac4' }}>{stat.label}</p>
@@ -376,11 +364,22 @@ export default function Dashboard() {
                Real-time <span className="text-emerald" style={{ color: '#2bdd66' }}>Board</span>
              </div>
            </h3>
-           <div className="d-flex gap-2">
-              <button className="btn btn-sm btn-dark border border-white border-opacity-10 bg-glass-5 text-white shadow-sm rounded-pill px-4 py-2 fw-black transition-all hover-bg-white-10" onClick={fetchLoads}>
-                 <svg className="me-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                 Sync Data
-              </button>
+           <div className="d-flex align-items-center gap-3">
+              {/* BOARD SEARCH - PREMIUM GLASS MINI */}
+              <div className="d-flex align-items-center gap-2 bg-dark bg-opacity-40 p-1 ps-3 rounded-pill border border-emerald border-opacity-30 transition-all hover-bg-dark-60 shadow-sm" style={{ minWidth: '280px' }}>
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                 <input 
+                   type="text" 
+                   className="form-control border-0 bg-transparent shadow-none text-white small fw-black placeholder-emerald-opacity" 
+                   placeholder="SEARCH LOAD ID..." 
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   style={{ color: '#ffffff' }}
+                 />
+                 <div className="pe-2 d-none d-md-block">
+                    <span className="pulse-dot"></span>
+                 </div>
+              </div>
            </div>
         </div>
         <div className="table-responsive">
@@ -527,9 +526,21 @@ export default function Dashboard() {
         .z-index-modal { z-index: 100000; }
         .glass-modal-v3 { background: rgba(255, 255, 255, 0.9) !important; backdrop-filter: blur(15px); border: 1.5px solid rgba(255, 255, 255, 0.8); }
         .glass-header-v3 { background: rgba(255, 255, 255, 0.5) !important; backdrop-filter: blur(8px); }
+        .glass-card-stitch { 
+          background: rgba(255, 255, 255, 0.03) !important; 
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .pulse-dot { width: 8px; height: 8px; background: #2bdd66; border-radius: 50%; animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(43, 221, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0); } }
         .shadow-2xl { box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25); }
-        .shadow-emerald-lg { box-shadow: 0 20px 50px -10px rgba(43, 221, 102, 0.4); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .nebula-glow-emerald:hover { box-shadow: 0 0 30px rgba(43, 221, 102, 0.15); border-color: rgba(43, 221, 102, 0.3) !important; }
+        .nebula-glow-orange:hover { box-shadow: 0 0 30px rgba(255, 140, 0, 0.15); border-color: rgba(255, 140, 0, 0.3) !important; }
+        .nebula-glow-indigo:hover { box-shadow: 0 0 30px rgba(144, 147, 255, 0.15); border-color: rgba(144, 147, 255, 0.3) !important; }
+        .nebula-glow-cyan:hover { box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); border-color: rgba(0, 212, 255, 0.3) !important; }
+        .nebula-glow-purple:hover { box-shadow: 0 0 30px rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3) !important; }
+        .stat-icon-bg { font-size: 5rem; opacity: 0.05; position: absolute; right: -1rem; bottom: -1rem; transform: rotate(-15deg); color: #fff; pointer-events: none; }
         .btn-emerald-pill { background: #2bdd66; color: #000; border: none; }
         .btn-emerald-pill:hover { background: #16a34a; color: #fff; }
         .btn-emerald { background: #2bdd66; color: #000; border: none; }

@@ -61,82 +61,84 @@ export default function DispatchTable({ loads, onRowClick }: DispatchTableProps)
   return (
     <div className="table-responsive rounded-5 glass-card-stitch p-1 shadow-2xl">
       <table className="table table-hover align-middle mb-0 custom-table">
-        <thead style={{ backgroundColor: 'rgba(25, 37, 64, 0.3)' }}>
-          <tr className="border-0 small text-uppercase fw-black" style={{ color: '#a3aac4', letterSpacing: '0.15em', fontSize: '10px' }}>
-            <th className="px-4 py-4 cursor-pointer border-0" onClick={() => handleSort('loadNumber')}>
+        <thead style={{ backgroundColor: 'rgba(25, 37, 64, 0.7)' }}>
+          <tr className="border-0 text-uppercase fw-black" style={{ color: '#ffffff', letterSpacing: '0.1em', fontSize: '12px' }}>
+            <th className="px-3 py-3 cursor-pointer border-0" onClick={() => handleSort('loadNumber')}>
               <div className="d-flex align-items-center gap-2">
                 Load ID {sortField === 'loadNumber' && (sortOrder === 'asc' ? '↑' : '↓')}
               </div>
             </th>
-            <th className="py-4 cursor-pointer border-0" onClick={() => handleSort('pickup')}>
+            <th className="py-3 cursor-pointer border-0" onClick={() => handleSort('pickup')}>
                Origin {sortField === 'pickup' && (sortOrder === 'asc' ? '↑' : '↓')}
             </th>
-            <th className="py-4 cursor-pointer border-0" onClick={() => handleSort('delivery')}>
+            <th className="py-3 cursor-pointer border-0" onClick={() => handleSort('delivery')}>
                Destination {sortField === 'delivery' && (sortOrder === 'asc' ? '↑' : '↓')}
             </th>
-            <th className="py-4 cursor-pointer border-0" onClick={() => handleSort('driver')}>
+            <th className="py-3 cursor-pointer border-0" onClick={() => handleSort('driver')}>
                Assignee {sortField === 'driver' && (sortOrder === 'asc' ? '↑' : '↓')}
             </th>
-            <th className="py-4 border-0">Equipment</th>
-            <th className="py-4 border-0">Status</th>
-            <th className="px-4 py-4 text-end border-0"></th>
+            <th className="py-3 border-0">Equipment</th>
+            <th className="py-3 border-0">Status</th>
+            <th className="px-3 py-3 text-end border-0"></th>
           </tr>
         </thead>
         <tbody className="border-0">
           {sortedLoads.length > 0 ? (
             sortedLoads.map((load: ILoad) => (
-              <tr key={load._id.toString()} className="cursor-pointer transition-all border-bottom-subtle glass-wash" onClick={() => onRowClick(load)}>
-                <td className="px-4 py-4">
+              <tr key={load._id.toString()} className="cursor-pointer transition-all border-bottom-subtle glass-wash" onClick={() => onRowClick(load)} style={{ height: '70px' }}>
+                <td className="px-3 py-2">
                   <div className="d-flex align-items-center gap-3 text-white">
-                     <div className="rounded-3 bg-glass-10 d-flex align-items-center justify-content-center border border-white border-opacity-10 shadow-sm" style={{ width: '36px', height: '36px' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                     <div className="rounded-3 bg-dark bg-opacity-70 d-flex align-items-center justify-content-center border border-white border-opacity-10 shadow-lg" style={{ width: '36px', height: '36px' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-100"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                      </div>
                      <span className="fw-black fs-6">#{load.loadNumber}</span>
                   </div>
                 </td>
-                <td className="py-4">
+                <td className="py-2">
                   <div className="d-flex align-items-start gap-2">
-                    <div className="mt-1 opacity-50" style={{ color: '#2bdd66' }}>
+                    <div className="mt-1 opacity-90" style={{ color: '#2bdd66' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                     </div>
                     <div>
-                      <div className="fw-black text-white small opacity-90">{load.pickups[0]?.city}, {load.pickups[0]?.state}</div>
-                      {getStopSummary(load.pickups, 'PICKED_UP')}
+                      <div className="fw-black text-white" style={{ fontSize: '13px', lineHeight: '1.1' }}>{load.pickups[0]?.city}, {load.pickups[0]?.state}</div>
+                      <div className="mt-1">{getStopSummary(load.pickups, 'PICKED_UP')}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-4">
+                <td className="py-2">
                   <div className="d-flex align-items-start gap-2">
-                    <div className="mt-1 opacity-50 text-indigo" style={{ color: '#6366f1' }}>
+                    <div className="mt-1 opacity-90 text-indigo" style={{ color: '#6366f1' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </div>
                     <div>
-                      <div className="fw-black text-white small opacity-90">{load.deliveries[0]?.city}, {load.deliveries[0]?.state}</div>
-                      {getStopSummary(load.deliveries, 'DELIVERED')}
+                      <div className="fw-black text-white" style={{ fontSize: '13px', lineHeight: '1.1' }}>{load.deliveries[0]?.city}, {load.deliveries[0]?.state}</div>
+                      <div className="mt-1">{getStopSummary(load.deliveries, 'DELIVERED')}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-4">
+                <td className="py-2">
                    <div className="d-flex align-items-center gap-2">
-                     <div className="rounded-circle bg-white bg-opacity-10 d-flex align-items-center justify-content-center border border-white border-opacity-10 x-small fw-black text-emerald transition-all hover-glow-emerald" style={{ width: '32px', height: '32px', color: '#2bdd66', boxShadow: '0 0 10px rgba(43, 221, 102, 0.1)' }}>
-                       {(load.assignedDriverId as any)?.name?.[0] || '?'}
+                     <div className={`rounded-circle d-flex align-items-center justify-content-center border border-white border-opacity-10 fw-black transition-all shadow-sm ${!(load.assignedDriverId as any)?.name ? 'bg-danger bg-opacity-20 text-danger' : 'bg-dark bg-opacity-80 text-emerald'}`} style={{ width: '32px', height: '32px', borderStyle: 'solid', borderWidth: '1px' }}>
+                       {(load.assignedDriverId as any)?.name?.[0] || '!'}
                      </div>
-                     <span className="small fw-bold text-white opacity-80 letter-spacing-tight">{(load.assignedDriverId as any)?.name || 'Unassigned'}</span>
+                     <span className={`text-uppercase fw-black ${(load.assignedDriverId as any)?.name ? 'text-white' : 'text-danger opacity-75'}`} style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                        {(load.assignedDriverId as any)?.name || 'UNASSIGNED'}
+                     </span>
                    </div>
                 </td>
-                <td className="py-4">
-                   <div className="badge border border-white border-opacity-10 rounded-3 px-2 py-1 text-white x-small fw-bold bg-white bg-opacity-5 shadow-sm">
+                <td className="py-2">
+                   <div className="bg-emerald bg-opacity-10 border border-emerald border-opacity-20 rounded-pill px-2 py-1 text-emerald fw-bold shadow-sm d-inline-block" style={{ fontSize: '10px', letterSpacing: '0.02em' }}>
                       {load.truckNumber || 'N/A'} / {load.trailerNumber || 'N/A'}
                    </div>
                 </td>
-                <td className="py-4">
-                  <span className={`badge border rounded-pill px-3 py-2 fw-bold x-small d-inline-flex align-items-center gap-2 ${getStatusBadgeClass(load.status)}`}>
-                    <div className="rounded-circle bg-current" style={{ width: '6px', height: '6px' }}></div>
+                <td className="py-2">
+                  <span className={`badge border rounded-pill px-2 py-1 fw-black text-uppercase d-inline-flex align-items-center gap-1 ${getStatusBadgeClass(load.status)} shadow-sm`} style={{ fontSize: '9px', letterSpacing: '0.05em' }}>
+                    <div className="rounded-circle bg-current" style={{ width: '5px', height: '5px' }}></div>
                     {load.status.replace('_', ' ')}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-end">
-                   <div className="btn-action shadow-sm border rounded-circle d-inline-flex align-items-center justify-content-center transition-all" style={{ width: '32px', height: '32px' }}>
+                <td className="px-3 py-2 text-end">
+                   <div className="btn-action shadow-lg border rounded-circle d-inline-flex align-items-center justify-content-center transition-all bg-dark bg-opacity-40" style={{ width: '32px', height: '32px' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                    </div>
                 </td>

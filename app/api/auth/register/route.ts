@@ -68,6 +68,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'This email has not been invited to join the platform. Please contact an administrator.' }, { status: 403 });
       }
 
+      if (existingUser.role === 'Admin') {
+        return NextResponse.json({ error: 'Admin accounts cannot be registered here. Please contact the system administrator.' }, { status: 403 });
+      }
+
       if (!existingUser.isPending && existingUser.passwordHash) {
         return NextResponse.json({ error: 'This account is already registered. Please sign in.' }, { status: 400 });
       }
