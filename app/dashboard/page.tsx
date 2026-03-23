@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import DispatchTable from "@/components/DispatchTable";
 import LoadDetailsModal from "@/components/LoadDetailsModal";
+import AdminVisualSummary from "@/components/AdminVisualSummary";
+import { useSearch } from "@/context/SearchContext";
 import { User } from "@/context/AuthContext";
 import { ILoad } from "@/models/Load";
 
@@ -175,7 +177,7 @@ export default function Dashboard() {
   const [loads, setLoads] = useState<Load[]>([]);
   const [drivers, setDrivers] = useState<{ _id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm } = useSearch();
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -319,20 +321,20 @@ export default function Dashboard() {
           <p className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest" style={{ letterSpacing: '0.2rem' }}>{todayStr}</p>
         </div>
         
-        {/* QUICK SEARCH & FILTER - PREMIUM GLASS */}
+        {/* QUICK FILTER - PREMIUM GLASS */}
         <div className="d-flex gap-2 bg-white bg-opacity-5 p-2 rounded-pill shadow-lg border border-white border-opacity-10 transition-all hover-bg-white-10">
-          <div className="input-group input-group-sm border-end border-white border-opacity-10 pe-3" style={{ maxWidth: '280px' }}>
-             <span className="input-group-text bg-transparent border-0 text-white opacity-25">
-               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-             </span>
-             <input type="text" className="form-control border-0 bg-transparent text-white shadow-none px-1 small fw-medium" placeholder="Search loads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
           <select className="form-select form-select-sm border-0 bg-dark bg-opacity-50 shadow-none small fw-bold cursor-pointer w-auto pe-4 text-white rounded-pill" style={{ color: '#2bdd66' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
              <option value="ALL" className="bg-dark text-white">All Status</option>
              {['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'COMPLETED'].map(s => <option key={s} value={s} className="bg-dark text-white">{s.replace('_', ' ')}</option>)}
           </select>
         </div>
       </div>
+
+      {user?.role === 'Admin' && (
+        <div className="mb-5">
+          <AdminVisualSummary loads={loads} drivers={drivers} />
+        </div>
+      )}
 
       {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
       <div className="row g-4 mb-5">

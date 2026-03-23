@@ -2,6 +2,7 @@
 
 import Sidebar from "@/components/Sidebar";
 import { AuthProvider } from "@/context/AuthContext";
+import { SearchProvider, useSearch } from "@/context/SearchContext";
 import UserHeaderProfile from "@/components/UserHeaderProfile";
 
 export const BellIcon = () => (
@@ -24,6 +25,18 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthProvider>
+      <SearchProvider>
+        <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      </SearchProvider>
+    </AuthProvider>
+  );
+}
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  const { searchTerm, setSearchTerm } = useSearch();
+
+  return (
+    <>
       <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
       <div className="d-flex vh-100 premium-bg overflow-hidden text-white">
         <Sidebar />
@@ -35,6 +48,8 @@ export default function DashboardLayout({
               <input
                 className="bg-transparent border-0 small text-white shadow-none w-100 fw-medium"
                 placeholder="Search logistics..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ outline: "none", fontSize: '0.85rem', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.9)' }}
               />
             </div>
@@ -60,6 +75,6 @@ export default function DashboardLayout({
         .hover-bg-white-10:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
-    </AuthProvider>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSearch } from "@/context/SearchContext";
 
 type UserFormData = {
   name: string;
@@ -28,6 +29,7 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
+  const { searchTerm } = useSearch();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<UserFormData>();
 
@@ -112,6 +114,12 @@ export default function UserManagement() {
     setShowModal(true);
   };
 
+  const filteredUsers = users.filter(u => 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
@@ -137,9 +145,9 @@ export default function UserManagement() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={4} className="text-center py-5 text-muted">Loading users...</td></tr>
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <tr><td colSpan={4} className="text-center py-5 text-muted">No users found.</td></tr>
-                ) : users.map(u => (
+                ) : filteredUsers.map(u => (
                   <tr key={u._id} className="border-bottom border-light transition-all hover-bg-light">
                     <td className="px-4 py-3 fw-bold text-dark">{u.name}</td>
                     <td className="px-4 py-3 text-secondary">{u.email}</td>

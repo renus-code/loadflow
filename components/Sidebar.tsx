@@ -73,7 +73,7 @@ export default function Sidebar() {
           <span>Dashboard</span>
         </Link>
 
-        {(user?.role === 'Admin' || user?.role === 'Dispatcher') && (
+        {user?.role === 'Dispatcher' && (
           <div className="mt-4 mb-2">
             <button
               onClick={handleCreateLoad}
