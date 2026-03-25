@@ -57,11 +57,21 @@ export default function UserSidebarProfile() {
           {initials}
         </div>
         <div className="flex-grow-1" style={{ minWidth: 0 }}>
-          <div className="fw-black text-white mb-0" style={{ fontSize: '1rem', letterSpacing: '0.02em', lineHeight: '1.2' }}>
+          <div className="fw-black text-white mb-0" style={{ fontSize: '1.05rem', letterSpacing: '0.01em', lineHeight: '1.1' }}>
             {user.name}
           </div>
-          <div className="text-white-50 x-small text-truncate opacity-80 mt-1">
-            {user.email}
+          <div className="d-flex align-items-center gap-2 mt-2">
+            <span 
+              className="badge rounded-pill fw-black text-uppercase tracking-widest px-2 py-1" 
+              style={{ 
+                fontSize: '0.55rem', 
+                background: '#2bdd66', 
+                color: '#0d1117',
+                boxShadow: '0 0 12px rgba(43, 221, 102, 0.4)' 
+              }}
+            >
+              {user.role}
+            </span>
           </div>
         </div>
       </div>

@@ -133,7 +133,7 @@ function useCities(stateInput: string) {
 }
 
 const FIELD =
-  "form-control rounded-4 p-3 border border-white border-opacity-50 bg-white bg-opacity-60 backdrop-blur-sm shadow-sm focus-ring-primary transition-all";
+  "form-control rounded-4 p-3 glass-input-premium text-white shadow-sm focus-ring-emerald transition-all border-white border-opacity-10 shadow-none";
 
 const ALL_REGIONS: [string, string, string][] = [
   ...US_STATES.map(([c, n]): [string, string, string] => [c, n, "🇺🇸"]),
@@ -179,6 +179,7 @@ function StateProvinceSelect({
         autoComplete="off"
         spellCheck={false}
         className={FIELD}
+        style={{ background: "#0d1117", color: "white" }}
         value={query}
         placeholder="State/Province (e.g. ON, IL)"
         onChange={(e) => {
@@ -190,14 +191,14 @@ function StateProvinceSelect({
       />
       {open && filtered.length > 0 && (
         <ul
-          className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1"
+          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
           style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
         >
           {filtered.map(([code, name, flag]) => (
             <li key={code}>
               <button
                 type="button"
-                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2"
+                className="btn btn-link text-decoration-none text-white w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2 hover-bg-white-5"
                 onMouseDown={() => {
                   onChange(code);
                   setQuery(code);
@@ -205,12 +206,12 @@ function StateProvinceSelect({
                 }}
               >
                 <span
-                  className="fw-bold text-primary"
+                  className="fw-bold text-emerald"
                   style={{ minWidth: "2rem" }}
                 >
                   {code}
                 </span>
-                <span className="text-secondary">{name}</span>
+                <span className="text-white opacity-60">{name}</span>
                 <span className="ms-auto">{flag}</span>
               </button>
             </li>
@@ -256,6 +257,7 @@ function CitySelect({
         required
         autoComplete="off"
         className={FIELD}
+        style={{ background: "#0d1117", color: "white" }}
         value={query}
         placeholder={loading ? "Loading..." : "City"}
         disabled={loading}
@@ -268,14 +270,14 @@ function CitySelect({
       />
       {open && filtered.length > 0 && (
         <ul
-          className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1"
+          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
           style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
         >
           {filtered.map((city) => (
             <li key={city}>
               <button
                 type="button"
-                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium"
+                className="btn btn-link text-decoration-none text-white w-100 text-start px-3 py-2 small fw-medium hover-bg-white-5"
                 onMouseDown={() => {
                   onChange(city);
                   setQuery(city);
@@ -283,6 +285,79 @@ function CitySelect({
                 }}
               >
                 {city}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function GlassySelect({ options, value, onChange, id }: any) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="position-relative w-100">
+      <button
+        type="button"
+        id={id}
+        className="form-select form-select-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none w-100 text-start d-flex justify-content-between align-items-center"
+        style={{
+          background: "#0d1117",
+          color: "white",
+          backgroundImage: "none",
+        }}
+        onClick={() => setOpen(!open)}
+      >
+        <span>
+          {options.find((o: any) => o.value === value)?.label || "Select..."}
+        </span>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            opacity: 0.5,
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.3s ease",
+          }}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <ul
+          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: "250px", overflowY: "auto" }}
+        >
+          {options.map((opt: any) => (
+            <li key={opt.value}>
+              <button
+                type="button"
+                className={`btn btn-link text-decoration-none w-100 text-start px-3 py-2 small fw-medium hover-bg-white-5 ${
+                  value === opt.value ? "text-emerald fw-black" : "text-white"
+                }`}
+                onMouseDown={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+              >
+                {opt.label}
               </button>
             </li>
           ))}
@@ -312,8 +387,13 @@ function LocationBlock({
 
   return (
     <div
-      className={`card border-0 shadow-sm rounded-4 p-4 bg-white bg-opacity-70 backdrop-blur-sm stop-card h-100 position-relative transition-all`}
-      style={{ borderLeft: `6px solid ${isPickup ? "#6366f1" : "#10b981"}` }}
+      className={`card border-0 shadow-sm rounded-4 p-4 stop-card h-100 position-relative transition-all`}
+      style={{
+        borderLeft: `6px solid ${isPickup ? "#6366f1" : "#10b981"}`,
+        background: "rgba(255, 255, 255, 0.02)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255,255,255,0.05) !important",
+      }}
     >
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span className="badge rounded-pill bg-light text-primary fw-bold px-3 py-2 border shadow-sm stop-label d-flex align-items-center gap-2">
@@ -346,7 +426,8 @@ function LocationBlock({
           <div className="col-12">
             <label
               htmlFor={`${prefix}.address`}
-              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+              className="small fw-black text-white mb-1 px-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
             >
               Address *
             </label>
@@ -354,6 +435,7 @@ function LocationBlock({
               id={`${prefix}.address`}
               required
               className={FIELD}
+              style={{ background: "#0d1117", color: "white" }}
               placeholder="123 Industrial Way"
               {...register(`${prefix}.address`, { required: true })}
             />
@@ -361,7 +443,8 @@ function LocationBlock({
           <div className="col-md-6">
             <label
               htmlFor={`${prefix}.state`}
-              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+              className="small fw-black text-white mb-1 px-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
             >
               State / Province *
             </label>
@@ -386,7 +469,8 @@ function LocationBlock({
           <div className="col-md-6">
             <label
               htmlFor={`${prefix}.city`}
-              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+              className="small fw-black text-white mb-1 px-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
             >
               City *
             </label>
@@ -411,23 +495,31 @@ function LocationBlock({
         </div>
         <div className="row g-3">
           <div className="col-md-5">
-            <label className="small fw-bold text-secondary mb-1 opacity-75">
+            <label
+              className="small fw-black text-white mb-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
+            >
               Postal Code *
             </label>
             <input
               required
               className={FIELD}
+              style={{ background: "#0d1117", color: "white" }}
               placeholder="M5V 2L7"
               {...register(`${prefix}.postalCode`, { required: true })}
             />
           </div>
           <div className="col-md-7">
-            <label className="small fw-bold text-secondary mb-1 opacity-75">
+            <label
+              className="small fw-black text-white mb-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
+            >
               Appt / PO # *
             </label>
             <input
               required
               className={FIELD}
+              style={{ background: "#0d1117", color: "white" }}
               placeholder="A-998811"
               {...register(`${prefix}.appointmentNumber`, { required: true })}
             />
@@ -435,24 +527,32 @@ function LocationBlock({
         </div>
         <div className="row g-3">
           <div className="col-md-7">
-            <label className="small fw-bold text-secondary mb-1 opacity-75">
+            <label
+              className="small fw-black text-white mb-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
+            >
               Date *
             </label>
             <input
               required
               type="date"
               className={FIELD}
+              style={{ background: "#0d1117", color: "white" }}
               {...register(`${prefix}.date`, { required: true })}
             />
           </div>
           <div className="col-md-5">
-            <label className="small fw-bold text-secondary mb-1 opacity-75">
+            <label
+              className="small fw-black text-white mb-1 opacity-50 text-uppercase tracking-wider"
+              style={{ fontSize: "10px" }}
+            >
               Time *
             </label>
             <input
               required
               type="time"
               className={FIELD}
+              style={{ background: "#0d1117", color: "white" }}
               {...register(`${prefix}.time`, { required: true })}
             />
           </div>
@@ -922,8 +1022,11 @@ export default function Dashboard() {
           style={{ zIndex: 99999 }}
         >
           <div
-            className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-60 backdrop-blur-2xl"
-            style={{ position: "fixed" }}
+            className="position-absolute top-0 start-0 w-100 h-100 backdrop-blur-[2px]"
+            style={{
+              position: "fixed",
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+            }}
             onClick={() => {
               setShowModal(false);
               window.dispatchEvent(new CustomEvent("close-create-load"));
@@ -1015,7 +1118,8 @@ export default function Dashboard() {
                     <input
                       id="loadNumberField"
                       required
-                      className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                      className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                      style={{ background: "#0d1117", color: "white" }}
                       placeholder="e.g. #LD-882299"
                       {...register("loadNumber", { required: true })}
                     />
@@ -1120,7 +1224,7 @@ export default function Dashboard() {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-sm btn-outline-white hover-bg-white-5 fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all border-white border-opacity-20 text-white"
+                      className="btn btn-sm btn-emerald fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-lg transition-all border-0"
                       onClick={() => appendDelivery({ ...initialStop })}
                     >
                       <svg
@@ -1158,10 +1262,31 @@ export default function Dashboard() {
                 {/* SECTION: CARGO */}
                 <div className="col-12 mt-5 text-start">
                   <div className="d-flex align-items-center gap-2 mb-2">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg-orange" style={{ width: "35px", height: "35px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg-orange"
+                      style={{ width: "35px", height: "35px" }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#f59e0b"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                      </svg>
                     </div>
-                    <h5 className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.75rem" }}>Logistics Payload</h5>
+                    <h5
+                      className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80"
+                      style={{ fontSize: "0.75rem" }}
+                    >
+                      Logistics Payload
+                    </h5>
                   </div>
                   <hr className="mt-1 mb-3 border-white opacity-10" />
                   <div className="row g-3 px-1">
@@ -1173,7 +1298,8 @@ export default function Dashboard() {
                         required
                         type="number"
                         min={0}
-                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                        style={{ background: "#0d1117", color: "white" }}
                         placeholder="24"
                         {...register("quantity", { required: true, min: 0 })}
                       />
@@ -1182,17 +1308,25 @@ export default function Dashboard() {
                       <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
                         Unit *
                       </label>
-                      <select
-                        className="form-select form-select-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
-                        {...register("quantityUnit", { required: true })}
-                      >
-                        <option value="skids">Skids</option>
-                        <option value="pallets">Pallets</option>
-                        <option value="packages">Packages</option>
-                        <option value="pieces">Pieces</option>
-                        <option value="box">Box</option>
-                        <option value="cases">Cases</option>
-                      </select>
+                      <Controller
+                        name="quantityUnit"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                          <GlassySelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={[
+                              { value: "skids", label: "Skids" },
+                              { value: "pallets", label: "Pallets" },
+                              { value: "packages", label: "Packages" },
+                              { value: "pieces", label: "Pieces" },
+                              { value: "box", label: "Box" },
+                              { value: "cases", label: "Cases" },
+                            ]}
+                          />
+                        )}
+                      />
                     </div>
                     <div className="col-md-3">
                       <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
@@ -1202,7 +1336,8 @@ export default function Dashboard() {
                         required
                         type="number"
                         min={0}
-                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                        style={{ background: "#0d1117", color: "white" }}
                         placeholder="45000"
                         {...register("weight", { required: true, min: 0 })}
                       />
@@ -1211,13 +1346,21 @@ export default function Dashboard() {
                       <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
                         Weight Unit *
                       </label>
-                      <select
-                        className="form-select form-select-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
-                        {...register("weightUnit", { required: true })}
-                      >
-                        <option value="lbs">lbs</option>
-                        <option value="kg">kg</option>
-                      </select>
+                      <Controller
+                        name="weightUnit"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                          <GlassySelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={[
+                              { value: "lbs", label: "lbs" },
+                              { value: "kg", label: "kg" },
+                            ]}
+                          />
+                        )}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1225,7 +1368,7 @@ export default function Dashboard() {
                 <div className="col-12 mt-5 pb-5 px-1">
                   <button
                     type="submit"
-                    className="btn bg-emerald text-dark w-100 rounded-pill py-4 fw-black fs-4 shadow-glow-emerald transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3 border-0"
+                    className="btn btn-emerald w-100 rounded-pill py-3 fw-black fs-5 shadow-glow-emerald transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3 border-0"
                   >
                     <div className="bg-dark bg-opacity-10 p-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm">
                       <svg
@@ -1250,7 +1393,11 @@ export default function Dashboard() {
         </div>
       )}
 
-      <style jsx>{`
+      <style jsx global>{`
+        input::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
         .section-label {
           font-family: var(--font-syne);
         }
@@ -1271,24 +1418,44 @@ export default function Dashboard() {
           z-index: 100000;
         }
         .glass-modal-v4 {
-          background: rgba(13, 17, 23, 0.6) !important;
-          backdrop-filter: blur(120px);
-          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          background: rgba(8, 10, 15, 0.98) !important;
+          backdrop-filter: blur(80px);
+          border: 1px solid rgba(255, 255, 255, 0.15) !important;
+          box-shadow:
+            0 40px 100px rgba(0, 0, 0, 0.8),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+        }
+        .btn-emerald {
+          background: #2bdd66 !important;
+          color: #0d1117 !important;
+          border: none !important;
+        }
+        .shadow-glow-emerald {
+          box-shadow: 0 0 30px rgba(43, 221, 102, 0.4) !important;
+        }
+        .btn-emerald:hover {
+          background: #10b981 !important;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 25px rgba(43, 221, 102, 0.4) !important;
         }
         .glass-header-v4 {
-          background: rgba(255, 255, 255, 0.05) !important;
+          background: rgba(255, 255, 255, 0.03) !important;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(20px);
         }
         .glass-input-premium {
-          background: rgba(255, 255, 255, 0.03) !important;
+          background: #0d1117 !important;
+          background-color: #0d1117 !important;
+          backdrop-filter: blur(10px);
           border-radius: 1rem !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: white !important;
           transition: all 0.3s ease;
         }
         .glass-input-premium:focus {
-          background: rgba(255, 255, 255, 0.07) !important;
+          background: rgba(255, 255, 255, 0.08) !important;
           border-color: #2bdd66 !important;
-          box-shadow: 0 0 20px rgba(43, 221, 102, 0.15) !important;
+          box-shadow: 0 0 25px rgba(43, 221, 102, 0.2) !important;
         }
         .glass-input-premium option {
           background: #0d1117 !important;
@@ -1322,8 +1489,17 @@ export default function Dashboard() {
         .fw-black {
           font-weight: 900;
         }
-        input::placeholder {
-          opacity: 0.3;
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+        select.glass-input-premium {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 1rem center !important;
+          background-size: 16px 12px !important;
+          appearance: none !important;
         }
       `}</style>
     </div>

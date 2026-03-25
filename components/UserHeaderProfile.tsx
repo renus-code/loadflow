@@ -33,12 +33,17 @@ export default function UserHeaderProfile() {
       >
         {initials}
       </div>
-      <div className="d-flex flex-column align-items-start text-start overflow-hidden me-1">
-         <span className="fw-bold text-white tracking-wide text-truncate name-text" style={{ fontSize: '0.85rem', lineHeight: '1.2' }}>{user.name}</span>
-         {user.role && <span className="role-text text-uppercase tracking-widest text-truncate" style={{ fontSize: '0.6rem', fontWeight: 900 }}>{user.role}</span>}
+      <div className="d-flex flex-column align-items-start text-start overflow-hidden me-1" style={{ maxWidth: '140px' }}>
+        <span className="fw-bold text-white tracking-wide text-truncate name-text w-100" style={{ fontSize: '0.85rem', lineHeight: '1.2' }}>
+          {user.name}
+        </span>
+        <div className="d-flex align-items-center gap-2 mt-0.5 w-100 overflow-hidden">
+          {user.role && <span className="role-text-premium text-uppercase tracking-widest text-truncate" style={{ fontSize: '0.55rem', fontWeight: 900 }}>{user.role}</span>}
+        </div>
       </div>
 
       <style jsx>{`
+        .role-text-premium { color: #2bdd66; text-shadow: 0 0 10px rgba(43, 221, 102, 0.3); }
         .btn-glass-pill {
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.08);
