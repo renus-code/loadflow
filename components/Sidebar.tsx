@@ -68,7 +68,7 @@ export default function Sidebar() {
 
       {/* NAVIGATION SECTIONS */}
       <div className="flex-grow-1 p-3 d-flex flex-column gap-2 overflow-auto no-scrollbar">
-        <label className="text-white text-uppercase x-small fw-bolder opacity-25 px-3 mb-2 tracking-widest mt-2">Workspace</label>
+        <label className="text-white text-uppercase x-small fw-black opacity-60 px-3 mb-2 tracking-widest mt-2">Workspace Dashboard</label>
         
         <Link
           href="/dashboard"
@@ -84,17 +84,17 @@ export default function Sidebar() {
 
 
         {user?.role === 'Dispatcher' && (
-          <div className="mt-4 mb-2">
-            <button
-              onClick={handleCreateLoad}
-              className={`btn w-100 d-flex align-items-center justify-content-center gap-3 py-3 rounded-pill fw-bold shadow-lg transition-all hover-float hover-scale active-scale-95 ${isCreateModalOpen ? 'btn-emerald-active shadow-emerald-active' : 'btn-emerald'}`}
-            >
-              <div className={`rounded-circle d-flex align-items-center justify-content-center ${isCreateModalOpen ? 'bg-white bg-opacity-30' : 'bg-white bg-opacity-20'}`} style={{ width: '28px', height: '28px' }}>
-                <PlusCircleIcon />
-              </div>
-              <span>Create New Load</span>
-            </button>
-          </div>
+          <button
+            onClick={handleCreateLoad}
+            className={`w-100 d-flex align-items-center gap-3 px-3 py-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 border-0 text-start ${
+              isCreateModalOpen 
+              ? 'bg-emerald-glow text-white shadow-emerald border-emerald' 
+              : 'text-white-50 bg-transparent hover-bg-white-5 hover-text-white'
+            }`}
+          >
+            <PlusCircleIcon />
+            <span>Create New Load</span>
+          </button>
         )}
 
         {user?.role === 'Admin' && (

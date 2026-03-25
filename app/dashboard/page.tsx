@@ -1,68 +1,129 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import DispatchTable from "@/components/DispatchTable";
 import LoadDetailsModal from "@/components/LoadDetailsModal";
 import AdminVisualSummary from "@/components/AdminVisualSummary";
 import { useSearch } from "@/context/SearchContext";
-import { User } from "@/context/AuthContext";
 import { ILoad } from "@/models/Load";
+import { useForm, useFieldArray, Controller, Control } from "react-hook-form";
 
 // ─── STATE / PROVINCE DATA ────────────────────────────────────────────────────
 const US_STATES: [string, string][] = [
-  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
-  ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['FL','Florida'],['GA','Georgia'],
-  ['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],
-  ['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],
-  ['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],
-  ['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],
-  ['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],
-  ['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],
-  ['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],
-  ['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],
-  ['DC','District of Columbia'],
+  ["AL", "Alabama"],
+  ["AK", "Alaska"],
+  ["AZ", "Arizona"],
+  ["AR", "Arkansas"],
+  ["CA", "California"],
+  ["CO", "Colorado"],
+  ["CT", "Connecticut"],
+  ["DE", "Delaware"],
+  ["FL", "Florida"],
+  ["GA", "Georgia"],
+  ["HI", "Hawaii"],
+  ["ID", "Idaho"],
+  ["IL", "Illinois"],
+  ["IN", "Indiana"],
+  ["IA", "Iowa"],
+  ["KS", "Kansas"],
+  ["KY", "Kentucky"],
+  ["LA", "Louisiana"],
+  ["ME", "Maine"],
+  ["MD", "Maryland"],
+  ["MA", "Massachusetts"],
+  ["MI", "Michigan"],
+  ["MN", "Minnesota"],
+  ["MS", "Mississippi"],
+  ["MO", "Missouri"],
+  ["MT", "Montana"],
+  ["NE", "Nebraska"],
+  ["NV", "Nevada"],
+  ["NH", "New Hampshire"],
+  ["NJ", "New Jersey"],
+  ["NM", "New Mexico"],
+  ["NY", "New York"],
+  ["NC", "North Carolina"],
+  ["ND", "North Dakota"],
+  ["OH", "Ohio"],
+  ["OK", "Oklahoma"],
+  ["OR", "Oregon"],
+  ["PA", "Pennsylvania"],
+  ["RI", "Rhode Island"],
+  ["SC", "South Carolina"],
+  ["SD", "South Dakota"],
+  ["TN", "Tennessee"],
+  ["TX", "Texas"],
+  ["UT", "Utah"],
+  ["VT", "Vermont"],
+  ["VA", "Virginia"],
+  ["WA", "Washington"],
+  ["WV", "West Virginia"],
+  ["WI", "Wisconsin"],
+  ["WY", "Wyoming"],
+  ["DC", "District of Columbia"],
 ];
 
 const CA_PROVINCES: [string, string][] = [
-  ['AB','Alberta'],['BC','British Columbia'],['MB','Manitoba'],['NB','New Brunswick'],
-  ['NL','Newfoundland and Labrador'],['NS','Nova Scotia'],['ON','Ontario'],
-  ['PE','Prince Edward Island'],['QC','Quebec'],['SK','Saskatchewan'],
-  ['NT','Northwest Territories'],['NU','Nunavut'],['YT','Yukon'],
+  ["AB", "Alberta"],
+  ["BC", "British Columbia"],
+  ["MB", "Manitoba"],
+  ["NB", "New Brunswick"],
+  ["NL", "Newfoundland and Labrador"],
+  ["NS", "Nova Scotia"],
+  ["ON", "Ontario"],
+  ["PE", "Prince Edward Island"],
+  ["QC", "Quebec"],
+  ["SK", "Saskatchewan"],
+  ["NT", "Northwest Territories"],
+  ["NU", "Nunavut"],
+  ["YT", "Yukon"],
 ];
 
 const STATE_MAP = new Map<string, { name: string; country: string }>();
 US_STATES.forEach(([code, name]) => {
-  STATE_MAP.set(code.toUpperCase(), { name, country: 'United States' });
-  STATE_MAP.set(name.toLowerCase(), { name, country: 'United States' });
+  STATE_MAP.set(code.toUpperCase(), { name, country: "United States" });
+  STATE_MAP.set(name.toLowerCase(), { name, country: "United States" });
 });
 CA_PROVINCES.forEach(([code, name]) => {
-  STATE_MAP.set(code.toUpperCase(), { name, country: 'Canada' });
-  STATE_MAP.set(name.toLowerCase(), { name, country: 'Canada' });
+  STATE_MAP.set(code.toUpperCase(), { name, country: "Canada" });
+  STATE_MAP.set(name.toLowerCase(), { name, country: "Canada" });
 });
 
 function resolveState(input: string) {
   if (!input) return undefined;
-  return STATE_MAP.get(input.toUpperCase()) ?? STATE_MAP.get(input.toLowerCase());
+  return (
+    STATE_MAP.get(input.toUpperCase()) ?? STATE_MAP.get(input.toLowerCase())
+  );
 }
 
 function useCities(stateInput: string) {
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const fetchCities = useCallback(async (input: string) => {
-    const code = input.includes(' — ') ? input.split(' — ')[0].trim() : input;
+    const code = input.includes(" — ") ? input.split(" — ")[0].trim() : input;
     const info = resolveState(code);
-    if (!info) { setCities([]); return; }
+    if (!info) {
+      setCities([]);
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ country: info.country, state: info.name }),
-      });
+      const res = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/state/cities",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: info.country, state: info.name }),
+        },
+      );
       const json = await res.json();
       setCities(json?.data ?? []);
-    } catch { setCities([]); } finally { setLoading(false); }
+    } catch {
+      setCities([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
   useEffect(() => {
     if (stateInput) fetchCities(stateInput);
@@ -71,32 +132,88 @@ function useCities(stateInput: string) {
   return { cities, loading };
 }
 
-const FIELD = "form-control rounded-4 p-3 border border-white border-opacity-50 bg-white bg-opacity-60 backdrop-blur-sm shadow-sm focus-ring-primary transition-all";
+const FIELD =
+  "form-control rounded-4 p-3 border border-white border-opacity-50 bg-white bg-opacity-60 backdrop-blur-sm shadow-sm focus-ring-primary transition-all";
 
 const ALL_REGIONS: [string, string, string][] = [
-  ...US_STATES.map(([c, n]): [string, string, string] => [c, n, '🇺🇸']),
-  ...CA_PROVINCES.map(([c, n]): [string, string, string] => [c, n, '🇨🇦']),
+  ...US_STATES.map(([c, n]): [string, string, string] => [c, n, "🇺🇸"]),
+  ...CA_PROVINCES.map(([c, n]): [string, string, string] => [c, n, "🇨🇦"]),
 ];
 
-function StateProvinceSelect({ value, onChange, id }: { value: string; onChange: (v: string) => void; id?: string }) {
+function StateProvinceSelect({
+  value,
+  onChange,
+  id,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  id?: string;
+}) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => { setQuery(value); }, [value]);
   useEffect(() => {
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    setQuery(value);
+  }, [value]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
   const q = query.trim().toUpperCase();
-  const filtered = q.length === 0 ? ALL_REGIONS : ALL_REGIONS.filter(([code, name]) => code.startsWith(q) || name.toUpperCase().startsWith(q));
+  const filtered =
+    q.length === 0
+      ? ALL_REGIONS
+      : ALL_REGIONS.filter(
+          ([code, name]) =>
+            code.startsWith(q) || name.toUpperCase().startsWith(q),
+        );
   return (
     <div ref={ref} className="position-relative">
-      <input id={id} required autoComplete="off" spellCheck={false} className={FIELD} value={query} placeholder="State/Province (e.g. ON, IL)" onChange={e => { setQuery(e.target.value.toUpperCase()); onChange(e.target.value.toUpperCase()); setOpen(true); }} onFocus={() => setOpen(true)} />
+      <input
+        id={id}
+        required
+        autoComplete="off"
+        spellCheck={false}
+        className={FIELD}
+        value={query}
+        placeholder="State/Province (e.g. ON, IL)"
+        onChange={(e) => {
+          setQuery(e.target.value.toUpperCase());
+          onChange(e.target.value.toUpperCase());
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+      />
       {open && filtered.length > 0 && (
-        <ul className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1" style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}>
+        <ul
+          className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
+        >
           {filtered.map(([code, name, flag]) => (
-            <li key={code}><button type="button" className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2" onMouseDown={() => { onChange(code); setQuery(code); setOpen(false); }}><span className="fw-bold text-primary" style={{ minWidth: '2rem' }}>{code}</span><span className="text-secondary">{name}</span><span className="ms-auto">{flag}</span></button></li>
+            <li key={code}>
+              <button
+                type="button"
+                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2"
+                onMouseDown={() => {
+                  onChange(code);
+                  setQuery(code);
+                  setOpen(false);
+                }}
+              >
+                <span
+                  className="fw-bold text-primary"
+                  style={{ minWidth: "2rem" }}
+                >
+                  {code}
+                </span>
+                <span className="text-secondary">{name}</span>
+                <span className="ms-auto">{flag}</span>
+              </button>
+            </li>
           ))}
         </ul>
       )}
@@ -104,86 +221,304 @@ function StateProvinceSelect({ value, onChange, id }: { value: string; onChange:
   );
 }
 
-function CitySelect({ stateCode, value, onChange, id }: { stateCode: string; value: string; onChange: (v: string) => void; id?: string }) {
+function CitySelect({
+  stateCode,
+  value,
+  onChange,
+  id,
+}: {
+  stateCode: string;
+  value: string;
+  onChange: (v: string) => void;
+  id?: string;
+}) {
   const { cities, loading } = useCities(stateCode);
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => { setQuery(value); }, [value]);
   useEffect(() => {
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    setQuery(value);
+  }, [value]);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
   const q = query.trim().toLowerCase();
-  const filtered = cities.filter(city => city.toLowerCase().startsWith(q));
+  const filtered = cities.filter((city) => city.toLowerCase().startsWith(q));
   return (
     <div ref={ref} className="position-relative">
-      <input id={id} required autoComplete="off" className={FIELD} value={query} placeholder={loading ? 'Loading...' : 'City'} disabled={loading} onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} />
+      <input
+        id={id}
+        required
+        autoComplete="off"
+        className={FIELD}
+        value={query}
+        placeholder={loading ? "Loading..." : "City"}
+        disabled={loading}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+      />
       {open && filtered.length > 0 && (
-        <ul className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1" style={{ zIndex: 9999, maxHeight: '220px', overflowY: 'auto' }}>
-          {filtered.map(city => (<li key={city}><button type="button" className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium" onMouseDown={() => { onChange(city); setQuery(city); setOpen(false); }}>{city}</button></li>))}
+        <ul
+          className="list-unstyled position-absolute w-100 bg-white border rounded-4 shadow-lg mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
+        >
+          {filtered.map((city) => (
+            <li key={city}>
+              <button
+                type="button"
+                className="btn btn-link text-decoration-none text-dark w-100 text-start px-3 py-2 small fw-medium"
+                onMouseDown={() => {
+                  onChange(city);
+                  setQuery(city);
+                  setOpen(false);
+                }}
+              >
+                {city}
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
   );
 }
 
-function LocationBlock({ type, index, data, onChange, onRemove, isRemovable }: { type: 'pickups' | 'deliveries', index: number, data: any, onChange: any, onRemove: any, isRemovable: boolean }) {
-  const isPickup = type === 'pickups';
+function LocationBlock({
+  type,
+  index,
+  control,
+  register,
+  onRemove,
+  isRemovable,
+}: {
+  type: "pickups" | "deliveries";
+  index: number;
+  control: Control<LoadFormData>;
+  register: any;
+  onRemove: () => void;
+  isRemovable: boolean;
+}) {
+  const isPickup = type === "pickups";
+  const prefix = `${type}.${index}` as const;
+
   return (
-    <div className={`card border-0 shadow-sm rounded-4 p-4 bg-white bg-opacity-70 backdrop-blur-sm stop-card h-100 position-relative transition-all`} style={{ borderLeft: `6px solid ${isPickup ? '#6366f1' : '#10b981'}` }}>
+    <div
+      className={`card border-0 shadow-sm rounded-4 p-4 bg-white bg-opacity-70 backdrop-blur-sm stop-card h-100 position-relative transition-all`}
+      style={{ borderLeft: `6px solid ${isPickup ? "#6366f1" : "#10b981"}` }}
+    >
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span className="badge rounded-pill bg-light text-primary fw-bold px-3 py-2 border shadow-sm stop-label d-flex align-items-center gap-2">
-          {type === 'pickups' ? '📦 PICKUP' : '🚚 DELIVERY'} #{index + 1}
+          {type === "pickups" ? "📦 PICKUP" : "🚚 DELIVERY"} #{index + 1}
         </span>
         {isRemovable && (
-          <button type="button" className="btn btn-link text-danger p-0 text-decoration-none opacity-50 hover-opacity-100 transition-all" onClick={onRemove} title="Remove Stop">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          <button
+            type="button"
+            className="btn btn-link text-danger p-0 text-decoration-none opacity-50 hover-opacity-100 transition-all"
+            onClick={onRemove}
+            title="Remove Stop"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         )}
       </div>
       <div className="d-flex flex-column gap-3">
         <div className="row g-3">
-          <div className="col-12"><label htmlFor={`${type}-${index}-address`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">Address *</label><input id={`${type}-${index}-address`} required className={FIELD} value={data.address} onChange={e => onChange(type, index, 'address', e.target.value)} placeholder="123 Industrial Way" /></div>
-          <div className="col-md-6"><label htmlFor={`${type}-${index}-state`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">State / Province *</label><StateProvinceSelect id={`${type}-${index}-state`} value={data.state} onChange={v => { onChange(type, index, 'state', v); onChange(type, index, 'city', ''); }} /></div>
-          <div className="col-md-6"><label htmlFor={`${type}-${index}-city`} className="small fw-bold text-secondary mb-1 px-1 opacity-75">City *</label><CitySelect id={`${type}-${index}-city`} stateCode={data.state} value={data.city} onChange={v => onChange(type, index, 'city', v)} /></div>
+          <div className="col-12">
+            <label
+              htmlFor={`${prefix}.address`}
+              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+            >
+              Address *
+            </label>
+            <input
+              id={`${prefix}.address`}
+              required
+              className={FIELD}
+              placeholder="123 Industrial Way"
+              {...register(`${prefix}.address`, { required: true })}
+            />
+          </div>
+          <div className="col-md-6">
+            <label
+              htmlFor={`${prefix}.state`}
+              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+            >
+              State / Province *
+            </label>
+            <Controller
+              name={`${prefix}.state`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <StateProvinceSelect
+                  id={`${prefix}.state`}
+                  value={field.value}
+                  onChange={(v) => {
+                    field.onChange(v);
+                    // Reset city when state changes
+                    // Reset city when state changes
+                    // field.onChange(v);
+                  }}
+                />
+              )}
+            />
+          </div>
+          <div className="col-md-6">
+            <label
+              htmlFor={`${prefix}.city`}
+              className="small fw-bold text-secondary mb-1 px-1 opacity-75"
+            >
+              City *
+            </label>
+            <Controller
+              name={`${prefix}.city`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => {
+                // Get the current state value for this stop
+                const stateValue = control._getWatch(`${prefix}.state` as any);
+                return (
+                  <CitySelect
+                    id={`${prefix}.city`}
+                    stateCode={stateValue}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                );
+              }}
+            />
+          </div>
         </div>
         <div className="row g-3">
-          <div className="col-md-5"><label className="small fw-bold text-secondary mb-1 opacity-75">Postal Code *</label><input required className={FIELD} value={data.postalCode} onChange={e => onChange(type, index, 'postalCode', e.target.value)} placeholder="M5V 2L7" /></div>
-          <div className="col-md-7"><label className="small fw-bold text-secondary mb-1 opacity-75">Appt / PO # *</label><input required className={FIELD} value={data.appointmentNumber} onChange={e => onChange(type, index, 'appointmentNumber', e.target.value)} placeholder="A-998811" /></div>
+          <div className="col-md-5">
+            <label className="small fw-bold text-secondary mb-1 opacity-75">
+              Postal Code *
+            </label>
+            <input
+              required
+              className={FIELD}
+              placeholder="M5V 2L7"
+              {...register(`${prefix}.postalCode`, { required: true })}
+            />
+          </div>
+          <div className="col-md-7">
+            <label className="small fw-bold text-secondary mb-1 opacity-75">
+              Appt / PO # *
+            </label>
+            <input
+              required
+              className={FIELD}
+              placeholder="A-998811"
+              {...register(`${prefix}.appointmentNumber`, { required: true })}
+            />
+          </div>
         </div>
         <div className="row g-3">
-          <div className="col-md-7"><label className="small fw-bold text-secondary mb-1 opacity-75">Date *</label><input required type="date" className={FIELD} value={data.date} onChange={e => onChange(type, index, 'date', e.target.value)} /></div>
-          <div className="col-md-5"><label className="small fw-bold text-secondary mb-1 opacity-75">Time *</label><input required type="time" className={FIELD} value={data.time} onChange={e => onChange(type, index, 'time', e.target.value)} /></div>
+          <div className="col-md-7">
+            <label className="small fw-bold text-secondary mb-1 opacity-75">
+              Date *
+            </label>
+            <input
+              required
+              type="date"
+              className={FIELD}
+              {...register(`${prefix}.date`, { required: true })}
+            />
+          </div>
+          <div className="col-md-5">
+            <label className="small fw-bold text-secondary mb-1 opacity-75">
+              Time *
+            </label>
+            <input
+              required
+              type="time"
+              className={FIELD}
+              {...register(`${prefix}.time`, { required: true })}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── INTERFACES ───────────────────────────────────────────────────────────────
-interface Stop { address: string; city: string; state: string; postalCode: string; appointmentNumber: string; date: string; time: string; status: string; }
-interface Load {
-  _id: string; loadNumber: string; pickups: Stop[]; deliveries: Stop[]; quantity: number; quantityUnit: string; weight: number; weightUnit: string;
-  status: "PENDING" | "IN_TRANSIT" | "PICKED_UP" | "DELIVERED" | "CANCELLED" | "COMPLETED";
-  createdAt: string; trailerNumber?: string; truckNumber?: string; assignedDriverId?: { _id: string; name: string };
-  podUrl?: string;
-}
+// Interfaces are now imported from @/models/Load
+type LoadFormData = {
+  loadNumber: string;
+  pickups: any[]; // Use any[] here to avoid complex nested IStop matching in the form
+  deliveries: any[];
+  quantity: string;
+  quantityUnit: string;
+  weight: string;
+  weightUnit: string;
+};
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { user } = useAuth();
-  const [loads, setLoads] = useState<Load[]>([]);
+  const [loads, setLoads] = useState<ILoad[]>([]);
   const [drivers, setDrivers] = useState<{ _id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { searchTerm, setSearchTerm } = useSearch();
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [selectedLoad, setSelectedLoad] = useState<ILoad | null>(null);
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
-  const [activeTab, setActiveTab] = useState<"loads" | "users">("loads");
-  const [uploadingPodLoadId, setUploadingPodLoadId] = useState<string | null>(null);
+  const initialStop = useMemo(
+    () => ({
+      address: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      appointmentNumber: "",
+      date: new Date().toISOString().split("T")[0],
+      time: "",
+      status: "PENDING",
+    }),
+    [],
+  );
+
+  const { register, handleSubmit, control, reset } = useForm<LoadFormData>({
+    defaultValues: {
+      loadNumber: "",
+      pickups: [{ ...initialStop }],
+      deliveries: [{ ...initialStop }],
+      quantity: "",
+      quantityUnit: "pallets",
+      weight: "",
+      weightUnit: "lbs",
+    },
+  });
+
+  const {
+    fields: pickupFields,
+    append: appendPickup,
+    remove: removePickup,
+  } = useFieldArray({ control, name: "pickups" });
+  const {
+    fields: deliveryFields,
+    append: appendDelivery,
+    remove: removeDelivery,
+  } = useFieldArray({ control, name: "deliveries" });
 
   const todayStr = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -192,40 +527,25 @@ export default function Dashboard() {
     day: "numeric",
   });
 
-  const initialStop = { address: "", city: "", state: "", postalCode: "", appointmentNumber: "", date: new Date().toISOString().split("T")[0], time: "", status: "PENDING" };
-  const [formData, setFormData] = useState({ loadNumber: "", pickups: [{ ...initialStop }], deliveries: [{ ...initialStop }], quantity: "", quantityUnit: "pallets", weight: "", weightUnit: "lbs" });
-
-  const setFormDataField = (field: string, value: string | number) => setFormData((prev) => ({ ...prev, [field]: value }));
-  const setStopField = (type: "pickups" | "deliveries", index: number, field: string, value: string) => {
-    setFormData((prev) => {
-      const newStops = [...prev[type]];
-      newStops[index] = { ...newStops[index], [field]: value };
-      return { ...prev, [type]: newStops };
-    });
-  };
-  const addStop = (type: "pickups" | "deliveries") => setFormData((prev) => ({ ...prev, [type]: [...prev[type], { ...initialStop }] }));
-  const removeStop = (type: "pickups" | "deliveries", index: number) => {
-    setFormData((prev) => {
-      if (prev[type].length <= 1) return prev;
-      const newStops = [...prev[type]];
-      newStops.splice(index, 1);
-      return { ...prev, [type]: newStops };
-    });
-  };
-
   const fetchLoads = useCallback(async () => {
     try {
       const res = await fetch("/api/loads");
       if (res.ok) {
         let data = await res.json();
-        // Role-based filtering for drivers (handled by API too, but extra safety)
-        if (user?.role === 'Driver') {
-          data = data.filter((l: ILoad) => (l.assignedDriverId as any)?._id === user.id || (l.assignedDriverId as any) === user.id);
+        if (user?.role === "Driver") {
+          data = data.filter((l: ILoad) => {
+            const driverId =
+              (l.assignedDriverId as any)?._id || l.assignedDriverId;
+            return driverId === user.id;
+          });
         }
         setLoads(data);
       }
-    } catch (error) { console.error("Failed to fetch loads:", error); } 
-    finally { setIsLoading(false); }
+    } catch (error) {
+      console.error("Failed to fetch loads:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
 
   const fetchDrivers = useCallback(async () => {
@@ -237,94 +557,128 @@ export default function Dashboard() {
           setDrivers(data.filter((u: { role: string }) => u.role === "Driver"));
         }
       }
-    } catch (error) { console.error("Failed to fetch drivers:", error); }
+    } catch (error) {
+      console.error("Failed to fetch drivers:", error);
+    }
   }, [user?.role]);
 
   useEffect(() => {
     if (user) {
       fetchLoads();
       fetchDrivers();
-      
-      // AUTOMATIC SYNC: Poll every 15 seconds
       const interval = setInterval(fetchLoads, 15000);
       return () => clearInterval(interval);
     }
   }, [user, fetchLoads, fetchDrivers]);
 
-  // LISTEN FOR SIDEBAR EVENT
   useEffect(() => {
     const handleOpenModal = () => {
       setEditingLoadId(null);
-      resetForm();
+      reset({
+        loadNumber: "",
+        pickups: [{ ...initialStop }],
+        deliveries: [{ ...initialStop }],
+        quantity: "",
+        quantityUnit: "pallets",
+        weight: "",
+        weightUnit: "lbs",
+      });
       setShowModal(true);
     };
-    window.addEventListener('open-create-load', handleOpenModal);
-    return () => window.removeEventListener('open-create-load', handleOpenModal);
-  }, []);
+    window.addEventListener("open-create-load", handleOpenModal);
+    return () =>
+      window.removeEventListener("open-create-load", handleOpenModal);
+  }, [reset, initialStop]);
 
-  const resetForm = () => setFormData({ loadNumber: "", pickups: [{ ...initialStop }], deliveries: [{ ...initialStop }], quantity: "", quantityUnit: "pallets", weight: "", weightUnit: "lbs" });
-
-  const handleCreateLoad = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoadFormData) => {
     try {
       const url = editingLoadId ? `/api/loads/${editingLoadId}` : "/api/loads";
       const method = editingLoadId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
       if (res.ok) {
         setShowModal(false);
         setEditingLoadId(null);
-        resetForm();
+        reset();
         fetchLoads();
       }
-    } catch (error) { console.error("Failed to save load:", error); }
+    } catch (error) {
+      console.error("Failed to save load:", error);
+    }
   };
 
-  const handleEditLoad = (load: Load) => {
-    setEditingLoadId(load._id);
-    setFormData({
+  const handleEditLoad = (load: ILoad) => {
+    setEditingLoadId(String(load._id));
+    reset({
       loadNumber: load.loadNumber,
-      pickups: load.pickups.map(p => ({ ...p, date: p.date.split('T')[0] })),
-      deliveries: load.deliveries.map(d => ({ ...d, date: d.date.split('T')[0] })),
+      pickups: load.pickups.map((p) => ({
+        ...p,
+        date: new Date(p.date).toISOString().split("T")[0],
+      })),
+      deliveries: load.deliveries.map((d) => ({
+        ...d,
+        date: new Date(d.date).toISOString().split("T")[0],
+      })),
       quantity: load.quantity.toString(),
       quantityUnit: load.quantityUnit,
       weight: load.weight.toString(),
-      weightUnit: load.weightUnit
-    } as any);
+      weightUnit: load.weightUnit,
+    });
     setShowModal(true);
   };
 
-  const filteredLoads = loads.filter(l => {
-    const matchesStatus = statusFilter === 'ALL' || l.status === statusFilter;
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = !searchTerm || l.loadNumber.toLowerCase().includes(searchLower);
-    
-    return matchesStatus && matchesSearch;
+  const filteredLoads = loads.filter((l) => {
+    const searchLower = (searchTerm || "").toLowerCase().trim();
+    if (!searchLower) return true;
+
+    // Restrict search EXCLUSIVELY to Load Number as requested
+    return (l.loadNumber || "").toLowerCase().includes(searchLower);
   });
 
   const totalLoadsCount = loads.length;
-  const activeLoadsCount = loads.filter((l) => l.status !== "COMPLETED" && l.status !== "CANCELLED").length;
-  const pendingCount = loads.filter((l) => l.status === "PENDING" || !l.status).length;
-  const transitCount = loads.filter((l) => l.status === "IN_TRANSIT" || l.status === "PICKED_UP").length;
+  const pendingCount = loads.filter(
+    (l) => l.status === "PENDING" || !l.status,
+  ).length;
+  const transitCount = loads.filter(
+    (l) => l.status === "IN_TRANSIT" || l.status === "PICKED_UP",
+  ).length;
   const deliveredCount = loads.filter((l) => l.status === "DELIVERED").length;
   const completedCount = loads.filter((l) => l.status === "COMPLETED").length;
 
   return (
-    <div className="container-fluid px-0 animate-fade-in" style={{ maxWidth: "1600px" }}>
+    <div
+      className="container-fluid px-0 animate-fade-in"
+      style={{ maxWidth: "1600px" }}
+    >
       {/* DASHBOARD HEADER */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 mt-3 gap-4 border-bottom pb-4 border-opacity-10 border-white">
         <div className="text-start">
-          <h1 className="display-4 fw-black text-white m-0 tracking-tight premium-header-accent" style={{ fontFamily: "var(--font-syne)", letterSpacing: '-0.05em' }}>
-            {user?.role === 'Driver' ? 'My Fleet' : <>{'Logistics '.split('').map((char, i) => <span key={i} className="text-gradient-emerald">{char}</span>)} Overview</>}
+          <h1
+            className="display-4 fw-black text-white m-0 tracking-tight premium-header-accent"
+            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.05em" }}
+          >
+            {user?.role === "Driver" ? (
+              "My Fleet"
+            ) : (
+              <>
+                <span className="text-gradient-emerald">Logistics</span>{" "}
+                Overview
+              </>
+            )}
           </h1>
-          <p className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest" style={{ letterSpacing: '0.2rem' }}>{todayStr}</p>
+          <p
+            className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest"
+            style={{ letterSpacing: "0.2rem" }}
+          >
+            {todayStr}
+          </p>
         </div>
       </div>
 
-      {user?.role === 'Admin' && (
+      {user?.role === "Admin" && (
         <div className="mb-5">
           <AdminVisualSummary loads={loads} drivers={drivers} />
         </div>
@@ -333,23 +687,87 @@ export default function Dashboard() {
       {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
       <div className="row g-4 mb-5">
         {[
-          { label: "All Loads", value: totalLoadsCount, color: "var(--accent-emerald)", glow: "nebula-glow-emerald", icon: "inventory_2", bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)" },
+          {
+            label: "All Loads",
+            value: totalLoadsCount,
+            color: "var(--accent-emerald)",
+            glow: "nebula-glow-emerald",
+            icon: "inventory_2",
+            bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)",
+          },
 
-          { label: "Pending", value: pendingCount, color: "#00d4ff", glow: "nebula-glow-cyan", icon: "pending_actions", bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)" },
-          
-          { label: "In Transit", value: transitCount, color: "var(--accent-orange)", glow: "nebula-glow-orange", icon: "route", bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)" },
-            
-          { label: "Awaiting Verify", value: deliveredCount, color: "#9093ff", glow: "nebula-glow-indigo", icon: "verified_user", bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)" },
-            
-          { label: "Completed", value: completedCount, color: "#dee5ff", glow: "", icon: "task_alt", bg: "rgba(255, 255, 255, 0.03)" },
+          {
+            label: "Pending",
+            value: pendingCount,
+            color: "#00d4ff",
+            glow: "nebula-glow-cyan",
+            icon: "pending_actions",
+            bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)",
+          },
+
+          {
+            label: "In Transit",
+            value: transitCount,
+            color: "var(--accent-orange)",
+            glow: "nebula-glow-orange",
+            icon: "route",
+            bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)",
+          },
+
+          {
+            label: "Awaiting Verify",
+            value: deliveredCount,
+            color: "#9093ff",
+            glow: "nebula-glow-indigo",
+            icon: "verified_user",
+            bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)",
+          },
+
+          {
+            label: "Completed",
+            value: completedCount,
+            color: "#dee5ff",
+            glow: "",
+            icon: "task_alt",
+            bg: "rgba(255, 255, 255, 0.03)",
+          },
         ].map((stat, i) => (
           <div key={i} className="col-12 col-sm-6 col-md-4 col-xl">
-            <div className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all`} style={{ animationDelay: `${i * 100}ms`, background: stat.bg }}>
-              <div className="position-absolute top-0 start-0 h-100" style={{ width: '6px', background: stat.color }}></div>
-              <p className="text-uppercase fw-black mb-4" style={{ fontSize: '12px', letterSpacing: '0.2rem', color: '#a3aac4' }}>{stat.label}</p>
+            <div
+              className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all`}
+              style={{ animationDelay: `${i * 100}ms`, background: stat.bg }}
+            >
+              <div
+                className="position-absolute top-0 start-0 h-100"
+                style={{ width: "6px", background: stat.color }}
+              ></div>
+              <p
+                className="text-uppercase fw-black mb-4"
+                style={{
+                  fontSize: "11px",
+                  letterSpacing: "0.15rem",
+                  color: "#ffffff",
+                  opacity: 0.6,
+                }}
+              >
+                {stat.label}
+              </p>
               <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
-                 <h3 className="fw-black mb-0" style={{ color: '#fff', fontSize: '3.5rem', fontFamily: 'var(--font-syne)', letterSpacing: '-0.05em', lineHeight: '1' }}>{stat.value}</h3>
-                 <span className="material-symbols-outlined stat-icon-bg">{stat.icon}</span>
+                <h3
+                  className="fw-black mb-0"
+                  style={{
+                    color: "#fff",
+                    fontSize: "3.5rem",
+                    fontFamily: "var(--font-syne)",
+                    letterSpacing: "-0.05em",
+                    lineHeight: "1",
+                  }}
+                >
+                  {stat.value}
+                </h3>
+                <span className="material-symbols-outlined stat-icon-bg">
+                  {stat.icon}
+                </span>
               </div>
             </div>
           </div>
@@ -357,198 +775,556 @@ export default function Dashboard() {
       </div>
 
       {/* DISPATCH table SECTION - GLASS V4 */}
-      <div className="card border border-white border-opacity-10 shadow-2xl rounded-5 overflow-hidden bg-glass-5 backdrop-blur-3xl animate-slide-up">
-        <div className="px-5 py-4 border-bottom border-white border-opacity-10 d-flex align-items-center justify-content-between bg-glass-5">
-           <h3 className="fs-4 fw-black text-white m-0 d-flex align-items-center gap-3 premium-header-accent premium-header-accent-emerald" style={{ fontFamily: "var(--font-syne)" }}>
-             <div className="d-flex align-items-center gap-2">
-               Real-time <span className="text-emerald" style={{ color: '#2bdd66' }}>Board</span>
-             </div>
-           </h3>
-           <div className="d-flex align-items-center gap-3">
-              {/* BOARD SEARCH - PREMIUM GLASS MINI */}
-              <div className="d-flex align-items-center gap-2 bg-dark bg-opacity-40 p-1 ps-3 rounded-pill border border-emerald border-opacity-30 transition-all hover-bg-dark-60 shadow-sm" style={{ minWidth: '280px' }}>
-                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                 <input 
-                   type="text" 
-                   className="form-control border-0 bg-transparent shadow-none text-white small fw-black placeholder-emerald-opacity" 
-                   placeholder="SEARCH LOAD ID..." 
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   style={{ color: '#ffffff' }}
-                 />
-                 <div className="pe-2 d-none d-md-block">
-                    <span className="pulse-dot"></span>
-                 </div>
+      <div className="card border border-white border-opacity-10 shadow-2xl rounded-5 overflow-hidden animate-slide-up bg-transparent">
+        <div className="card-header border-bottom border-white border-opacity-10 px-5 py-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div className="d-flex align-items-center gap-4">
+            <div className="d-flex flex-column">
+              <h2
+                className="fs-2 fw-black text-white m-0 tracking-tight"
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Real-time <span className="text-gradient-emerald">Board</span>
+              </h2>
+            </div>
+          </div>
+
+          <div className="ms-auto d-flex align-items-center gap-3">
+            {/* COMPACT PREMIUM SEARCH */}
+            <div
+              className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-10 shadow-lg"
+              style={{
+                width: "320px",
+                background: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(20px)",
+              }}
+            >
+              <div className="ps-2" style={{ color: "#2bdd66" }}>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
               </div>
-           </div>
+              <input
+                type="text"
+                className="form-control bg-transparent border-0 text-white shadow-none py-1 px-3 fw-bold placeholder-white-40"
+                placeholder="Search by Load # only..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ fontSize: "0.85rem" }}
+              />
+              {searchTerm && (
+                <button
+                  className="btn btn-link text-white opacity-30 p-1 me-1 hover-opacity-100 transition-all shadow-none border-0"
+                  onClick={() => setSearchTerm("")}
+                  title="Clear search"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="table-responsive">
-          {isLoading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>
-            </div>
-          ) : filteredLoads.length === 0 ? (
-            <div className="text-center py-5">
-              <div className="opacity-10 mb-4 d-flex justify-content-center text-white">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            {isLoading ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
               </div>
-              <h3 className="fs-5 fw-black text-white opacity-40">No Dispatch Records</h3>
-              <p className="text-white opacity-20 small">Satellite systems are clear. Try adjusting your filters.</p>
-            </div>
-          ) : (
-            <DispatchTable loads={filteredLoads as any} onRowClick={(load) => setSelectedLoad(load as any)} />
-          )}
+            ) : filteredLoads.length === 0 ? (
+              <div className="text-center py-5">
+                <div className="opacity-10 mb-4 d-flex justify-content-center text-white">
+                  <svg
+                    width="80"
+                    height="80"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect
+                      x="2"
+                      y="3"
+                      width="20"
+                      height="14"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </div>
+                <h3 className="fs-5 fw-black text-white opacity-40">
+                  No Dispatch Records
+                </h3>
+                <p className="small text-white opacity-70 m-0">
+                  Real-time logistics analytics. Satellite systems are clear.
+                  Try adjusting your filters.
+                </p>
+              </div>
+            ) : (
+              <DispatchTable
+                loads={filteredLoads}
+                drivers={drivers}
+                onDetails={(load) => setSelectedLoad(load)}
+                onEdit={
+                  user?.role === "Dispatcher" ? handleEditLoad : undefined
+                }
+              />
+            )}
+          </div>
         </div>
       </div>
 
       {/* MODALS */}
-      {selectedLoad && (
-        <LoadDetailsModal 
-          load={selectedLoad as any} 
-          user={user} 
-          drivers={drivers} 
-          onClose={() => setSelectedLoad(null)} 
-          onUpdate={() => { fetchLoads(); setSelectedLoad(null); }} 
+      {selectedLoad && user && (
+        <LoadDetailsModal
+          load={selectedLoad as ILoad}
+          user={user as any}
+          drivers={drivers}
+          onClose={() => setSelectedLoad(null)}
+          onUpdate={fetchLoads}
         />
       )}
 
       {showModal && (
-        <div className="position-fixed top-0 start-0 w-100 vh-100 d-flex justify-content-center p-3 p-md-5 animate-fade-in overflow-y-auto no-scrollbar py-5" style={{ zIndex: 99999 }}>
-          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-60 backdrop-blur-2xl" style={{ position: 'fixed' }} onClick={() => { setShowModal(false); window.dispatchEvent(new CustomEvent('close-create-load')); }}></div>
-          <div className="card border-0 shadow-2xl rounded-5 glass-modal-v3 position-relative z-index-modal animate-slide-up my-auto" style={{ maxWidth: "1000px", width: "100%", borderRadius: '2.5rem' }}>
-            <div className="d-flex justify-content-between align-items-center sticky-top glass-header-v3 p-4 p-md-5 pb-3 rounded-top-5" style={{ zIndex: 20, marginTop: '-1rem', marginLeft: '-0.5rem', marginRight: '-0.5rem' }}>
-              <h3 className="fs-1 fw-black text-dark m-0 d-flex align-items-center gap-2" style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.05em" }}>
-                {editingLoadId ? 'Edit' : 'Create New'} <span style={{ color: '#2bdd66' }}>Load</span>
+        <div
+          className="position-fixed top-0 start-0 w-100 vh-100 d-flex justify-content-center p-3 p-md-5 animate-fade-in overflow-y-auto no-scrollbar py-5"
+          style={{ zIndex: 99999 }}
+        >
+          <div
+            className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-60 backdrop-blur-2xl"
+            style={{ position: "fixed" }}
+            onClick={() => {
+              setShowModal(false);
+              window.dispatchEvent(new CustomEvent("close-create-load"));
+            }}
+          ></div>
+          <div
+            className="card border-0 shadow-2xl glass-modal-v4 position-relative z-index-modal animate-slide-up my-auto"
+            style={{
+              maxWidth: "1000px",
+              width: "100%",
+              borderRadius: "2.5rem",
+              overflow: "hidden",
+            }}
+          >
+            {/* STICKY GLASS HEADER */}
+            <div
+              className="d-flex justify-content-between align-items-center sticky-top glass-header-v4 p-4 p-md-5 pb-4"
+              style={{ zIndex: 20 }}
+            >
+              <h3
+                className="fs-1 fw-black text-white m-0 d-flex align-items-center gap-2"
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  letterSpacing: "-0.05em",
+                }}
+              >
+                {editingLoadId ? "EDIT" : "CREATE NEW"}{" "}
+                <span className="text-gradient-emerald">LOAD</span>
               </h3>
-              <button className="btn-close shadow-none opacity-40 hover-opacity-100 transition-all scale-125" onClick={() => { setShowModal(false); setEditingLoadId(null); resetForm(); window.dispatchEvent(new CustomEvent('close-create-load')); }} title="Close Modal"></button>
+              <button
+                className="btn-close btn-close-white shadow-none opacity-40 hover-opacity-100 transition-all scale-125"
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingLoadId(null);
+                  reset();
+                  window.dispatchEvent(new CustomEvent("close-create-load"));
+                }}
+                title="TERMINATE MISSION"
+              ></button>
             </div>
-            <form onSubmit={handleCreateLoad} className="p-4 p-md-5 pt-0 row g-5">
-              <div className="col-12 text-start">
-                <div className="d-flex align-items-center gap-3 mb-2">
-                  <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(43, 221, 102, 0.1)', border: '1px solid rgba(43, 221, 102, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
-                  <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>General Information</h5>
-                </div>
-                <hr className="mt-2 mb-4 opacity-5" />
-                <div className="px-1">
-                  <label htmlFor="loadNumberField" className="small fw-bold text-secondary mb-2 px-1 opacity-75">Load Reference Number *</label>
-                  <input id="loadNumberField" required className={FIELD} value={formData.loadNumber} onChange={(e) => setFormDataField("loadNumber", e.target.value)} placeholder="e.g. #LD-882299" />
-                </div>
-              </div>
 
-              <div className="col-12 text-start">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05"></path><path d="M12 22.08V12"></path></svg></div>
-                    <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Pickup Stops</h5>
+            <div
+              className="modal-body-scroll no-scrollbar p-0"
+              style={{ maxHeight: "80vh", overflowY: "auto" }}
+            >
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="p-4 p-md-5 pt-0 row g-5"
+              >
+                {/* SECTION: GENERAL */}
+                <div className="col-12 text-start">
+                  <div className="d-flex align-items-center gap-3 mb-2">
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg"
+                      style={{ width: "45px", height: "45px" }}
+                    >
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2bdd66"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                    </div>
+                    <h5
+                      className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80"
+                      style={{ fontSize: "0.85rem" }}
+                    >
+                      General Information
+                    </h5>
                   </div>
-                  <button type="button" className="btn btn-sm btn-emerald-pill fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all" onClick={() => addStop("pickups")}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                    Add Station
+                  <hr className="mt-2 mb-4 border-white opacity-10" />
+                  <div className="px-1">
+                    <label
+                      htmlFor="loadNumberField"
+                      className="small fw-bold text-white-50 mb-2 px-1 text-uppercase tracking-wider"
+                    >
+                      Load Reference Number *
+                    </label>
+                    <input
+                      id="loadNumberField"
+                      required
+                      className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                      placeholder="e.g. #LD-882299"
+                      {...register("loadNumber", { required: true })}
+                    />
+                  </div>
+                </div>
+
+                {/* SECTION: PICKUP */}
+                <div className="col-12 text-start">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div className="d-flex align-items-center gap-3">
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg-indigo"
+                        style={{ width: "45px", height: "45px" }}
+                      >
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#6366f1"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                          <path d="M3.27 6.96 12 12.01l8.73-5.05"></path>
+                          <path d="M12 22.08V12"></path>
+                        </svg>
+                      </div>
+                      <h5
+                        className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Pickup Stations
+                      </h5>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-emerald fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-lg transition-all border-0"
+                      onClick={() => appendPickup({ ...initialStop })}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      ADD PICKUP
+                    </button>
+                  </div>
+                  <hr className="mt-2 mb-4 border-white opacity-10" />
+                  <div className="row g-4">
+                    {pickupFields.map((field, idx) => (
+                      <div key={field.id} className="col-lg-6">
+                        <LocationBlock
+                          type="pickups"
+                          index={idx}
+                          control={control}
+                          register={register}
+                          onRemove={() => removePickup(idx)}
+                          isRemovable={pickupFields.length > 1}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SECTION: DELIVERY */}
+                <div className="col-12 mt-4 text-start">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div className="d-flex align-items-center gap-3">
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg-emerald"
+                        style={{ width: "45px", height: "45px" }}
+                      >
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#10b981"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                      </div>
+                      <h5
+                        className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Delivery Terminals
+                      </h5>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-white hover-bg-white-5 fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all border-white border-opacity-20 text-white"
+                      onClick={() => appendDelivery({ ...initialStop })}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      ADD DELIVERY
+                    </button>
+                  </div>
+                  <hr className="mt-2 mb-4 border-white opacity-10" />
+                  <div className="row g-4">
+                    {deliveryFields.map((field, idx) => (
+                      <div key={field.id} className="col-lg-6">
+                        <LocationBlock
+                          type="deliveries"
+                          index={idx}
+                          control={control}
+                          register={register}
+                          onRemove={() => removeDelivery(idx)}
+                          isRemovable={deliveryFields.length > 1}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SECTION: CARGO */}
+                <div className="col-12 mt-5 text-start">
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm glass-icon-bg-orange" style={{ width: "35px", height: "35px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </div>
+                    <h5 className="fw-black text-white m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.75rem" }}>Logistics Payload</h5>
+                  </div>
+                  <hr className="mt-1 mb-3 border-white opacity-10" />
+                  <div className="row g-3 px-1">
+                    <div className="col-md-3">
+                      <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
+                        Quantity *
+                      </label>
+                      <input
+                        required
+                        type="number"
+                        min={0}
+                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                        placeholder="24"
+                        {...register("quantity", { required: true, min: 0 })}
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
+                        Unit *
+                      </label>
+                      <select
+                        className="form-select form-select-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                        {...register("quantityUnit", { required: true })}
+                      >
+                        <option value="skids">Skids</option>
+                        <option value="pallets">Pallets</option>
+                        <option value="packages">Packages</option>
+                        <option value="pieces">Pieces</option>
+                        <option value="box">Box</option>
+                        <option value="cases">Cases</option>
+                      </select>
+                    </div>
+                    <div className="col-md-3">
+                      <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
+                        Weight *
+                      </label>
+                      <input
+                        required
+                        type="number"
+                        min={0}
+                        className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10"
+                        placeholder="45000"
+                        {...register("weight", { required: true, min: 0 })}
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <label className="small fw-bold text-white-50 mb-2 text-uppercase tracking-wider">
+                        Weight Unit *
+                      </label>
+                      <select
+                        className="form-select form-select-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                        {...register("weightUnit", { required: true })}
+                      >
+                        <option value="lbs">lbs</option>
+                        <option value="kg">kg</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12 mt-5 pb-5 px-1">
+                  <button
+                    type="submit"
+                    className="btn bg-emerald text-dark w-100 rounded-pill py-4 fw-black fs-4 shadow-glow-emerald transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3 border-0"
+                  >
+                    <div className="bg-dark bg-opacity-10 p-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    {editingLoadId ? "UPDATE LOAD" : "DISPATCH LOAD"}
                   </button>
                 </div>
-                <hr className="mt-2 mb-4 opacity-5" />
-                <div className="row g-4">
-                  {formData.pickups.map((stop, idx) => (
-                    <div key={idx} className="col-lg-6">
-                      <LocationBlock type="pickups" index={idx} data={stop} onChange={setStopField} onRemove={() => removeStop("pickups", idx)} isRemovable={formData.pickups.length > 1} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="col-12 mt-4 text-start">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-                    <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Delivery Stops</h5>
-                  </div>
-                  <button type="button" className="btn btn-sm btn-emerald-pill fw-bold d-flex align-items-center gap-2 hover-float px-4 py-2 rounded-pill shadow-sm transition-all" onClick={() => addStop("deliveries")}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                    Add Destination
-                  </button>
-                </div>
-                <hr className="mt-2 mb-4 opacity-5" />
-                <div className="row g-4">
-                  {formData.deliveries.map((stop, idx) => (
-                    <div key={idx} className="col-lg-6">
-                      <LocationBlock type="deliveries" index={idx} data={stop} onChange={setStopField} onRemove={() => removeStop("deliveries", idx)} isRemovable={formData.deliveries.length > 1} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="col-12 mt-5 text-start">
-                <div className="d-flex align-items-center gap-3 mb-2">
-                  <div className="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: "45px", height: "45px", background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
-                  <h5 className="fw-black text-dark m-0 text-uppercase tracking-widest opacity-80" style={{ fontSize: "0.85rem", color: '#444' }}>Cargo Logistics</h5>
-                </div>
-                <hr className="mt-2 mb-4 opacity-5" />
-              </div>
-
-              <div className="col-md-3 text-start">
-                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Quantity *</label>
-                <input required type="number" className={FIELD} value={formData.quantity} onChange={(e) => setFormDataField("quantity", e.target.value)} placeholder="24" />
-              </div>
-              <div className="col-md-3 text-start">
-                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Unit *</label>
-                <select className={FIELD} value={formData.quantityUnit} onChange={(e) => setFormDataField("quantityUnit", e.target.value)}>
-                  <option value="skids">Skids</option><option value="pallets">Pallets</option><option value="packages">Packages</option><option value="pieces">Pieces</option><option value="box">Box</option><option value="cases">Cases</option>
-                </select>
-              </div>
-              <div className="col-md-3 text-start">
-                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Weight *</label>
-                <input required type="number" className={FIELD} value={formData.weight} onChange={(e) => setFormDataField("weight", e.target.value)} placeholder="45000" />
-              </div>
-              <div className="col-md-3 text-start">
-                <label className="small fw-bold text-secondary mb-2 px-1 opacity-75">Weight Unit *</label>
-                <select className={FIELD} value={formData.weightUnit} onChange={(e) => setFormDataField("weightUnit", e.target.value)}>
-                  <option value="lbs">lbs</option><option value="kg">kg</option>
-                </select>
-              </div>
-
-              <div className="col-12 mt-5 pb-5 px-1">
-                <button type="submit" className="btn btn-emerald w-100 rounded-pill py-4 fw-black fs-4 shadow-emerald-lg transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3">
-                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                   {editingLoadId ? 'Confirm & Update Dispatch' : 'Complete & Launch Dispatch'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
 
       <style jsx>{`
-        .section-label { font-family: var(--font-syne); }
-        .hover-float:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important; }
-        .hover-scale:hover { transform: scale(1.02); }
-        .active-scale-95:active { transform: scale(0.95); }
-        .tracking-tight { letter-spacing: -0.025em; }
-        .z-index-modal { z-index: 100000; }
-        .glass-modal-v3 { background: rgba(255, 255, 255, 0.9) !important; backdrop-filter: blur(15px); border: 1.5px solid rgba(255, 255, 255, 0.8); }
-        .glass-header-v3 { background: rgba(255, 255, 255, 0.5) !important; backdrop-filter: blur(8px); }
-        .glass-card-stitch { 
-          background: rgba(255, 255, 255, 0.03) !important; 
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        .section-label {
+          font-family: var(--font-syne);
         }
-        .pulse-dot { width: 8px; height: 8px; background: #2bdd66; border-radius: 50%; animation: pulse-glow 2s infinite; }
-        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(43, 221, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0); } }
-        .shadow-2xl { box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .nebula-glow-emerald:hover { box-shadow: 0 0 30px rgba(43, 221, 102, 0.15); border-color: rgba(43, 221, 102, 0.3) !important; }
-        .nebula-glow-orange:hover { box-shadow: 0 0 30px rgba(255, 140, 0, 0.15); border-color: rgba(255, 140, 0, 0.3) !important; }
-        .nebula-glow-indigo:hover { box-shadow: 0 0 30px rgba(144, 147, 255, 0.15); border-color: rgba(144, 147, 255, 0.3) !important; }
-        .nebula-glow-cyan:hover { box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); border-color: rgba(0, 212, 255, 0.3) !important; }
-        .nebula-glow-purple:hover { box-shadow: 0 0 30px rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3) !important; }
-        .stat-icon-bg { font-size: 5rem; opacity: 0.05; position: absolute; right: -1rem; bottom: -1rem; transform: rotate(-15deg); color: #fff; pointer-events: none; }
-        .btn-emerald-pill { background: #2bdd66; color: #000; border: none; }
-        .btn-emerald-pill:hover { background: #16a34a; color: #fff; }
-        .btn-emerald { background: #2bdd66; color: #000; border: none; }
-        .btn-emerald:hover { background: #16a34a; color: #fff; }
-        .stop-card { background: rgba(255, 255, 255, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .stop-card:hover { transform: translateY(-10px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important; }
-        .fw-black { font-weight: 900; }
-        input::placeholder { opacity: 0.3; }
+        .hover-float:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+        }
+        .hover-scale:hover {
+          transform: scale(1.02);
+        }
+        .active-scale-95:active {
+          transform: scale(0.95);
+        }
+        .tracking-tight {
+          letter-spacing: -0.025em;
+        }
+        .z-index-modal {
+          z-index: 100000;
+        }
+        .glass-modal-v4 {
+          background: rgba(13, 17, 23, 0.6) !important;
+          backdrop-filter: blur(120px);
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        .glass-header-v4 {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(10px);
+        }
+        .glass-input-premium {
+          background: rgba(255, 255, 255, 0.03) !important;
+          border-radius: 1rem !important;
+          transition: all 0.3s ease;
+        }
+        .glass-input-premium:focus {
+          background: rgba(255, 255, 255, 0.07) !important;
+          border-color: #2bdd66 !important;
+          box-shadow: 0 0 20px rgba(43, 221, 102, 0.15) !important;
+        }
+        .glass-input-premium option {
+          background: #0d1117 !important;
+          color: white !important;
+        }
+        .glass-icon-bg {
+          background: rgba(43, 221, 102, 0.1);
+          border: 1px solid rgba(43, 221, 102, 0.2);
+        }
+        .glass-icon-bg-indigo {
+          background: rgba(99, 102, 241, 0.1);
+          border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .glass-icon-bg-emerald {
+          background: rgba(16, 185, 129, 0.1);
+          border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .glass-icon-bg-orange {
+          background: rgba(245, 158, 11, 0.1);
+          border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .text-gradient-emerald {
+          background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .stop-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+        }
+        .fw-black {
+          font-weight: 900;
+        }
+        input::placeholder {
+          opacity: 0.3;
+        }
       `}</style>
     </div>
   );

@@ -32,7 +32,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h4 className="fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)' }}>System Performance</h4>
-              <p className="small text-white opacity-40 m-0">Real-time logistics analytics</p>
+              <p className="small text-white opacity-70 m-0">Real-time logistics analytics</p>
             </div>
             <div className="badge rounded-pill bg-emerald bg-opacity-10 text-emerald px-3 py-2 border border-emerald border-opacity-20" style={{ color: '#2bdd66' }}>
               Operational
@@ -43,7 +43,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-md-6">
               <div className="premium-inner-card p-3 rounded-4">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="small text-white opacity-60">Completion Rate</span>
+                  <span className="small text-white opacity-80">Completion Rate</span>
                   <span className="small fw-black text-emerald" style={{ color: '#2bdd66' }}>
                     {totalLoads > 0 ? Math.round((loads.filter(l => l.status === 'COMPLETED').length / totalLoads) * 100) : 0}%
                   </span>
@@ -59,7 +59,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-md-6">
               <div className="premium-inner-card p-3 rounded-4">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="small text-white opacity-60">Active Utilization</span>
+                  <span className="small text-white opacity-80">Active Utilization</span>
                   <span className="small fw-black text-orange" style={{ color: '#f59e0b' }}>
                     {totalLoads > 0 ? Math.round((loads.filter(l => l.status !== 'COMPLETED' && l.status !== 'CANCELLED').length / totalLoads) * 100) : 0}%
                   </span>
@@ -76,7 +76,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-12 mt-4">
                {/* OPERATIONAL ANALYTICS DASHBOARD */}
                <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-                  <span className="small text-white opacity-40 text-uppercase tracking-widest fw-black">Operational Analytics</span>
+                  <span className="small text-white opacity-70 text-uppercase tracking-widest fw-black">Operational Analytics</span>
                   <div className="x-small text-emerald fw-bold d-flex align-items-center gap-2 bg-emerald bg-opacity-10 px-2 py-1 rounded-pill border border-emerald border-opacity-20">
                      <span className="pulse-dot"></span> Real-time Performance
                   </div>

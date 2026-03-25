@@ -29,6 +29,7 @@ export interface ILoad extends Document {
   createdBy: mongoose.Types.ObjectId;
   
   status: 'PENDING' | 'IN_TRANSIT' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
+  podUrl?: string;
   createdAt: Date;
 }
 
@@ -74,6 +75,7 @@ const LoadSchema: Schema = new Schema({
     enum: ['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'],
     default: 'PENDING' 
   },
+  podUrl: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -44,7 +44,7 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
-  const { searchTerm } = useSearch();
+  const { searchTerm, setSearchTerm } = useSearch();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<UserFormData>();
 
@@ -140,21 +140,50 @@ export default function UserManagement() {
     setShowModal(true);
   };
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const s = searchTerm.toLowerCase();
+    return (u.name?.toLowerCase().includes(s) || 
+            u.email?.toLowerCase().includes(s) || 
+            u.role?.toLowerCase().includes(s));
+  });
 
   return (
     <>
+
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
-        <div className="card-header bg-white bg-opacity-50 border-bottom border-secondary border-opacity-10 px-4 px-md-5 py-4 d-flex justify-content-between align-items-center">
-          <h2 className="fs-4 fw-bold text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Manage Users</h2>
-          <button onClick={openCreateModal} className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center gap-2 rounded-3 shadow-sm hover-float">
-            <UserPlusIcon />
-            Invite User
-          </button>
+        <div className="card-header bg-white bg-opacity-50 border-bottom border-secondary border-opacity-10 px-4 px-md-5 py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <h2 className="fs-4 fw-black text-dark m-0 pb-1" style={{ fontFamily: 'var(--font-syne)' }}>Manage Users</h2>
+          
+          <div className="d-flex align-items-center gap-3 ms-auto">
+            {/* COMPACT SEARCH */}
+            <div className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-20 shadow-sm" 
+                 style={{ width: '280px', background: 'rgba(0, 0, 0, 0.4)' }}>
+              <div className="ps-2" style={{ color: '#2bdd66' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <input 
+                type="text" 
+                className="form-control bg-transparent border-0 text-white shadow-none py-1 px-3 fw-bold placeholder-white-50" 
+                placeholder="Search Users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ fontSize: '0.9rem' }}
+              />
+              {searchTerm && (
+                <button 
+                  className="btn btn-link text-white opacity-40 p-1 me-1 hover-opacity-100 transition-all shadow-none border-0" 
+                  onClick={() => setSearchTerm('')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
+            </div>
+
+            <button onClick={openCreateModal} className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm hover-float">
+              <UserPlusIcon />
+              Invite User
+            </button>
+          </div>
         </div>
 
         <div className="card-body p-0">
