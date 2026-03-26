@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
 
 
   const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
-  const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
+  const isAuthPath = authPaths.some((path) => pathname.startsWith(path)) || pathname === '/';
 
   const token = request.cookies.get('token')?.value;
   let isValidToken = false;

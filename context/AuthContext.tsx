@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 export interface User {
@@ -48,17 +48,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     fetchUser();
   }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         setUser(null);
-        router.push('/login');
+        router.push('/');
       }
     } catch (err) {
       console.error('Logout failed:', err);
     }
-  };
+  }, [router]);
+
+  // ─── IDLE SESSION TIMEOUT (30 MINUTES) ───────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      // 30 minutes in milliseconds
+      timeoutId = setTimeout(() => {
+        console.log("Idle timeout reached. Logging out...");
+        logout();
+      }, 30 * 60 * 1000); 
+    };
+
+    // Events that count as activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    
+    events.forEach(event => {
+      window.addEventListener(event, resetTimer);
+    });
+
+    // Initialize timer
+    resetTimer();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach(event => {
+        window.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [user, logout]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, error, logout, refreshUser: fetchUser }}>

@@ -10,9 +10,6 @@ interface AdminVisualSummaryProps {
 export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummaryProps) {
   const totalLoads = loads.length;
   const pendingLoads = loads.filter(l => l.status === 'PENDING').length;
-  const pickedUpLoads = loads.filter(l => l.status === 'PICKED_UP').length;
-  const transitLoads = loads.filter(l => l.status === 'IN_TRANSIT').length;
-  const deliveredLoads = loads.filter(l => l.status === 'DELIVERED').length;
   const completedLoads = loads.filter(l => l.status === 'COMPLETED').length;
 
   const getDriverStats = (driverId: string) => {
@@ -45,13 +42,13 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
                 <div className="d-flex justify-content-between mb-2">
                   <span className="small text-white opacity-80">Completion Rate</span>
                   <span className="small fw-black text-emerald" style={{ color: '#2bdd66' }}>
-                    {totalLoads > 0 ? Math.round((loads.filter(l => l.status === 'COMPLETED').length / totalLoads) * 100) : 0}%
+                    {totalLoads > 0 ? Math.round((completedLoads / totalLoads) * 100) : 0}%
                   </span>
                 </div>
                 <div className="progress bg-dark bg-opacity-50 rounded-pill shadow-inner" style={{ height: '8px' }}>
                   <div 
                     className="progress-bar bg-gradient-emerald rounded-pill shadow-emerald" 
-                    style={{ width: `${totalLoads > 0 ? (loads.filter(l => l.status === 'COMPLETED').length / totalLoads) * 100 : 0}%` }}
+                    style={{ width: `${totalLoads > 0 ? (completedLoads / totalLoads) * 100 : 0}%` }}
                   ></div>
                 </div>
               </div>

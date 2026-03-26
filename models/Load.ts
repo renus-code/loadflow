@@ -23,6 +23,8 @@ export interface ILoad extends Document {
   weight: number;
   weightUnit: 'lbs' | 'kg';
   
+  truckType?: 'Sleeper Cab' | 'Day Cab' | null;
+  trailerType?: 'Dry Van' | 'Reefer' | 'Tri Axle' | 'Flatbed' | null;
   trailerNumber?: string;
   truckNumber?: string;
   assignedDriverId?: mongoose.Types.ObjectId | null;
@@ -64,10 +66,13 @@ const LoadSchema: Schema = new Schema({
     enum: ['lbs', 'kg'] 
   },
 
+  truckType: { type: String, enum: ['Sleeper Cab', 'Day Cab'], default: null },
+  trailerType: { type: String, enum: ['Dry Van', 'Reefer', 'Tri Axle', 'Flatbed'], default: null },
   truckNumber: { type: String, default: null },
   trailerNumber: { type: String, default: null },
   assignedDriverId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+
   
   status: { 
     type: String, 

@@ -5,12 +5,20 @@ import { ILoad, IStop } from "@/models/Load";
 
 interface DispatchTableProps {
   loads: ILoad[];
-  drivers: any[];
+  drivers: { _id: string; name: string }[];
+  user: { role: string; name?: string };
   onDetails: (load: ILoad) => void;
   onEdit?: (load: ILoad) => void;
+  onDelete?: (load: ILoad) => void;
 }
 
-export default function DispatchTable({ loads, onDetails, onEdit }: DispatchTableProps) {
+export default function DispatchTable({
+  loads,
+  user,
+  onDetails,
+  onEdit,
+  onDelete,
+}: DispatchTableProps) {
   const [sortField, setSortField] = useState<keyof ILoad | 'pickup' | 'delivery' | 'driver'>("loadNumber");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -56,16 +64,17 @@ export default function DispatchTable({ loads, onDetails, onEdit }: DispatchTabl
   };
 
   const sortedLoads = [...loads].sort((a: ILoad, b: ILoad) => {
-    let aVal: any, bVal: any; // Using any for aValue/bValue as they vary by field type
-    if (sortField === 'pickup') { aVal = a.pickups[0]?.city; bVal = b.pickups[0]?.city; }
-    else if (sortField === 'delivery') { aVal = a.deliveries[0]?.city; bVal = b.deliveries[0]?.city; }
+    let aVal: string | number = "";
+    let bVal: string | number = "";
+    if (sortField === 'pickup') { aVal = a.pickups[0]?.city || ""; bVal = b.pickups[0]?.city || ""; }
+    else if (sortField === 'delivery') { aVal = a.deliveries[0]?.city || ""; bVal = b.deliveries[0]?.city || ""; }
     else if (sortField === 'driver') { 
-      const driver = a.assignedDriverId as any;
-      const bDriver = b.assignedDriverId as any;
+      const driver = a.assignedDriverId as unknown as { name?: string };
+      const bDriver = b.assignedDriverId as unknown as { name?: string };
       aVal = driver?.name || ''; 
       bVal = bDriver?.name || ''; 
     }
-    else { aVal = (a as any)[sortField]; bVal = (b as any)[sortField]; }
+    else { aVal = (a as any)[sortField] || ""; bVal = (b as any)[sortField] || ""; }
 
     if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
     if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
@@ -96,7 +105,7 @@ export default function DispatchTable({ loads, onDetails, onEdit }: DispatchTabl
                {sortField === 'driver' && <span className="small ms-2" style={{ color: '#2bdd66' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>}
             </th>
             <th className="py-3 px-4 border-0 header-text"><span style={{ color: 'white' }}>Status</span></th>
-            {onEdit && <th className="px-4 py-3 text-end border-0 header-text"><span style={{ color: 'white' }}>Actions</span></th>}
+            {(onEdit || onDelete) && <th className="px-4 py-3 text-end border-0 header-text"><span style={{ color: 'white' }}>Actions</span></th>}
           </tr>
         </thead>
         <tbody className="border-0">
@@ -159,15 +168,28 @@ export default function DispatchTable({ loads, onDetails, onEdit }: DispatchTabl
                 <td className="py-3 px-4">
                   <StatusBadge status={load.status} />
                 </td>
-                {onEdit && (
+                {(onEdit || onDelete) && (
                   <td className="px-4 text-end" style={{ border: 'none' }} onClick={(e) => e.stopPropagation()}>
-                    <button 
-                      onClick={() => onEdit(load)}
-                      className="btn btn-sm btn-glass-emerald px-3 rounded-3 fw-bold border-0 shadow-sm"
-                      title="Edit Load"
-                    >
-                      Edit
-                    </button>
+                    <div className="d-flex justify-content-end gap-2">
+                       {onEdit && (
+                        <button 
+                          onClick={() => onEdit(load)}
+                          className="btn btn-sm btn-glass-emerald px-3 rounded-3 fw-bold border-0 shadow-sm"
+                          title="Edit Load"
+                        >
+                          Edit
+                        </button>
+                       )}
+                       {onDelete && (user?.role === 'Admin' || user?.role === 'Dispatcher') && (
+                        <button 
+                          onClick={() => onDelete(load)}
+                          className={`btn btn-sm ${user.role === 'Admin' ? 'btn-glass-danger' : 'btn-glass-warning'} px-3 rounded-3 fw-bold border-0 shadow-sm`}
+                          title={user.role === 'Admin' ? 'Delete Permanently' : 'Cancel Load'}
+                        >
+                          {user.role === 'Admin' ? 'Delete' : 'Cancel'}
+                        </button>
+                       )}
+                    </div>
                   </td>
                 )}
               </tr>
@@ -192,6 +214,12 @@ export default function DispatchTable({ loads, onDetails, onEdit }: DispatchTabl
         .btn-glass-emerald { background: rgba(43, 221, 102, 0.15); color: #2bdd66; border: 1px solid rgba(43, 221, 102, 0.3) !important; }
         .btn-glass-emerald:hover { background: rgba(43, 221, 102, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(43, 221, 102, 0.2); }
         
+        .btn-glass-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
+        .btn-glass-warning:hover { background: rgba(245, 158, 11, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        
+        .btn-glass-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
+        .btn-glass-danger:hover { background: rgba(239, 68, 68, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+
         .item-row:hover { background: rgba(255, 255, 255, 0.03) !important; }
          .custom-table tr { background: transparent !important; }
          .custom-table tr:hover { background: transparent !important; }

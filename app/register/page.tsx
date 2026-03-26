@@ -3,86 +3,11 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import PasswordStrength from "@/components/PasswordStrength";
+import { StateProvinceSelect, CitySelect } from "@/components/LocationSelects";
 
-const provincesData: Record<string, string[]> = {
-  Alberta: [
-    "Calgary",
-    "Edmonton",
-    "Red Deer",
-    "Lethbridge",
-    "St. Albert",
-    "Medicine Hat",
-  ],
-  "British Columbia": [
-    "Vancouver",
-    "Victoria",
-    "Surrey",
-    "Burnaby",
-    "Richmond",
-    "Abbotsford",
-  ],
-  Manitoba: [
-    "Winnipeg",
-    "Brandon",
-    "Steinbach",
-    "Thompson",
-    "Portage la Prairie",
-  ],
-  "New Brunswick": [
-    "Moncton",
-    "Saint John",
-    "Fredericton",
-    "Dieppe",
-    "Riverview",
-  ],
-  "Newfoundland and Labrador": [
-    "St. John's",
-    "Mount Pearl",
-    "Corner Brook",
-    "Grand Falls-Windsor",
-  ],
-  "Nova Scotia": ["Halifax", "Sydney", "Truro", "New Glasgow", "Glace Bay"],
-  Ontario: [
-    "Toronto",
-    "Ottawa",
-    "Mississauga",
-    "Brampton",
-    "Hamilton",
-    "London",
-    "Markham",
-    "Vaughan",
-    "Kitchener",
-    "Windsor",
-  ],
-  "Prince Edward Island": [
-    "Charlottetown",
-    "Summerside",
-    "Stratford",
-    "Cornwall",
-  ],
-  Quebec: [
-    "Montreal",
-    "Quebec City",
-    "Laval",
-    "Gatineau",
-    "Longueuil",
-    "Sherbrooke",
-    "Saguenay",
-    "Levis",
-  ],
-  Saskatchewan: [
-    "Saskatoon",
-    "Regina",
-    "Prince Albert",
-    "Moose Jaw",
-    "Swift Current",
-  ],
-  "Northwest Territories": ["Yellowknife", "Hay River", "Inuvik", "Fort Smith"],
-  Nunavut: ["Iqaluit", "Rankin Inlet", "Arviat", "Baker Lake"],
-  Yukon: ["Whitehorse", "Dawson City", "Watson Lake", "Haines Junction"],
-};
+// Removed hardcoded provincesData and now using dynamic lib fetching
 
 type RegisterFormData = {
   firstName: string;
@@ -115,16 +40,12 @@ export default function Register() {
     watch,
     setValue,
     trigger,
+    control,
     formState: { errors },
   } = useForm<RegisterFormData>();
 
   const selectedProvince = watch("province");
   const emailValue = watch("email");
-
-  // Reset city when province changes
-  useEffect(() => {
-    setValue("city", "");
-  }, [selectedProvince, setValue]);
 
   // Check email for role association
   useEffect(() => {
@@ -212,8 +133,7 @@ export default function Register() {
 
   const fieldClass = (hasError: boolean) =>
     `form-control premium-input py-3 px-4 rounded-3 focus-within-ring shadow-none ${hasError ? "border-danger" : ""}`;
-  const selectClass = (hasError: boolean) =>
-    `form-select premium-input py-3 px-4 rounded-3 focus-within-ring shadow-none ${hasError ? "border-danger" : ""}`;
+
   const errMsg = (msg?: string) =>
     msg ? (
       <p className="text-danger small mt-1 ms-1">
@@ -552,25 +472,22 @@ export default function Register() {
               <label className="form-label text-white text-opacity-80 fw-medium small mb-2 ms-1">
                 Province <span className="text-danger">*</span>
               </label>
-              <select
-                className={selectClass(!!errors.province)}
-                {...register("province", { required: "Province is required" })}
-              >
-                <option value="" className="bg-dark text-white text-opacity-50">
-                  Select Province / Territory
-                </option>
-                {Object.keys(provincesData)
-                  .sort()
-                  .map((prov) => (
-                    <option
-                      key={prov}
-                      value={prov}
-                      className="bg-dark text-white"
-                    >
-                      {prov}
-                    </option>
-                  ))}
-              </select>
+              <Controller
+                name="province"
+                control={control}
+                rules={{ required: "Province is required" }}
+                render={({ field }) => (
+                  <StateProvinceSelect
+                    id="province"
+                    value={field.value}
+                    className={fieldClass(!!errors.province)}
+                    onChange={(v) => {
+                      field.onChange(v);
+                      setValue("city", ""); // Reset city when province changes
+                    }}
+                  />
+                )}
+              />
               {errMsg(errors.province?.message)}
             </div>
 
@@ -578,30 +495,20 @@ export default function Register() {
               <label className="form-label text-white text-opacity-80 fw-medium small mb-2 ms-1">
                 City <span className="text-danger">*</span>
               </label>
-              <select
-                className={selectClass(!!errors.city)}
-                disabled={!selectedProvince}
-                {...register("city", { required: "City is required" })}
-              >
-                <option value="" className="bg-dark text-white text-opacity-50">
-                  {!selectedProvince ? "Select Province First" : "Select City"}
-                </option>
-                {selectedProvince &&
-                  provincesData[selectedProvince]?.map((cityName) => (
-                    <option
-                      key={cityName}
-                      value={cityName}
-                      className="bg-dark text-white"
-                    >
-                      {cityName}
-                    </option>
-                  ))}
-                {selectedProvince && (
-                  <option value="Other" className="bg-dark text-white">
-                    Other...
-                  </option>
+              <Controller
+                name="city"
+                control={control}
+                rules={{ required: "City is required" }}
+                render={({ field }) => (
+                  <CitySelect
+                    id="city"
+                    stateCode={selectedProvince}
+                    value={field.value}
+                    className={fieldClass(!!errors.city)}
+                    onChange={field.onChange}
+                  />
                 )}
-              </select>
+              />
               {errMsg(errors.city?.message)}
             </div>
 

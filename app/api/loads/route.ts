@@ -11,10 +11,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let filter = {};
+    const filter: any = {};
     if (user.role === 'Driver') {
-      filter = { assignedDriverId: user.id };
+      filter.assignedDriverId = user.id;
+      filter.status = { $ne: "CANCELLED" };
+    } else if (user.role === 'Dispatcher') {
+      filter.status = { $ne: "CANCELLED" };
     }
+    // Admins see all loads including CANCELLED for permanent deletion approval
 
     const loads = await Load.find(filter)
       .populate('assignedDriverId', 'name email')

@@ -138,7 +138,7 @@ Manual communication causes delays, errors, missing Proof of Delivery documents,
 ---
 
 ## 7. UI / UX Planning
-- **Figma Link:** To be created
+- **Figma Link:** [Wireframe Reference App](https://www.figma.com/make/3DX6Fe9Rjc1vSzuijMVWlI/Wireframe-Reference-App?t=yzcqEhpkrLQ3Uzgj-1)
 - **Wireframes included:** YES
 - **UI Library Used:** Bootstrap 5
 
@@ -171,16 +171,18 @@ Manual communication causes delays, errors, missing Proof of Delivery documents,
 
 ---
 
-## 10. Milestone Plan (9 Weeks)
-- **Week 1:** Finalize idea & planning
-- **Week 2:** DB schema & project setup
-- **Week 3:** Authentication implementation
-- **Week 4:** Load CRUD backend
-- **Week 5:** Frontend integration
-- **Week 6:** Driver workflow & status updates
-- **Week 7:** POD upload feature
-- **Week 8:** Testing & deployment
-- **Week 9:** Documentation & demo video
+## 10. Milestone Plan (11 Weeks)
+- **Week 1 (Feb 9):** Proposal & Idea Finalization
+- **Week 2:** DB schema & Project Setup
+- **Week 3:** Authentication Implementation
+- **Week 4:** Load CRUD Backend
+- **Week 5:** Frontend Integration & Sidebar Setup
+- **Week 6:** Driver Workflow & Status Updates
+- **Week 7:** POD Upload Feature & Dashboard Metrics
+- **Week 8:** Role-Based Permissions (Dispatcher vs. Admin Deletion)
+- **Week 9:** UI Refinement (Kinetic Ether Glassmorphism)
+- **Week 10:** Final Testing, Bug Fixes & Deployment
+- **Week 11 (Apr 23):** Documentation, Demo Video & Final Presentation
 
 ---
 

@@ -25,17 +25,30 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000, // Timeout after 10s instead of hanging
+      socketTimeoutMS: 45000,
     };
 
+    console.log('🔄 Initializing MongoDB Connection Protocol...');
+    
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('✅ MongoDB Connection Established Successfully');
       return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (e: any) {
     cached.promise = null;
+    console.error('❌ MONGODB CONNECTION ERROR:', e.message);
+    
+    if (e.code === 'ECONNREFUSED' && e.syscall === 'querySrv') {
+      console.error('💡 DIAGNOSTIC: SRV DNS Resolution Refused.');
+      console.error('   This usually means your network/VPN blocks SRV records.');
+      console.error('   FIX: Use the "Standard Connection String" (mongodb://...) in .env.local');
+    }
+    
     throw e;
   }
 

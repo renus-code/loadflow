@@ -5,296 +5,25 @@ import { useAuth } from "@/context/AuthContext";
 import DispatchTable from "@/components/DispatchTable";
 import LoadDetailsModal from "@/components/LoadDetailsModal";
 import AdminVisualSummary from "@/components/AdminVisualSummary";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { useSearch } from "@/context/SearchContext";
 import { ILoad } from "@/models/Load";
-import { useForm, useFieldArray, Controller, Control } from "react-hook-form";
+import { useForm, useFieldArray, Controller, Control, useWatch, UseFormRegister } from "react-hook-form";
+import { resolveState } from "@/lib/location";
+import { StateProvinceSelect, CitySelect } from "@/components/LocationSelects";
 
-// ─── STATE / PROVINCE DATA ────────────────────────────────────────────────────
-const US_STATES: [string, string][] = [
-  ["AL", "Alabama"],
-  ["AK", "Alaska"],
-  ["AZ", "Arizona"],
-  ["AR", "Arkansas"],
-  ["CA", "California"],
-  ["CO", "Colorado"],
-  ["CT", "Connecticut"],
-  ["DE", "Delaware"],
-  ["FL", "Florida"],
-  ["GA", "Georgia"],
-  ["HI", "Hawaii"],
-  ["ID", "Idaho"],
-  ["IL", "Illinois"],
-  ["IN", "Indiana"],
-  ["IA", "Iowa"],
-  ["KS", "Kansas"],
-  ["KY", "Kentucky"],
-  ["LA", "Louisiana"],
-  ["ME", "Maine"],
-  ["MD", "Maryland"],
-  ["MA", "Massachusetts"],
-  ["MI", "Michigan"],
-  ["MN", "Minnesota"],
-  ["MS", "Mississippi"],
-  ["MO", "Missouri"],
-  ["MT", "Montana"],
-  ["NE", "Nebraska"],
-  ["NV", "Nevada"],
-  ["NH", "New Hampshire"],
-  ["NJ", "New Jersey"],
-  ["NM", "New Mexico"],
-  ["NY", "New York"],
-  ["NC", "North Carolina"],
-  ["ND", "North Dakota"],
-  ["OH", "Ohio"],
-  ["OK", "Oklahoma"],
-  ["OR", "Oregon"],
-  ["PA", "Pennsylvania"],
-  ["RI", "Rhode Island"],
-  ["SC", "South Carolina"],
-  ["SD", "South Dakota"],
-  ["TN", "Tennessee"],
-  ["TX", "Texas"],
-  ["UT", "Utah"],
-  ["VT", "Vermont"],
-  ["VA", "Virginia"],
-  ["WA", "Washington"],
-  ["WV", "West Virginia"],
-  ["WI", "Wisconsin"],
-  ["WY", "Wyoming"],
-  ["DC", "District of Columbia"],
-];
+// Removed redundant US_STATES and CA_PROVINCES - now using lib/location
 
-const CA_PROVINCES: [string, string][] = [
-  ["AB", "Alberta"],
-  ["BC", "British Columbia"],
-  ["MB", "Manitoba"],
-  ["NB", "New Brunswick"],
-  ["NL", "Newfoundland and Labrador"],
-  ["NS", "Nova Scotia"],
-  ["ON", "Ontario"],
-  ["PE", "Prince Edward Island"],
-  ["QC", "Quebec"],
-  ["SK", "Saskatchewan"],
-  ["NT", "Northwest Territories"],
-  ["NU", "Nunavut"],
-  ["YT", "Yukon"],
-];
-
-const STATE_MAP = new Map<string, { name: string; country: string }>();
-US_STATES.forEach(([code, name]) => {
-  STATE_MAP.set(code.toUpperCase(), { name, country: "United States" });
-  STATE_MAP.set(name.toLowerCase(), { name, country: "United States" });
-});
-CA_PROVINCES.forEach(([code, name]) => {
-  STATE_MAP.set(code.toUpperCase(), { name, country: "Canada" });
-  STATE_MAP.set(name.toLowerCase(), { name, country: "Canada" });
-});
-
-function resolveState(input: string) {
-  if (!input) return undefined;
-  return (
-    STATE_MAP.get(input.toUpperCase()) ?? STATE_MAP.get(input.toLowerCase())
-  );
-}
-
-function useCities(stateInput: string) {
-  const [cities, setCities] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const fetchCities = useCallback(async (input: string) => {
-    const code = input.includes(" — ") ? input.split(" — ")[0].trim() : input;
-    const info = resolveState(code);
-    if (!info) {
-      setCities([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch(
-        "https://countriesnow.space/api/v0.1/countries/state/cities",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ country: info.country, state: info.name }),
-        },
-      );
-      const json = await res.json();
-      setCities(json?.data ?? []);
-    } catch {
-      setCities([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  useEffect(() => {
-    if (stateInput) fetchCities(stateInput);
-    else setCities([]);
-  }, [stateInput, fetchCities]);
-  return { cities, loading };
-}
+// Removed redundant resolveState
 
 const FIELD =
   "form-control rounded-4 p-3 glass-input-premium text-white shadow-sm focus-ring-emerald transition-all border-white border-opacity-10 shadow-none";
 
-const ALL_REGIONS: [string, string, string][] = [
-  ...US_STATES.map(([c, n]): [string, string, string] => [c, n, "🇺🇸"]),
-  ...CA_PROVINCES.map(([c, n]): [string, string, string] => [c, n, "🇨🇦"]),
-];
+// Shared components are now used from @/components/LocationSelects
 
-function StateProvinceSelect({
-  value,
-  onChange,
-  id,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  id?: string;
-}) {
-  const [query, setQuery] = useState(value);
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    setQuery(value);
-  }, [value]);
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-  const q = query.trim().toUpperCase();
-  const filtered =
-    q.length === 0
-      ? ALL_REGIONS
-      : ALL_REGIONS.filter(
-          ([code, name]) =>
-            code.startsWith(q) || name.toUpperCase().startsWith(q),
-        );
-  return (
-    <div ref={ref} className="position-relative">
-      <input
-        id={id}
-        required
-        autoComplete="off"
-        spellCheck={false}
-        className={FIELD}
-        style={{ background: "#0d1117", color: "white" }}
-        value={query}
-        placeholder="State/Province (e.g. ON, IL)"
-        onChange={(e) => {
-          setQuery(e.target.value.toUpperCase());
-          onChange(e.target.value.toUpperCase());
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-      />
-      {open && filtered.length > 0 && (
-        <ul
-          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
-        >
-          {filtered.map(([code, name, flag]) => (
-            <li key={code}>
-              <button
-                type="button"
-                className="btn btn-link text-decoration-none text-white w-100 text-start px-3 py-2 small fw-medium d-flex align-items-center gap-2 hover-bg-white-5"
-                onMouseDown={() => {
-                  onChange(code);
-                  setQuery(code);
-                  setOpen(false);
-                }}
-              >
-                <span
-                  className="fw-bold text-emerald"
-                  style={{ minWidth: "2rem" }}
-                >
-                  {code}
-                </span>
-                <span className="text-white opacity-60">{name}</span>
-                <span className="ms-auto">{flag}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+interface SelectOption { value: string; label: string; }
 
-function CitySelect({
-  stateCode,
-  value,
-  onChange,
-  id,
-}: {
-  stateCode: string;
-  value: string;
-  onChange: (v: string) => void;
-  id?: string;
-}) {
-  const { cities, loading } = useCities(stateCode);
-  const [query, setQuery] = useState(value);
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    setQuery(value);
-  }, [value]);
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-  const q = query.trim().toLowerCase();
-  const filtered = cities.filter((city) => city.toLowerCase().startsWith(q));
-  return (
-    <div ref={ref} className="position-relative">
-      <input
-        id={id}
-        required
-        autoComplete="off"
-        className={FIELD}
-        style={{ background: "#0d1117", color: "white" }}
-        value={query}
-        placeholder={loading ? "Loading..." : "City"}
-        disabled={loading}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          onChange(e.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-      />
-      {open && filtered.length > 0 && (
-        <ul
-          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
-        >
-          {filtered.map((city) => (
-            <li key={city}>
-              <button
-                type="button"
-                className="btn btn-link text-decoration-none text-white w-100 text-start px-3 py-2 small fw-medium hover-bg-white-5"
-                onMouseDown={() => {
-                  onChange(city);
-                  setQuery(city);
-                  setOpen(false);
-                }}
-              >
-                {city}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function GlassySelect({ options, value, onChange, id }: any) {
+function GlassySelect({ options, value, onChange, id }: { options: SelectOption[]; value: string; onChange: (v: string) => void; id?: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -320,7 +49,7 @@ function GlassySelect({ options, value, onChange, id }: any) {
         onClick={() => setOpen(!open)}
       >
         <span>
-          {options.find((o: any) => o.value === value)?.label || "Select..."}
+          {options.find((o) => o.value === value)?.label || "Select..."}
         </span>
         <svg
           width="16"
@@ -345,7 +74,7 @@ function GlassySelect({ options, value, onChange, id }: any) {
           className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
           style={{ zIndex: 9999, maxHeight: "250px", overflowY: "auto" }}
         >
-          {options.map((opt: any) => (
+          {options.map((opt) => (
             <li key={opt.value}>
               <button
                 type="button"
@@ -378,16 +107,21 @@ function LocationBlock({
   type: "pickups" | "deliveries";
   index: number;
   control: Control<LoadFormData>;
-  register: any;
+  register: UseFormRegister<LoadFormData>;
   onRemove: () => void;
   isRemovable: boolean;
 }) {
   const isPickup = type === "pickups";
   const prefix = `${type}.${index}` as const;
 
+  const stateCode = useWatch({
+    control,
+    name: `${prefix}.state`,
+  });
+
   return (
     <div
-      className={`card border-0 shadow-sm rounded-4 p-4 stop-card h-100 position-relative transition-all`}
+      className={`shadow-sm rounded-4 p-4 stop-card h-100 position-relative transition-all`}
       style={{
         borderLeft: `6px solid ${isPickup ? "#6366f1" : "#10b981"}`,
         background: "rgba(255, 255, 255, 0.02)",
@@ -479,12 +213,10 @@ function LocationBlock({
               control={control}
               rules={{ required: true }}
               render={({ field }) => {
-                // Get the current state value for this stop
-                const stateValue = control._getWatch(`${prefix}.state` as any);
                 return (
                   <CitySelect
                     id={`${prefix}.city`}
-                    stateCode={stateValue}
+                    stateCode={stateCode}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -577,12 +309,25 @@ type LoadFormData = {
 export default function Dashboard() {
   const { user } = useAuth();
   const [loads, setLoads] = useState<ILoad[]>([]);
-  const [drivers, setDrivers] = useState<{ _id: string; name: string }[]>([]);
+  const [drivers, setDrivers] = useState<{ _id: string; name: string; email?: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { searchTerm, setSearchTerm } = useSearch();
   const [selectedLoad, setSelectedLoad] = useState<ILoad | null>(null);
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: "warning" | "danger";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+    type: "warning",
+  });
   const initialStop = useMemo(
     () => ({
       address: "",
@@ -631,14 +376,7 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/loads");
       if (res.ok) {
-        let data = await res.json();
-        if (user?.role === "Driver") {
-          data = data.filter((l: ILoad) => {
-            const driverId =
-              (l.assignedDriverId as any)?._id || l.assignedDriverId;
-            return driverId === user.id;
-          });
-        }
+        const data = await res.json();
         setLoads(data);
       }
     } catch (error) {
@@ -654,13 +392,33 @@ export default function Dashboard() {
         const res = await fetch("/api/users");
         if (res.ok) {
           const data = await res.json();
-          setDrivers(data.filter((u: { role: string }) => u.role === "Driver"));
+          setDrivers(
+            data.filter(
+              (u: { _id: string; role: string; isPending?: boolean; email?: string }) =>
+                u.role === "Driver" && u.isPending !== true,
+            ),
+          );
         }
       }
     } catch (error) {
       console.error("Failed to fetch drivers:", error);
     }
   }, [user?.role]);
+
+  const availableDrivers = useMemo(() => {
+    // Current busy drivers (assigned to other active loads)
+    const busyDriverIds = new Set(
+      loads
+        .filter((l) => l.status !== "COMPLETED" && String(l._id) !== editingLoadId)
+        .map((l) => {
+          const driverId = (l.assignedDriverId as any)?._id || l.assignedDriverId;
+          return driverId?.toString();
+        })
+        .filter(Boolean),
+    );
+
+    return drivers.filter((d) => !busyDriverIds.has(d._id.toString()));
+  }, [drivers, loads, editingLoadId]);
 
   useEffect(() => {
     if (user) {
@@ -670,6 +428,16 @@ export default function Dashboard() {
       return () => clearInterval(interval);
     }
   }, [user, fetchLoads, fetchDrivers]);
+
+  // Keep selectedLoad in sync with updated loads data
+  useEffect(() => {
+    if (selectedLoad) {
+      const currentLoad = loads.find((l) => String(l._id) === String(selectedLoad._id));
+      if (currentLoad && currentLoad !== selectedLoad) {
+        setSelectedLoad(currentLoad);
+      }
+    }
+  }, [loads, selectedLoad?._id]);
 
   useEffect(() => {
     const handleOpenModal = () => {
@@ -728,6 +496,40 @@ export default function Dashboard() {
       weightUnit: load.weightUnit,
     });
     setShowModal(true);
+  };
+
+  const handleDeleteLoad = async (load: ILoad) => {
+    const isAdmin = user?.role === "Admin";
+    const title = isAdmin ? "Delete Load?" : "Cancel Load?";
+    const message = isAdmin
+      ? "Are you sure you want to DELETE this load PERMANENTLY? This action cannot be undone."
+      : "Are you sure you want to CANCEL this load? It will be removed from the active dashboard.";
+
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      type: isAdmin ? "danger" : "warning",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/loads/${load._id}`, {
+            method: "DELETE",
+          });
+          if (res.ok) {
+            if (selectedLoad && String(selectedLoad._id) === String(load._id)) {
+              setSelectedLoad(null);
+            }
+            fetchLoads();
+          } else {
+            const data = await res.json();
+            alert(data.error || `${isAdmin ? "Deletion" : "Cancellation"} failed`);
+          }
+        } catch (err) {
+          console.error(`${isAdmin ? "Deletion" : "Cancellation"} failed:`, err);
+          alert(`Error ${isAdmin ? "deleting" : "cancelling"} load`);
+        }
+      },
+    });
   };
 
   const filteredLoads = loads.filter((l) => {
@@ -951,9 +753,9 @@ export default function Dashboard() {
 
         <div className="card-body p-0">
           <div className="table-responsive">
-            {isLoading ? (
-              <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status">
+            {isLoading || !user ? (
+              <div className="d-flex justify-content-center p-5">
+                <div className="spinner-border text-emerald" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
               </div>
@@ -995,9 +797,15 @@ export default function Dashboard() {
               <DispatchTable
                 loads={filteredLoads}
                 drivers={drivers}
+                user={user}
                 onDetails={(load) => setSelectedLoad(load)}
                 onEdit={
                   user?.role === "Dispatcher" ? handleEditLoad : undefined
+                }
+                onDelete={
+                  user.role === "Admin" || user.role === "Dispatcher"
+                    ? handleDeleteLoad
+                    : undefined
                 }
               />
             )}
@@ -1009,8 +817,8 @@ export default function Dashboard() {
       {selectedLoad && user && (
         <LoadDetailsModal
           load={selectedLoad as ILoad}
-          user={user as any}
-          drivers={drivers}
+          user={user}
+          drivers={availableDrivers}
           onClose={() => setSelectedLoad(null)}
           onUpdate={fetchLoads}
         />
@@ -1392,6 +1200,16 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+      />
 
       <style jsx global>{`
         input::-webkit-calendar-picker-indicator {

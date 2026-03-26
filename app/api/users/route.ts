@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const userPayload = await getUserFromRequest(req);
     // Only Admin and Dispatcher should see all users, or maybe just Admin. Requirement: "Admin: Manage all users"
-    if (!requireRole(userPayload, ['Admin'])) {
+    if (!requireRole(userPayload, ['Admin', 'Dispatcher'])) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

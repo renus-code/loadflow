@@ -25,11 +25,14 @@ export async function GET(req: NextRequest) {
     await connectToDatabase();
 
     // Fetch the user from the database
-    const user = await User.findById(payload.id).select('-passwordHash');
+    const userDoc = await User.findById(payload.id).select('-passwordHash').lean();
 
-    if (!user) {
+    if (!userDoc) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    const { _id, ...rest } = userDoc;
+    const user = { id: _id.toString(), ...rest };
 
     return NextResponse.json({ user }, { status: 200 });
   } catch (error: unknown) {

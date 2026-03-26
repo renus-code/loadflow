@@ -62,16 +62,22 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getUserFromRequest(req);
-    if (!user || user.role !== 'Admin') {
-      return NextResponse.json({ error: "Forbidden: Only Admins can delete loads" }, { status: 403 });
+    if (!user || !requireRole(user, ['Admin', 'Dispatcher'])) {
+      return NextResponse.json({ error: "Forbidden: Only Dispatchers and Admins can delete loads" }, { status: 403 });
     }
 
     await dbConnect();
     const { id } = await params;
 
-    await Load.findByIdAndDelete(id);
+    if (user.role === 'Dispatcher') {
+      // Soft delete: update status to CANCELLED
+      await Load.findByIdAndUpdate(id, { status: 'CANCELLED' });
+      return NextResponse.json({ message: "Load cancelled successfully" });
+    }
 
-    return NextResponse.json({ message: "Load deleted successfully" });
+    // Admin: permanent delete
+    await Load.findByIdAndDelete(id);
+    return NextResponse.json({ message: "Load deleted permanently" });
   } catch (error: unknown) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
