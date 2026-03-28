@@ -187,6 +187,17 @@ body {
   animation: fade-in 0.5s ease-out forwards;
 }
 
+@keyframes glassDropdownOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes slide-in-left {
   from {
     opacity: 0;

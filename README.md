@@ -180,7 +180,7 @@ Manual communication causes delays, errors, missing Proof of Delivery documents,
 - **Week 6:** Driver Workflow & Status Updates
 - **Week 7:** POD Upload Feature & Dashboard Metrics
 - **Week 8:** Role-Based Permissions (Dispatcher vs. Admin Deletion)
-- **Week 9:** UI Refinement (Kinetic Ether Glassmorphism)
+- **Week 9:** UI Refinement 
 - **Week 10:** Final Testing, Bug Fixes & Deployment
 - **Week 11 (Apr 23):** Documentation, Demo Video & Final Presentation
 

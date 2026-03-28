@@ -4,7 +4,7 @@ import Load from "@/models/Load";
 import { getUserFromRequest } from "@/lib/auth";
 import ProofOfDelivery from "@/models/ProofOfDelivery";
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -6,10 +6,11 @@ import DispatchTable from "@/components/DispatchTable";
 import LoadDetailsModal from "@/components/LoadDetailsModal";
 import AdminVisualSummary from "@/components/AdminVisualSummary";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import FleetSection from "@/components/FleetSection";
 import { useSearch } from "@/context/SearchContext";
-import { ILoad } from "@/models/Load";
+import { ILoad, IStop } from "@/models/Load";
 import { useForm, useFieldArray, Controller, Control, useWatch, UseFormRegister } from "react-hook-form";
-import { resolveState } from "@/lib/location";
+// import { resolveState } from "@/lib/location";
 import { StateProvinceSelect, CitySelect } from "@/components/LocationSelects";
 
 // Removed redundant US_STATES and CA_PROVINCES - now using lib/location
@@ -295,10 +296,16 @@ function LocationBlock({
 }
 
 // Interfaces are now imported from @/models/Load
+// Helper type for form stops where date is a string (from input type="date")
+type FormStop = Omit<IStop, "date" | "status"> & { 
+  date: string;
+  status: "PENDING" | "PICKED_UP" | "DELIVERED";
+};
+
 type LoadFormData = {
   loadNumber: string;
-  pickups: any[]; // Use any[] here to avoid complex nested IStop matching in the form
-  deliveries: any[];
+  pickups: FormStop[]; 
+  deliveries: FormStop[];
   quantity: string;
   quantityUnit: string;
   weight: string;
@@ -315,6 +322,7 @@ export default function Dashboard() {
   const [selectedLoad, setSelectedLoad] = useState<ILoad | null>(null);
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentView, setCurrentView] = useState<"loads" | "fleet">("loads");
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -328,7 +336,7 @@ export default function Dashboard() {
     onConfirm: () => {},
     type: "warning",
   });
-  const initialStop = useMemo(
+  const initialStop = useMemo<FormStop>(
     () => ({
       address: "",
       city: "",
@@ -384,7 +392,7 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, []); // removed unnecessary user dependency
 
   const fetchDrivers = useCallback(async () => {
     try {
@@ -411,7 +419,7 @@ export default function Dashboard() {
       loads
         .filter((l) => l.status !== "COMPLETED" && String(l._id) !== editingLoadId)
         .map((l) => {
-          const driverId = (l.assignedDriverId as any)?._id || l.assignedDriverId;
+          const driverId = (l.assignedDriverId as unknown as { _id: string })?._id || l.assignedDriverId;
           return driverId?.toString();
         })
         .filter(Boolean),
@@ -437,7 +445,7 @@ export default function Dashboard() {
         setSelectedLoad(currentLoad);
       }
     }
-  }, [loads, selectedLoad?._id]);
+  }, [loads, selectedLoad]); // added selectedLoad to dependencies
 
   useEffect(() => {
     const handleOpenModal = () => {
@@ -462,10 +470,25 @@ export default function Dashboard() {
     try {
       const url = editingLoadId ? `/api/loads/${editingLoadId}` : "/api/loads";
       const method = editingLoadId ? "PUT" : "POST";
+      
+      const payload = {
+        ...data,
+        quantity: Number(data.quantity),
+        weight: Number(data.weight),
+        pickups: data.pickups.map(p => ({
+          ...p,
+          date: new Date(p.date)
+        })),
+        deliveries: data.deliveries.map(d => ({
+          ...d,
+          date: new Date(d.date)
+        }))
+      };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         setShowModal(false);
@@ -556,37 +579,54 @@ export default function Dashboard() {
       style={{ maxWidth: "1600px" }}
     >
       {/* DASHBOARD HEADER */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 mt-3 gap-4 border-bottom pb-4 border-opacity-10 border-white">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
         <div className="text-start">
           <h1
-            className="display-4 fw-black text-white m-0 tracking-tight premium-header-accent"
-            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.05em" }}
+            className="display-6 fw-black text-white m-0 tracking-tight"
+            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em" }}
           >
-            {user?.role === "Driver" ? (
-              "My Fleet"
-            ) : (
-              <>
-                <span className="text-gradient-emerald">Logistics</span>{" "}
-                Overview
-              </>
-            )}
+            <span className="text-gradient-emerald">{user?.role || "User"}</span>{" "}
+            Dashboard
           </h1>
           <p
-            className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small tracking-widest"
-            style={{ letterSpacing: "0.2rem" }}
+            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
+            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
           >
             {todayStr}
           </p>
         </div>
+
+        {user?.role === "Admin" && (
+          <div className="d-flex glass-card p-1 rounded-pill border border-white border-opacity-10 shadow-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
+            <button 
+              onClick={() => setCurrentView("loads")}
+              className={`btn rounded-pill px-4 py-2 fw-bold transition-all border-0 ${currentView === "loads" ? "btn-emerald shadow-lg" : "text-white opacity-50"}`}
+              style={{ fontSize: "0.8rem" }}
+            >
+              Loads
+            </button>
+            <button 
+              onClick={() => setCurrentView("fleet")}
+              className={`btn rounded-pill px-4 py-2 fw-bold transition-all border-0 ${currentView === "fleet" ? "btn-emerald shadow-lg" : "text-white opacity-50"}`}
+              style={{ fontSize: "0.8rem" }}
+            >
+              Fleet
+            </button>
+          </div>
+        )}
       </div>
 
-      {user?.role === "Admin" && (
-        <div className="mb-5">
-          <AdminVisualSummary loads={loads} drivers={drivers} />
-        </div>
-      )}
+      {currentView === "fleet" && user?.role === "Admin" ? (
+        <FleetSection />
+      ) : (
+        <>
+          {user?.role === "Admin" && (
+            <div className="mb-5">
+              <AdminVisualSummary loads={loads} drivers={drivers} />
+            </div>
+          )}
 
-      {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
+          {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
       <div className="row g-4 mb-5">
         {[
           {
@@ -826,7 +866,7 @@ export default function Dashboard() {
 
       {showModal && (
         <div
-          className="position-fixed top-0 start-0 w-100 vh-100 d-flex justify-content-center p-3 p-md-5 animate-fade-in overflow-y-auto no-scrollbar py-5"
+          className="position-fixed top-0 start-0 w-100 vh-100 d-flex justify-content-center align-items-center p-3 p-md-5 animate-fade-in"
           style={{ zIndex: 99999 }}
         >
           <div
@@ -841,12 +881,12 @@ export default function Dashboard() {
             }}
           ></div>
           <div
-            className="card border-0 shadow-2xl glass-modal-v4 position-relative z-index-modal animate-slide-up my-auto"
+            className="card border-0 shadow-2xl glass-modal-v4 position-relative z-index-modal animate-slide-up overflow-hidden d-flex flex-column"
             style={{
               maxWidth: "1000px",
               width: "100%",
-              borderRadius: "2.5rem",
-              overflow: "hidden",
+              maxHeight: "95vh",
+              borderRadius: "2rem",
             }}
           >
             {/* STICKY GLASS HEADER */}
@@ -877,8 +917,8 @@ export default function Dashboard() {
             </div>
 
             <div
-              className="modal-body-scroll no-scrollbar p-0"
-              style={{ maxHeight: "80vh", overflowY: "auto" }}
+              className="modal-body-scroll no-scrollbar p-0 flex-grow-1"
+              style={{ overflowY: "auto" }}
             >
               <form
                 onSubmit={handleSubmit(onSubmit)}
@@ -1199,6 +1239,8 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Confirmation Modal */}

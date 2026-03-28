@@ -1,8 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useSearch } from "@/context/SearchContext";
+
+// Portal — renders directly on document.body, escaping all parent stacking contexts
+function ModalPortal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+  return createPortal(children, document.body);
+}
 
 type UserFormData = {
   firstName: string;
@@ -26,6 +35,135 @@ const ShieldIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
 );
 
+// ─── Custom Role Dropdown ───────────────────────────────────────────────────
+function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const roles = ["Driver", "Dispatcher", "Admin"];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: "relative", zIndex: open ? 2000 : 1 }}>
+      {/* Trigger */}
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "14px",
+          padding: "14px 18px 14px 52px",
+          borderRadius: "16px",
+          border: open
+            ? "1.5px solid rgba(43, 221, 102, 0.5)"
+            : "1px solid rgba(255,255,255,0.1)",
+          background: open
+            ? "rgba(43, 221, 102, 0.06)"
+            : "rgba(255,255,255,0.05)",
+          cursor: "pointer",
+          userSelect: "none",
+          transition: "all 0.22s cubic-bezier(0.4,0,0.2,1)",
+          boxShadow: open ? "0 0 0 3px rgba(43,221,102,0.1)" : "none",
+        }}
+      >
+        <span style={{
+          flex: 1,
+          fontSize: "15px",
+          fontWeight: 700,
+          color: value ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.35)",
+        }}>
+          {value || "Select role..."}
+        </span>
+        <svg
+          width="12" height="12" viewBox="0 0 24 24" fill="none"
+          stroke={open ? "#2bdd66" : "rgba(255,255,255,0.35)"}
+          strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }}
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </div>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div style={{
+          position: "absolute",
+          top: "calc(100% + 6px)",
+          left: 0,
+          right: 0,
+          borderRadius: "14px",
+          border: "1px solid rgba(43, 221, 102, 0.18)",
+          background: "rgb(13, 18, 38)",
+          boxShadow: "0 20px 50px -8px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)",
+          padding: "6px",
+          overflow: "hidden",
+          zIndex: 2001,
+          animation: "glassDropdownOpen 0.2s cubic-bezier(0.4,0,0.2,1) both",
+        }}>
+          {roles.map((role) => {
+            const selected = value === role;
+            return (
+              <div
+                key={role}
+                onClick={() => { onChange(role); setOpen(false); }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "11px 14px",
+                  borderRadius: "10px",
+                  marginBottom: "2px",
+                  cursor: "pointer",
+                  background: selected ? "rgba(43,221,102,0.12)" : "transparent",
+                  border: selected ? "1px solid rgba(43,221,102,0.25)" : "1px solid transparent",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!selected) {
+                    e.currentTarget.style.background = "rgba(43,221,102,0.07)";
+                    e.currentTarget.style.border = "1px solid rgba(43,221,102,0.15)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selected) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.border = "1px solid transparent";
+                  }
+                }}
+              >
+                {/* Dot */}
+                <div style={{
+                  width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
+                  background: selected ? "#2bdd66" : "rgba(255,255,255,0.15)",
+                  boxShadow: selected ? "0 0 8px #2bdd66" : "none",
+                  transition: "all 0.15s ease",
+                }} />
+                <span style={{
+                  fontSize: "14px", fontWeight: 700, flex: 1,
+                  color: selected ? "#2bdd66" : "rgba(255,255,255,0.65)",
+                  transition: "color 0.15s ease",
+                }}>{role}</span>
+                {selected && (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="#2bdd66" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UserManagement() {
   interface User {
     _id: string;
@@ -46,7 +184,7 @@ export default function UserManagement() {
   const [editingId, setEditingId] = useState("");
   const { searchTerm, setSearchTerm } = useSearch();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<UserFormData>();
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UserFormData>();
 
   const fetchUsers = async () => {
     try {
@@ -265,83 +403,111 @@ export default function UserManagement() {
       </div>
 
       {showModal && (
-        <div className="modal-overlay d-flex align-items-center justify-content-center animate-fade-in">
-          <div className="modal-backdrop-blur" onClick={() => setShowModal(false)}></div>
-          <div className="card modal-content border-0 shadow-2xl rounded-5 p-4 p-md-5 glass-card-solid position-relative z-1 animate-slide-up" style={{ maxWidth: '550px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 className="fs-3 fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
-                {isEditing ? 'Edit User' : 'Invite New User'}
-              </h3>
-              <button className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" onClick={() => setShowModal(false)}></button>
+        <ModalPortal>
+          {/* Dark dimmed blurred backdrop */}
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 100001,
+              background: "rgba(3, 6, 18, 0.72)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "24px 16px",
+            }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+          >
+            {/* Solid dark modal card */}
+            <div
+              className="animate-scale-in w-100"
+              style={{
+                maxWidth: "560px",
+                background: "rgb(13, 18, 38)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "20px",
+                boxShadow: "0 25px 60px rgba(0,0,0,0.8)",
+                padding: "36px 40px",
+              }}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="fs-3 fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
+                  {isEditing ? 'Edit User' : 'Invite New User'}
+                </h3>
+                <button className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" onClick={() => setShowModal(false)}></button>
+              </div>
+
+              <p className="small text-white opacity-50 mb-4 fw-medium">
+                {isEditing ? "Update account details. Email cannot be changed during registration." : "Invited users will receive access once they register with this email and set their password."}
+              </p>
+
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <div className="row g-3">
+                  <div className="col-md-6 mb-3">
+                    <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>First Name *</label>
+                    <div className="position-relative">
+                      <div className="modal-input-icon"><UserIcon /></div>
+                      <input type="text" placeholder="John"
+                        className={`form-control modal-input ${errors.firstName ? 'error-border' : ''}`}
+                        {...register("firstName", { required: "First name is required" })} />
+                    </div>
+                    {errors.firstName && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.firstName.message}</p>}
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Last Name *</label>
+                    <div className="position-relative">
+                      <div className="modal-input-icon"><UserIcon /></div>
+                      <input type="text" placeholder="Doe"
+                        className={`form-control modal-input ${errors.lastName ? 'error-border' : ''}`}
+                        {...register("lastName", { required: "Last name is required" })} />
+                    </div>
+                    {errors.lastName && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.lastName.message}</p>}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Email Address *</label>
+                  <div className="position-relative">
+                    <div className="modal-input-icon"><MailIcon /></div>
+                    <input type="email" placeholder="john@example.com" disabled={isEditing}
+                      className={`form-control modal-input ${errors.email ? 'error-border' : ''}`}
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" }
+                      })} />
+                  </div>
+                  {isEditing && <div className="x-small text-white opacity-40 mt-1 px-1">Email address is locked for existing users.</div>}
+                  {errors.email && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.email.message}</p>}
+                </div>
+
+                <div className="mb-5">
+                  <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Account Role *</label>
+                  <div className="position-relative">
+                    <div className="modal-input-icon"><ShieldIcon /></div>
+                    <input type="hidden" {...register("role", { required: true })} />
+                    <RoleDropdown
+                      value={watch("role") || "Driver"}
+                      onChange={(v) => setValue("role", v, { shouldValidate: true })}
+                    />
+                  </div>
+                </div>
+
+                <div className="d-flex gap-3">
+                  <button type="button" className="btn btn-glass-secondary w-50 rounded-pill py-3 fw-bold transition-all" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-emerald-solid w-50 text-dark rounded-pill py-3 fw-black shadow-lg border-0 transition-all hover-float">
+                    {isEditing ? 'Save Changes' : 'Send Invitation'}
+                  </button>
+                </div>
+              </form>
             </div>
-
-            <p className="small text-white opacity-50 mb-4 fw-medium">
-              {isEditing ? "Update account details. Email cannot be changed during registration." : "Invited users will receive access once they register with this email and set their password."}
-            </p>
-
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className="row g-3">
-                <div className="col-md-6 mb-3">
-                  <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>First Name *</label>
-                  <div className="position-relative">
-                    <div className="modal-input-icon"><UserIcon /></div>
-                    <input type="text" placeholder="John"
-                      className={`form-control modal-input ${errors.firstName ? 'error-border' : ''}`}
-                      {...register("firstName", { required: "First name is required" })} />
-                  </div>
-                  {errors.firstName && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.firstName.message}</p>}
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Last Name *</label>
-                  <div className="position-relative">
-                    <div className="modal-input-icon"><UserIcon /></div>
-                    <input type="text" placeholder="Doe"
-                      className={`form-control modal-input ${errors.lastName ? 'error-border' : ''}`}
-                      {...register("lastName", { required: "Last name is required" })} />
-                  </div>
-                  {errors.lastName && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.lastName.message}</p>}
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Email Address *</label>
-                <div className="position-relative">
-                  <div className="modal-input-icon"><MailIcon /></div>
-                  <input type="email" placeholder="john@example.com" disabled={isEditing}
-                    className={`form-control modal-input ${errors.email ? 'error-border' : ''}`}
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" }
-                    })} />
-                </div>
-                {isEditing && <div className="x-small text-white opacity-40 mt-1 px-1">Email address is locked for existing users.</div>}
-                {errors.email && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.email.message}</p>}
-              </div>
-
-              <div className="mb-5">
-                <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Account Role *</label>
-                <div className="position-relative">
-                   <div className="modal-input-icon"><ShieldIcon /></div>
-                   <select className="form-select modal-input fw-bold"
-                    {...register("role", { required: true })}>
-                    <option value="Driver">Driver</option>
-                    <option value="Dispatcher">Dispatcher</option>
-                    <option value="Admin">Admin</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="d-flex gap-3">
-                <button type="button" className="btn btn-glass-secondary w-50 rounded-pill py-3 fw-bold transition-all" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-emerald-solid w-50 text-dark rounded-pill py-3 fw-black shadow-lg border-0 transition-all hover-float">
-                  {isEditing ? 'Save Changes' : 'Send Invitation'}
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
-       <style jsx>{`
+        </ModalPortal>
+      )}       <style jsx>{`
         .glass-card { background: rgba(9, 19, 40, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         .glass-card-solid { background: rgba(13, 22, 45, 0.98); backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.15) !important; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6); }
         .glass-thead { background: rgba(255, 255, 255, 0.05); }
