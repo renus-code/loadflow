@@ -1,3 +1,4 @@
+// Loads API: Gets and creates cargo routes based on who is logged in.
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Load, { IStop } from "@/models/Load";
@@ -39,7 +40,6 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
-    console.log("[Loads API] POST request received - Multi-stop support");
     const body = await req.json();
     const { 
       loadNumber,

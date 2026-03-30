@@ -1,5 +1,7 @@
 "use client";
 
+// Cargo Form Modal: Used for creating new loads and editing existing ones.
+
 import { useState } from "react";
 
 interface LoadFormProps {

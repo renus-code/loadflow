@@ -3,7 +3,10 @@ info:
   title: LoadFlow API
   version: 1.0.0
   description: |
-    Contract-first API design for LoadFlow - A lightweight dispatch system for small trucking companies.
+    Contract-first API design for LoadFlow — a high-performance, Zero-Trust dispatch system for modern trucking companies.
+
+    **Static Frontend Routes (no API):**
+    - `/contact` — Contact page with support form, email (support@loadflow.ca), and phone (+1 437-383-1996). No backend API is called.
 servers:
   - url: http://localhost:3000
     description: Local dev environment
@@ -66,7 +69,7 @@ paths:
       summary: Get current authenticated user
       tags: [Auth]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Current user info
@@ -86,7 +89,7 @@ paths:
       summary: Get all users
       tags: [Users]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: List of users
@@ -108,7 +111,7 @@ paths:
       summary: Get a user by ID
       tags: [Users]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -135,7 +138,7 @@ paths:
       summary: Get all loads
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: List of loads
@@ -156,7 +159,7 @@ paths:
       summary: Create a new load
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -182,7 +185,7 @@ paths:
       summary: Get load by ID
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -208,7 +211,7 @@ paths:
       summary: Update a load
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -238,7 +241,7 @@ paths:
       summary: Delete a load
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -261,7 +264,7 @@ paths:
       summary: Assign a driver to a load
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -293,7 +296,7 @@ paths:
       summary: Update the status of a load
       tags: [Loads]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -325,7 +328,7 @@ paths:
       summary: Upload a Proof of Delivery (POD)
       tags: [PODs]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -346,7 +349,7 @@ paths:
       summary: Get all trucks
       tags: [Trucks]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: List of trucks
@@ -360,7 +363,7 @@ paths:
       summary: Create a new truck
       tags: [Trucks]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -380,7 +383,7 @@ paths:
       summary: Update a truck
       tags: [Trucks]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -405,7 +408,7 @@ paths:
       summary: Delete a truck
       tags: [Trucks]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -422,7 +425,7 @@ paths:
       summary: Get all trailers
       tags: [Trailers]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: List of trailers
@@ -436,7 +439,7 @@ paths:
       summary: Create a new trailer
       tags: [Trailers]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -456,7 +459,7 @@ paths:
       summary: Update a trailer
       tags: [Trailers]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -481,7 +484,7 @@ paths:
       summary: Delete a trailer
       tags: [Trailers]
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -495,10 +498,10 @@ paths:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
 
   schemas:
     RegisterRequest:
@@ -556,17 +559,47 @@ components:
 
     CreateLoadRequest:
       type: object
-      required: [pickupLocation, deliveryLocation, weight]
+      required: [loadNumber, pickups, deliveries, weight, quantity]
       properties:
-        pickupLocation:
+        loadNumber:
           type: string
-          example: Vancouver, BC
-        deliveryLocation:
+          example: LD-2410
+        quantity:
+          type: number
+          example: 12
+        quantityUnit:
           type: string
-          example: Calgary, AB
+          example: Pallets
         weight:
+          type: number
+          example: 38000
+        weightUnit:
           type: string
-          example: 38000 lbs
+          example: lbs
+        pickups:
+          type: array
+          items:
+            type: object
+            properties:
+              locationName:
+                type: string
+                example: Vancouver, BC
+              date:
+                type: string
+                format: date-time
+                example: 2026-03-01T11:00:00Z
+        deliveries:
+          type: array
+          items:
+            type: object
+            properties:
+              locationName:
+                type: string
+                example: Calgary, AB
+              date:
+                type: string
+                format: date-time
+                example: 2026-03-02T14:00:00Z
 
     LoadResponse:
       type: object
@@ -574,15 +607,31 @@ components:
         id:
           type: string
           example: load_101
-        pickupLocation:
+        loadNumber:
           type: string
-          example: Vancouver, BC
-        deliveryLocation:
-          type: string
-          example: Calgary, AB
+          example: LD-2410
+        quantity:
+          type: number
+          example: 12
         weight:
-          type: string
-          example: 38000 lbs
+          type: number
+          example: 38000
+        pickups:
+          type: array
+          items:
+            type: object
+            properties:
+              locationName:
+                type: string
+                example: Vancouver, BC
+        deliveries:
+          type: array
+          items:
+            type: object
+            properties:
+              locationName:
+                type: string
+                example: Calgary, AB
         status:
           type: string
           example: Pending

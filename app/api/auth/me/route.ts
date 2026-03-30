@@ -1,3 +1,4 @@
+// Session API: Reloads the user's profile when they refresh the browser.
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import connectToDatabase from '@/lib/mongodb';

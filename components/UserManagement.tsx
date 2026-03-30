@@ -1,5 +1,7 @@
 "use client";
 
+// Admin Panel: Let admins manage staff members, roles, and passwords.
+
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
@@ -183,7 +185,8 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
-  const { searchTerm, setSearchTerm } = useSearch();
+  const searchTerm = useSearch((state) => state.searchTerm);
+  const setSearchTerm = useSearch((state) => state.setSearchTerm);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UserFormData>();
 

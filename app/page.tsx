@@ -622,172 +622,69 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* HYPER-PREMIUM CALL TO ACTION */}
-        <section className="py-5 position-relative overflow-hidden bg-dark">
-          {/* Animated Background Gradient */}
-          <div className="position-absolute top-50 start-50 translate-middle w-100 h-100 z-0 bg-dark">
-            <div
-              className="position-absolute top-0 start-0 w-100 h-100 opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle at 70% 30%, rgba(43, 221, 102, 0.2), transparent 50%), radial-gradient(circle at 30% 70%, rgba(99, 102, 241, 0.1), transparent 50%)",
-              }}
-            ></div>
-          </div>
-
-          <div className="container py-5 position-relative z-1 text-center">
-            <div className="row justify-content-center py-5">
-              <div className="col-md-9 col-lg-7">
-                <h2
-                  className="display-4 fw-bold text-white mb-4"
-                  style={{ fontFamily: "var(--font-syne)", lineHeight: "1.2" }}
-                >
-                  Ready to transform your{" "}
-                  <span className="text-gradient-emerald">moving parts?</span>
-                </h2>
-                <p
-                  className="lead text-white text-opacity-60 mb-5 fw-medium mx-auto"
-                  style={{ maxWidth: "480px" }}
-                >
-                  Join 3,200+ carriers leveraging the power of AI-driven
-                  cross-border logistics.
-                </p>
-                <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                  <Link
-                    href="/register"
-                    className="btn btn-lg fw-bold px-5 py-3 rounded-3 shadow-success-glow border-0 hover-zoom"
-                    style={{
-                      backgroundColor: "#2bdd66",
-                      color: "#000",
-                      fontSize: "1.2rem",
-                    }}
-                  >
-                    Create Free Account
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="btn btn-outline-light btn-lg fw-bold px-5 py-3 rounded-3 border-2 hover-zoom"
-                    style={{ fontSize: "1.2rem" }}
-                  >
-                    Sign In &rarr;
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-dark border-top border-white border-opacity-05 py-5 mt-auto text-white">
-        <div className="container px-4">
+      <footer style={{ background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 100%)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #10b981, transparent)" }} />
+        <div className="container px-4 py-5">
           <div className="row g-5">
-            <div className="col-lg-8">
-              <div
-                className="fs-4 fw-bold mb-4 d-flex align-items-center"
-                style={{ fontFamily: "var(--font-syne)" }}
-              >
-                <span style={{ color: "#fff" }}>Load</span>
-                <span style={{ color: "#2bdd66" }}>Flow</span>
-              </div>
-              <p className="text-white text-opacity-50 pe-lg-5 mb-4">
-                The world&apos;s most advanced cross-border logistics platform.
-                Precision. Power. Performance.
+            {/* Brand */}
+            <div className="col-lg-5">
+              <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
+                <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm" style={{ width: 38, height: 38, flexShrink: 0 }}>
+                  <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+                <span className="fs-4 fw-bold d-flex align-items-center" style={{ fontFamily: "var(--font-syne)" }}>
+                  <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
+                </span>
+              </Link>
+              <p className="mb-4" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", maxWidth: 320, lineHeight: 1.7 }}>
+                The enterprise dispatch platform built for modern trucking teams. Secure, fast, and built to scale across every border.
               </p>
-              <div className="d-flex gap-3">
-                <a
-                  href="#"
-                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
-                  style={{ width: "36px", height: "36px" }}
-                >
-                  <i className="bi bi-twitter"></i>
-                </a>
-                <a
-                  href="#"
-                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
-                  style={{ width: "36px", height: "36px" }}
-                >
-                  <i className="bi bi-linkedin"></i>
-                </a>
-                <a
-                  href="#"
-                  className="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
-                  style={{ width: "36px", height: "36px" }}
-                >
-                  <i className="bi bi-facebook"></i>
-                </a>
+              <div className="d-flex gap-2">
+                {["bi-twitter-x", "bi-linkedin", "bi-github"].map((icon) => (
+                  <a key={icon} href="#" className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 38, height: 38, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
+                    <i className={`bi ${icon}`} />
+                  </a>
+                ))}
               </div>
             </div>
-            <div className="col-6 col-md-4 col-lg-4">
-              <h6 className="fw-bold mb-4 text-white">Platform</h6>
-              <ul className="list-unstyled d-flex flex-column gap-2 text-white text-opacity-50 small">
-                <li>
-                  <a
-                    href="#features"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#solutions"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Solutions
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#pricing"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/api-docs"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    API Reference
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/login"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Sign In
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/register"
-                    className="text-reset text-decoration-none hover-emerald"
-                  >
-                    Create Account
-                  </Link>
-                </li>
+            {/* Platform */}
+            <div className="col-6 col-md-3 col-lg-2">
+              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Platform</h6>
+              <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
+                {[{ label: "Features", href: "#features" }, { label: "Solutions", href: "#solutions" }, { label: "Pricing", href: "#pricing" }, { label: "Dashboard", href: "/dashboard" }].map(({ label, href }) => (
+                  <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
+                ))}
               </ul>
             </div>
-          </div>
-          <div className="border-top border-white border-opacity-05 mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <p className="text-white text-opacity-40 small mb-0 fw-medium">
-              &copy; 2026 LoadFlow Inc. All rights reserved.
-            </p>
-            <div className="d-flex gap-4 small text-white text-opacity-40">
-              <span className="text-reset">Precision. Power. Performance.</span>
+            {/* Company */}
+            <div className="col-6 col-md-3 col-lg-2">
+              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Company</h6>
+              <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
+                {[{ label: "Contact", href: "/contact" }, { label: "Register", href: "/register" }, { label: "Sign In", href: "/login" }].map(({ label, href }) => (
+                  <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
+                ))}
+              </ul>
             </div>
+            {/* Contact */}
+            <div className="col-lg-3">
+              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Get In Touch</h6>
+              <div className="d-flex flex-column gap-3">
+                {[{ icon: "bi-envelope", text: "support@loadflow.ca" }, { icon: "bi-telephone", text: "+1 (437) 383-1996" }, { icon: "bi-geo-alt", text: "Toronto, Ontario, Canada" }].map(({ icon, text }) => (
+                  <div key={text} className="d-flex align-items-center gap-2">
+                    <i className={`bi ${icon}`} style={{ color: "#10b981", fontSize: "0.85rem", flexShrink: 0 }} />
+                    <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>{text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Bottom bar */}
+          <div className="mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <p className="mb-0" style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>&copy; 2026 LoadFlow Inc. · CargoConnect Team · All rights reserved.</p>
+            <p className="mb-0" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}>Precision. Power. Performance.</p>
           </div>
         </div>
       </footer>

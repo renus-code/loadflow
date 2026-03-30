@@ -1,3 +1,9 @@
+/**
+ * Global MongoDB Connection Protocol
+ * 
+ * Ensures a single, heavily optimized database connection pool is used across 
+ * all serverless Next.js API routes, preventing connection spikes and memory leaks.
+ */
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI!;

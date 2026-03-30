@@ -1,5 +1,7 @@
 "use client";
 
+// Interactive Loads Table: Shows all cargo assignments with filtering and sorting.
+
 import { useState, useMemo } from "react";
 import { ILoad, IStop } from "@/models/Load";
 

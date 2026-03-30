@@ -314,11 +314,12 @@ type LoadFormData = {
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const { user } = useAuth();
+  const user = useAuth((state) => state.user);
   const [loads, setLoads] = useState<ILoad[]>([]);
   const [drivers, setDrivers] = useState<{ _id: string; name: string; email?: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { searchTerm, setSearchTerm } = useSearch();
+  const searchTerm = useSearch((state) => state.searchTerm);
+  const setSearchTerm = useSearch((state) => state.setSearchTerm);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedLoad, setSelectedLoad] = useState<ILoad | null>(null);
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);

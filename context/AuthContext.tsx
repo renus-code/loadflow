@@ -1,6 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+// Auth State: Manages user login sessions globally without slowing down the app.
+
+import React, { createContext, useContext, useRef, useEffect } from 'react';
+import { createStore, useStore } from 'zustand';
 import { useRouter } from 'next/navigation';
 
 export interface User {
@@ -10,68 +13,90 @@ export interface User {
   role: string;
 }
 
-interface AuthContextType {
+interface AuthState {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthActions {
+  fetchUser: () => Promise<void>;
+  logout: (router: any) => Promise<void>;
+  refreshUser: () => Promise<void>; // Alias for backwards compatibility
+}
+
+type AuthStoreType = AuthState & AuthActions;
+type AuthStore = ReturnType<typeof createAuthStore>;
+
+const createAuthStore = () =>
+  createStore<AuthStoreType>()((set, get) => ({
+    user: null,
+    isLoading: true,
+    error: null,
+    fetchUser: async () => {
+      try {
+        set({ isLoading: true });
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const text = await res.text();
+          const data = text ? JSON.parse(text) : {};
+          set({ user: data.user || null, isLoading: false });
+        } else {
+          set({ user: null, isLoading: false });
+        }
+      } catch (err) {
+        console.error('Failed to fetch user:', err);
+        set({ error: 'Connection error', isLoading: false });
+      }
+    },
+    refreshUser: async () => {
+      await get().fetchUser();
+    },
+    logout: async (router) => {
+      try {
+        const res = await fetch('/api/auth/logout', { method: 'POST' });
+        if (res.ok) {
+          set({ user: null });
+          router.push('/');
+        }
+      } catch (err) {
+        console.error('Logout failed:', err);
+      }
+    }
+  }));
+
+const AuthContext = createContext<AuthStore | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const storeRef = useRef<AuthStore | null>(null);
   const router = useRouter();
 
-  const fetchUser = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch('/api/auth/me');
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-    } catch (err) {
-      console.error('Failed to fetch user:', err);
-      setError('Connection error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (!storeRef.current) {
+    storeRef.current = createAuthStore();
+  }
 
+  // Initial Fetch logic
   useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
-      if (res.ok) {
-        setUser(null);
-        router.push('/');
-      }
-    } catch (err) {
-      console.error('Logout failed:', err);
+    if (storeRef.current) {
+      storeRef.current.getState().fetchUser();
     }
-  }, [router]);
+  }, []);
 
   // ─── IDLE SESSION TIMEOUT (30 MINUTES) ───────────────────────────────────────
   useEffect(() => {
-    if (!user) return;
-
     let timeoutId: NodeJS.Timeout;
+    const store = storeRef.current;
+    if (!store) return;
 
     const resetTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
+      // Only execute the timeout logic if we actually have an active user session
+      if (!store.getState().user) return;
+
       // 30 minutes in milliseconds
       timeoutId = setTimeout(() => {
-        console.log("Idle timeout reached. Logging out...");
-        logout();
+         console.log("Idle timeout reached. Logging out...");
+         store.getState().logout(router);
       }, 30 * 60 * 1000); 
     };
 
@@ -82,28 +107,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.addEventListener(event, resetTimer);
     });
 
-    // Initialize timer
-    resetTimer();
+    // Subscribe to state explicitly within useEffect to bootstrap initial timer
+    const unsubscribe = store.subscribe(
+      (state, prevState) => {
+         if (state.user && !prevState.user) {
+            resetTimer(); 
+         } else if (!state.user && prevState.user) {
+            if (timeoutId) clearTimeout(timeoutId);
+         }
+      }
+    );
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       events.forEach(event => {
         window.removeEventListener(event, resetTimer);
       });
+      unsubscribe();
     };
-  }, [user, logout]);
+  }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, error, logout, refreshUser: fetchUser }}>
+    <AuthContext.Provider value={storeRef.current}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
+// Atomic Selector Pattern implementation
+export function useAuth<T>(selector: (state: AuthStoreType) => T): T {
+  const store = useContext(AuthContext);
+  if (!store) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context;
+  return useStore(store, selector);
 }

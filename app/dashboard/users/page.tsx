@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function UsersPage() {
-  const { user, isLoading } = useAuth();
-  const { setSearchTerm } = useSearch();
+  const user = useAuth((state) => state.user);
+  const isLoading = useAuth((state) => state.isLoading);
+  const setSearchTerm = useSearch((state) => state.setSearchTerm);
   const router = useRouter();
 
   useEffect(() => {

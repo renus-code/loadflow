@@ -1,5 +1,5 @@
 # CargoConnect - LoadFlow
-> A lightweight dispatch system for small trucking companies to manage loads and delivery updates in real time.
+> A high-performance, Zero-Trust dispatch system for modern trucking companies to manage loads and delivery updates in real-time.
 
 ---
 
@@ -12,198 +12,90 @@
 - Renuupendra Sulthan (N01662821)
 - Deepthi Bhavai Avala (N01710856)
 
-**Roles:**
-- **Frontend:** Next.js + Bootstrap
-- **Backend:** Next.js API Routes
-- **Database Design:** MongoDB
-- **Authentication & Security:** JWT
-- **DevOps:** Deployment
-- **Documentation:** Testing
+**Architecture Stack:**
+- **Frontend & Edge Routing:** Next.js 14+ (App Router) + React 19
+- **State Management:** Zustand (Atomic Selectors) + React Context
+- **Styling UI:** Bootstrap 5 + Vanilla CSS
+- **Backend API:** Next.js Serverless Route Handlers
+- **Database Engine:** MongoDB via Mongoose
+- **Zero-Trust Security:** Next.js Edge Proxy (`jose` JWT Verification)
 
 ---
 
 ## 2. Product Overview
 
 ### Problem Statement
-**What problem are you solving?**
-Small trucking companies still manage load assignments through phone calls, text messages, and spreadsheets. Drivers lack instant access to load details and dispatch teams cannot track delivery progress in real time.
+Small trucking companies traditionally manage load assignments through prone-to-error text messages, missing proof of delivery documents, and disconnected spreadsheets. LoadFlow centralizes this operation into a single, aggressively optimized dashboard.
 
-**Who experiences this problem?**
-Dispatchers and truck drivers in small and medium-sized freight companies.
-
-**Why does it matter?**
-Manual communication causes delays, errors, missing Proof of Delivery documents, and no centralized load history.
-
-### Target Users
-- **Primary User:** Admin, Dispatcher
-- **Secondary User:** Driver
+### Core Users
+- **Admin**: Full system control, role demotion/promotion, and permanent record deletion.
+- **Dispatcher**: Responsible for creating cargo routes, assigning drivers, and tracking live statuses.
+- **Driver**: Mobile-first interaction to accept loads, update transit statuses, and upload Proof of Delivery (POD) images.
 
 ---
 
-## 3. MVP Features (Must-Have)
-1. User authentication (Dispatcher & Driver roles)
-2. Full CRUD operations for Loads
-3. Dispatcher assigns loads to drivers
-4. Driver dashboard to view assigned loads
-5. Load status updates (Assigned → Picked Up → Delivered)
-6. Upload Proof of Delivery (image upload)
-7. Role-based protected routes
+## 3. Implemented Features
+
+### Advanced Security Firewall
+- **Zero-Trust Edge Middleware:** Every request to protected routes (`/dashboard`) is intercepted at the CDN Edge. The proxy natively decipher's the HttpOnly JWT cookie using `jose`. If invalid, the request is bounced instantaneously back to the login screen before the React Server Components even boot up.
+- **Strict Role-Based Access Control (RBAC):** Users physically cannot access paths they aren't authorized for (e.g., Drivers are blocked from `/dashboard/users`).
+- **HTTP Security Headers:** Implemented X-Frame-Options (Anti-Clickjacking), HSTS (Strict HTTPS), and Anti-MIME sniffing.
+- **Automated Idle Timeout:** Dispatches and Admins are logged out automatically via Zustand state-tracking if the physical terminal is left idle.
+
+### Operational Dashboard
+- **Zustand State Engine:** We migrated the entire application from standard Context (which caused massive render spikes) to a highly performant Zustand atomic-selector model. Global search and active user state updates instantly across the DOM without re-rendering unaffected components.
+- **Multi-Stop Cargo Assignments:** Dispatchers can create loads with dynamic arrays of multiple Pickups and Deliveries.
+- **SVG Circular Analytics:** The admin dashboard utilizes mathematically perfect SVG circular progress arcs (`strokeDashoffset`) to display real-time active fleet completion metrics.
+- **Image Upload Integration:** Drivers upload POD images securely to Cloudinary, ensuring the database remains lightweight while handling massive image traffic.
 
 ---
 
-## 4. Stretch Features (Optional)
-1. Real-time updates using polling/WebSockets
-2. Delivery analytics dashboard
-3. Email or push notifications
+## 4. System Architecture
 
----
+### Frontend Navigation Matrix
+- **`/`**: Landing & Login portal.
+- **`/contact`**: Contact page with support form, email, phone, and office info.
+- **`/dashboard`**: Unified Dispatch Control Table & personal statistics.
+- **`/dashboard/profile`**: Driver credential management.
+- **`/dashboard/users`**: (Admin restricted) Staff onboarding and privilege escalation.
 
-## 5. System Architecture
+### Core API Structure
+**Authentication (Edge Secured):**
+- `POST /api/auth/login` (Mints HttpOnly JWT)
+- `GET /api/auth/me` (Zustand Rehydration)
+- `POST /api/auth/logout`
 
-### Frontend
-**Pages:**
-- Login / Register
-- Dispatcher Dashboard
-- Driver Dashboard
-- Create/Edit Load Page
-- Load Details Page
+**Cargo Routing:**
+- `GET /api/loads` (Returns payload subset based on RBAC role)
+- `POST /api/loads` (Dispatcher/Admin load creation)
 
-**Layout Structure:**
-- Bootstrap Navbar
-- Sidebar navigation
-- Dashboard cards + tables
-
-**Key Components:**
-- Load Table
-- Load Form
-- Status Buttons
-- Image Upload Component
-- Protected Route wrapper
-
-### Backend – Planned API Endpoints
-**Auth:**
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-
-**Users CRUD:**
+**User Administration:**
 - `GET /api/users`
-- `GET /api/users/:id`
-- `PUT /api/users/:id`
-- `DELETE /api/users/:id`
-
-**Loads CRUD:**
-- `GET /api/loads`
-- `GET /api/loads/:id`
-- `POST /api/loads`
-- `PUT /api/loads/:id`
-- `DELETE /api/loads/:id`
-
-**Assignment & Status:**
-- `PUT /api/loads/:id/assign`
-- `PUT /api/loads/:id/status`
-
-**POD CRUD:**
-- `POST /api/pods`
-- `GET /api/pods/:id`
-- `DELETE /api/pods/:id`
-
-*(Postman API Documentation will be provided)*
-
-### Authentication Plan
-- **JWT storage method:** HttpOnly Cookies
-- **Protected routes:** Dashboard, Loads pages, POD upload
-- **Role-based access:** YES
+- `PUT /api/auth/profile/update` (Password/Credential changes)
 
 ---
 
-## 6. Database Design
+## 5. Database Schema (MongoDB)
 
-**Entity 1: User**
-- `id`, `name`, `email`, `passwordHash`, `role`, `createdAt`
+**User Model**
+- Credentials (`email`, `passwordHash`)
+- RBAC Tier (`role`: Admin | Dispatcher | Driver)
+- Audit (`createdAt`, `lastLogin`)
 
-**Entity 2: Load**
-- `id`, `pickupLocation`, `deliveryLocation`, `trailerNumber`, `appointmentTime`, `weight`, `quantity`, `status`, `assignedDriverId`, `createdAt`
-
-**Entity 3: ProofOfDelivery**
-- `id`, `loadId`, `imageUrl`, `uploadedAt`
-
-**Relationships:**
-- One Dispatcher → Many Loads
-- One Driver → Many Loads
-- One Load → One POD
-
-**DB Stack:** PostgreSQL with Prisma (or MongoDB Atlas)
+**Load Model**
+- `loadNumber` (Unique ID)
+- `pickups` (Array of Locations & Dates)
+- `deliveries` (Array of Locations & Dates)
+- `quantity`, `weight`, `status`
+- `assignedDriverId` (References User Model)
 
 ---
 
-## 7. UI / UX Planning
-- **Figma Link:** [Wireframe Reference App](https://www.figma.com/make/3DX6Fe9Rjc1vSzuijMVWlI/Wireframe-Reference-App?t=yzcqEhpkrLQ3Uzgj-1)
-- **Wireframes included:** YES
-- **UI Library Used:** Bootstrap 5
-
----
-
-## 8. Deployment Plan
-- **Hosting platform:** Vercel (Next.js)
-- **Database:** Neon PostgreSQL / MongoDB Atlas
-- **Environment variables needed:**
-  - `DATABASE_URL`
+## 6. Deployment Logistics
+- **Hosting layer:** Vercel Environment
+- **Database:** MongoDB Atlas (Global Cluster)
+- **Asset Storage:** Cloudinary
+- **Environment Context:**
+  - `MONGODB_URI`
   - `JWT_SECRET`
-  - `CLOUD_STORAGE_KEY`
-- **Production URL:** To be added
-
----
-
-## 9. Jira Planning
-
-**Epic List:**
-1. Authentication & User Roles
-2. Load Management (CRUD)
-3. Driver Workflow & POD Upload
-
-**Initial Sprint Tasks:**
-- Setup Next.js project
-- Configure Bootstrap
-- Setup database & Prisma
-- Implement authentication
-- Create basic UI layout
-
----
-
-## 10. Milestone Plan (11 Weeks)
-- **Week 1 (Feb 9):** Proposal & Idea Finalization
-- **Week 2:** DB schema & Project Setup
-- **Week 3:** Authentication Implementation
-- **Week 4:** Load CRUD Backend
-- **Week 5:** Frontend Integration & Sidebar Setup
-- **Week 6:** Driver Workflow & Status Updates
-- **Week 7:** POD Upload Feature & Dashboard Metrics
-- **Week 8:** Role-Based Permissions (Dispatcher vs. Admin Deletion)
-- **Week 9:** UI Refinement 
-- **Week 10:** Final Testing, Bug Fixes & Deployment
-- **Week 11 (Apr 23):** Documentation, Demo Video & Final Presentation
-
----
-
-## 11. Risks & Mitigation
-**Potential Risks:**
-- File upload complexity
-- Authentication bugs
-- Time management
-
-**Mitigation Plan:**
-- Use cloud storage for images
-- Implement auth early
-- Weekly sprint reviews
-
----
-
-## 12. Definition of Done
-Project is complete when:
-- Auth fully working
-- CRUD working
-- Protected routes enforced
-- Deployment live
-- Documentation complete
-- Demo video recorded
+  - `CLOUDINARY_URL`

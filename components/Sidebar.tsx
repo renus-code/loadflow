@@ -1,5 +1,7 @@
 "use client";
 
+// App Navigation: The main side menu that changes based on user role.
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,7 +32,7 @@ const UsersIcon = () => (
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const user = useAuth((state) => state.user);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);

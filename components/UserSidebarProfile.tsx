@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const UserSettingsIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
@@ -19,8 +19,11 @@ const LogOutIcon = () => (
 );
 
 export default function UserSidebarProfile({ isCollapsed = false }: { isCollapsed?: boolean }) {
-  const { user, isLoading, logout } = useAuth();
+  const user = useAuth((state) => state.user);
+  const isLoading = useAuth((state) => state.isLoading);
+  const logout = useAuth((state) => state.logout);
   const pathname = usePathname();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -103,7 +106,7 @@ export default function UserSidebarProfile({ isCollapsed = false }: { isCollapse
         </Link>
 
         <button
-          onClick={logout}
+          onClick={() => logout(router)}
           title={isCollapsed ? "Sign out" : ""}
           className={`btn d-flex align-items-center gap-3 fw-bold text-white-50 hover-bg-danger-glass transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative ${
             isCollapsed ? 'justify-content-center width-56 height-56 p-0' : 'px-3 py-3 w-100 text-start'

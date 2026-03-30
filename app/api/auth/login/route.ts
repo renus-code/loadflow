@@ -1,3 +1,4 @@
+// Login API: Checks passwords and sets a secure login cookie.
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';

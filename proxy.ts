@@ -1,3 +1,4 @@
+// Security Firewall: Checks user tokens and blocks unauthorized access to pages.
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
@@ -25,6 +26,11 @@ export async function proxy(request: NextRequest) {
       );
       const { payload } = await jwtVerify(token, secret);
       isValidToken = !!payload;
+      
+      // Strict RBAC Enforcement
+      if (pathname.startsWith('/dashboard/users') && payload.role !== 'Admin') {
+         return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
     } catch {
       isValidToken = false;
     }

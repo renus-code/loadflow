@@ -1,5 +1,7 @@
 "use client";
 
+// Dashboard Stats: Displays the circular progress rings and top-level analytics.
+
 import React from 'react';
 
 interface AdminVisualSummaryProps {
@@ -106,17 +108,17 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
                      <div key={i} className="col-12 col-md-4 mb-3 mb-md-0">
                         <div className="premium-inner-card p-4 p-md-3 rounded-5 border border-white border-opacity-5 text-center group h-100 d-flex flex-column align-items-center justify-content-center transition-all hover-float">
                            <div className="position-relative mb-3 d-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px' }}>
-                              {/* Circular Progress */}
-                              <div className="position-absolute w-100 h-100 rounded-circle opacity-10" style={{ border: `5px solid ${kpi.color}` }}></div>
-                              <div className="position-absolute w-100 h-100 rounded-circle" 
-                                   style={{ 
-                                      border: '5px solid transparent', 
-                                      borderTopColor: kpi.color, 
-                                      transform: `rotate(${kpi.value * 3.6}deg)`,
-                                      transition: 'transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                      zIndex: 2
-                                   }}></div>
-                              <div className="fw-black text-white h3 m-0 z-index-2">{kpi.value}%</div>
+                              {/* SVG Circular Progress */}
+                              <svg className="position-absolute w-100 h-100" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
+                                 <circle cx="50" cy="50" r="42" fill="none" stroke={kpi.color} strokeWidth="7" strokeOpacity="0.15" />
+                                 <circle 
+                                    cx="50" cy="50" r="42" fill="none" stroke={kpi.color} strokeWidth="7" strokeLinecap="round"
+                                    strokeDasharray="263.89" 
+                                    strokeDashoffset={263.89 - (263.89 * kpi.value) / 100}
+                                    style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+                                 />
+                              </svg>
+                              <div className="fw-black text-white h5 m-0 z-index-2 position-relative">{kpi.value}%</div>
                            </div>
                            <div className="text-white opacity-60 text-uppercase fw-black mb-1" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>{kpi.label}</div>
                            <div className="fw-bold" style={{ color: kpi.color, fontSize: '12px', letterSpacing: '0.1em' }}>{kpi.desc.toUpperCase()}</div>

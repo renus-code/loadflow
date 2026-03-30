@@ -3,7 +3,8 @@
 import { useAuth } from "@/context/AuthContext";
 
 export default function UserHeaderProfile() {
-  const { user, isLoading } = useAuth();
+  const user = useAuth((state) => state.user);
+  const isLoading = useAuth((state) => state.isLoading);
 
   if (isLoading) {
     return (

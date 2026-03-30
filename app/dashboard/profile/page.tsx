@@ -36,7 +36,8 @@ const locationData: Record<string, string[]> = {
 };
 
 export default function ProfilePage() {
-  const { user, refreshUser } = useAuth();
+  const user = useAuth((state) => state.user);
+  const refreshUser = useAuth((state) => state.refreshUser);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
