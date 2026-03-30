@@ -12,9 +12,14 @@ const LayoutGridIcon = () => (
     <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" />
   </svg>
 );
-const PlusCircleIcon = () => (
+const PackagePlusIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+    <path d="M16 16h6" />
+    <path d="M19 13v6" />
+    <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
+    <path d="m7.5 4.27 9 5.15" />
+    <polyline points="3.29 7 12 12 20.71 7" />
+    <line x1="12" y1="22" x2="12" y2="12" />
   </svg>
 );
 const UsersIcon = () => (
@@ -175,7 +180,7 @@ export default function Sidebar() {
             >
               {isCollapsed && isCreateModalOpen && <div className="active-indicator-compact d-none d-lg-block bg-emerald shadow-emerald"></div>}
               <div className="icon-wrapper d-flex align-items-center justify-content-center">
-                <PlusCircleIcon />
+                <PackagePlusIcon />
               </div>
               <span className={`animate-fade-in ${isCollapsed ? 'd-lg-none' : ''}`}>Create New Load</span>
             </button>
