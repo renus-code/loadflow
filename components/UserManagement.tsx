@@ -175,6 +175,7 @@ export default function UserManagement() {
     resetPasswordApproved?: boolean;
     isLocked?: boolean;
     loginAttempts?: number;
+    __v?: number;
   }
 
   const [users, setUsers] = useState<User[]>([]);
@@ -214,11 +215,31 @@ export default function UserManagement() {
         const res = await fetch(`/api/users/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(submissionData),
+          body: JSON.stringify({
+            ...submissionData,
+            __v: users.find(u => u._id === editingId)?.__v
+          }),
         });
-        if (res.ok) { setShowModal(false); fetchUsers(); }
-        else alert('Failed to update user');
-      } catch (err) { console.error("Update error", err); }
+
+        if (res.status === 409) {
+          const errData = await res.json();
+          alert(errData.error || 'Data has been modified by another user. Please refresh.');
+          setShowModal(false);
+          fetchUsers();
+          return;
+        }
+
+        if (res.ok) { 
+          setShowModal(false); 
+          fetchUsers(); 
+        } else {
+          const errData = await res.json();
+          alert(`Failed to update user: ${errData.error || 'Unknown error'}`);
+        }
+      } catch (err) { 
+        console.error("Update error", err); 
+        alert("An error occurred while updating the user.");
+      }
     } else {
       try {
         const res = await fetch("/api/auth/register", {
@@ -289,35 +310,38 @@ export default function UserManagement() {
     <>
 
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
-        <div className="card-header bg-white bg-opacity-50 border-bottom border-secondary border-opacity-10 px-4 px-md-5 py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-          <h2 className="fs-4 fw-black text-dark m-0 pb-1" style={{ fontFamily: 'var(--font-syne)' }}>Manage Users</h2>
+        <div className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex flex-wrap justify-content-between align-items-center gap-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+          <h2 className="fs-3 text-white m-0 tracking-tight" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.04em', fontWeight: 900 }}>
+            <span className="text-gradient-emerald">Manage</span> Users
+          </h2>
           
           <div className="d-flex align-items-center gap-3 ms-auto">
             {/* COMPACT SEARCH */}
-            <div className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-20 shadow-sm" 
-                 style={{ width: '280px', background: 'rgba(0, 0, 0, 0.4)' }}>
+            <div className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-10 shadow-lg" 
+                 style={{ width: '280px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)' }}>
               <div className="ps-2" style={{ color: '#2bdd66' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </div>
               <input 
                 type="text" 
-                className="form-control bg-transparent border-0 text-white shadow-none py-1 px-3 fw-bold placeholder-white-50" 
+                className="form-control bg-transparent border-0 text-white shadow-none py-1 px-3 fw-bold placeholder-white-40" 
                 placeholder="Search Users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ fontSize: '0.9rem' }}
+                style={{ fontSize: '0.85rem' }}
               />
               {searchTerm && (
                 <button 
-                  className="btn btn-link text-white opacity-40 p-1 me-1 hover-opacity-100 transition-all shadow-none border-0" 
+                  className="btn btn-link text-white opacity-30 p-1 me-1 hover-opacity-100 transition-all shadow-none border-0" 
                   onClick={() => setSearchTerm('')}
+                  title="Clear search"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               )}
             </div>
 
-            <button onClick={openCreateModal} className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm hover-float">
+            <button onClick={openCreateModal} className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm hover-float transition-all border-0" style={{ fontSize: '0.85rem' }}>
               <UserPlusIcon />
               Invite User
             </button>
@@ -329,28 +353,28 @@ export default function UserManagement() {
             <table className="table table-hover align-middle mb-0 custom-table">
               <thead className="glass-thead">
                 <tr>
-                  <th className="px-4 py-4 fw-black text-white text-uppercase tracking-wider text-center">Name</th>
-                  <th className="px-4 py-4 fw-black text-white text-uppercase tracking-wider text-center">Email</th>
-                  <th className="px-4 py-4 fw-black text-white text-uppercase tracking-wider text-center">Role</th>
-                  <th className="px-4 py-4 fw-black text-white text-uppercase tracking-wider text-center">Actions</th>
+                  <th className="px-4 py-3 fw-bold text-white text-uppercase text-center opacity-35" style={{ letterSpacing: '0.15rem', fontSize: '0.65rem' }}>Name</th>
+                  <th className="px-4 py-3 fw-bold text-white text-uppercase text-center opacity-35" style={{ letterSpacing: '0.15rem', fontSize: '0.65rem' }}>Email</th>
+                  <th className="px-4 py-3 fw-bold text-white text-uppercase text-center opacity-35" style={{ letterSpacing: '0.15rem', fontSize: '0.65rem' }}>Role</th>
+                  <th className="px-4 py-3 fw-bold text-white text-uppercase text-center opacity-35" style={{ letterSpacing: '0.15rem', fontSize: '0.65rem' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={4} className="text-center py-5 text-muted">Loading users...</td></tr>
+                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">Loading users...</td></tr>
                 ) : filteredUsers.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center py-5 text-muted">No users found.</td></tr>
+                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">No users found.</td></tr>
                 ) : filteredUsers.map(u => (
-                  <tr key={u._id} className="glass-row">
-                    <td className="px-4 py-3 text-center">
-                      <span className="fw-black text-white">{u.name}</span>
+                  <tr key={u._id} className="glass-row transition-all">
+                    <td className="px-4 py-4 text-center">
+                      <span className="fw-black text-white fs-6">{u.name}</span>
                     </td>
-                    <td className="px-4 py-3 text-white text-opacity-75 text-center small tracking-tight">{u.email}</td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-4 text-white text-opacity-50 text-center fw-medium">{u.email}</td>
+                    <td className="px-4 py-4 text-center">
                       <div className="d-flex flex-column align-items-center gap-1">
-                        <span className={`badge rounded-pill fw-black bg-opacity-10 px-3 py-2 d-flex align-items-center gap-2 ${
-                          u.role === 'Admin' ? 'bg-danger text-danger' :
-                          u.role === 'Dispatcher' ? 'bg-success text-success' : 'bg-primary text-primary'
+                        <span className={`badge rounded-pill fw-black px-3 py-2 d-flex align-items-center gap-2 shadow-sm ${
+                          u.role === 'Admin' ? 'role-badge-admin' :
+                          u.role === 'Dispatcher' ? 'role-badge-dispatcher' : 'role-badge-driver'
                         }`}>
                           {u.role === 'Admin' ? (
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -362,37 +386,39 @@ export default function UserManagement() {
                           {u.role}
                         </span>
                         {u.isPending && (
-                          <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-bold">Pending</span>
+                          <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-bold mt-1">Pending</span>
                         )}
                         {u.isLocked && (
-                          <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger px-2 py-1 x-small fw-bold">
+                          <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger px-2 py-1 x-small fw-bold mt-1">
                             <i className="bi bi-lock-fill me-1"></i>Locked
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center">
-                      {u.isLocked && (
-                        <button
-                          onClick={() => handleUnlock(u._id)}
-                          className="btn btn-sm fw-bold rounded-3 me-2 shadow-sm"
-                          style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', border: 'none', color: 'white' }}
-                        >
-                          <i className="bi bi-unlock-fill me-1"></i>Unlock
-                        </button>
-                      )}
-                      {u.resetPasswordRequested && (
-                        <button
-                          onClick={() => handleApproveReset(u._id)}
-                          className="btn btn-sm btn-success rounded-3 me-2 fw-bold shadow-sm"
-                          style={{ background: 'linear-gradient(135deg, #2bdd66 0%, #059669 100%)', border: 'none' }}
-                        >Approve Reset</button>
-                      )}
-                      {u.resetPasswordApproved && (
-                        <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold me-2">Reset Approved</span>
-                      )}
-                      <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-light rounded-3 me-2">Edit</button>
-                      <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger rounded-3 fw-bold">Delete</button>
+                    <td className="px-4 py-4 text-center">
+                      <div className="d-flex align-items-center justify-content-center gap-2">
+                        {u.isLocked && (
+                          <button
+                            onClick={() => handleUnlock(u._id)}
+                            className="btn btn-sm fw-bold rounded-pill px-3 shadow-sm transition-all hover-float"
+                            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', border: 'none', color: 'white', fontSize: '0.75rem' }}
+                          >
+                            Unlock
+                          </button>
+                        )}
+                        {u.resetPasswordRequested && (
+                          <button
+                            onClick={() => handleApproveReset(u._id)}
+                            className="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
+                            style={{ background: 'linear-gradient(135deg, #2bdd66 0%, #059669 100%)', border: 'none', fontSize: '0.75rem' }}
+                          >Approve Reset</button>
+                        )}
+                        {u.resetPasswordApproved && (
+                          <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">Reset Approved</span>
+                        )}
+                        <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
+                        <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -404,22 +430,20 @@ export default function UserManagement() {
 
       {showModal && (
         <ModalPortal>
-          {/* Dark dimmed blurred backdrop */}
+          {/* Transparent backdrop for floating effect */}
           <div
             style={{
               position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 100001,
-              background: "rgba(3, 6, 18, 0.72)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
+              inset: 0,
+              zIndex: 999999,
+              background: "transparent",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
               display: "flex",
               justifyContent: "center",
-              alignItems: "center",
-              padding: "24px 16px",
+              alignItems: "center", // Centered
+              padding: "24px 16px", // Standard padding
+              overflowY: "auto",
             }}
             onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
           >
@@ -436,8 +460,12 @@ export default function UserManagement() {
               }}
             >
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h3 className="fs-3 fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
-                  {isEditing ? 'Edit User' : 'Invite New User'}
+                <h3 className="fs-3 text-white m-0" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.04em', fontWeight: 900 }}>
+                  {isEditing ? (
+                    <><span className="text-gradient-emerald">Edit</span> User</>
+                  ) : (
+                    <><span className="text-gradient-emerald">Invite</span> New User</>
+                  )}
                 </h3>
                 <button className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" onClick={() => setShowModal(false)}></button>
               </div>
@@ -508,47 +536,45 @@ export default function UserManagement() {
           </div>
         </ModalPortal>
       )}       <style jsx>{`
-        .glass-card { background: rgba(9, 19, 40, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1) !important; }
-        .glass-card-solid { background: rgba(13, 22, 45, 0.98); backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.15) !important; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6); }
-        .glass-thead { background: rgba(255, 255, 255, 0.05); }
-        .glass-row { transition: all 0.3s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-row:hover { background: rgba(255, 255, 255, 0.05) !important; }
+        .glass-card { background: rgba(13, 18, 38, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08) !important; }
+        .glass-thead { background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-row { transition: all 0.2s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+        .glass-row:hover { background: rgba(255, 255, 255, 0.04) !important; }
         .fw-black { font-weight: 900; }
-        .tracking-wider { letter-spacing: 0.1em; font-size: 0.7rem; }
-        .hover-float:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; }
-        .bg-gradient-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none !important; }
-        .custom-table { border-collapse: separate; border-spacing: 0 4px; }
+        .tracking-wider { letter-spacing: 0.15em; font-size: 0.7rem; }
+        .hover-float:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important; }
+        .bg-gradient-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+        .text-gradient-emerald { background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .custom-table { border-collapse: separate; border-spacing: 0; }
         .text-emerald { color: #2bdd66 !important; }
-        .bg-emerald { background-color: #2bdd66 !important; }
         .x-small { font-size: 0.65rem; }
-        .tracking-tight { letter-spacing: -0.01em; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; padding: 20px; }
-        .modal-backdrop-blur { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); }
+        .role-badge-admin { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .role-badge-dispatcher { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .role-badge-driver { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        
+        .btn-outline-white-20 { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+        .btn-outline-white-20:hover { background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.5); }
+        .btn-outline-danger-20 { border: 1px solid rgba(239, 68, 68, 0.3); color: rgba(239, 68, 68, 0.8); }
+        .btn-outline-danger-20:hover { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.5); }
+
         .modal-input { 
-          background: rgba(255, 255, 255, 0.05) !important; 
+          background: rgba(255, 255, 255, 0.03) !important; 
           border: 1px solid rgba(255, 255, 255, 0.1) !important; 
           color: white !important; 
           padding: 1rem 1rem 1rem 3.5rem !important; 
           border-radius: 16px !important; 
-          font-size: 1rem;
+          font-size: 0.95rem;
           transition: all 0.3s ease;
         }
         .modal-input:focus { 
-          background: rgba(255, 255, 255, 0.1) !important; 
+          background: rgba(255, 255, 255, 0.07) !important; 
           border-color: #2bdd66 !important; 
-          box-shadow: 0 0 15px rgba(43, 221, 102, 0.2) !important; 
+          box-shadow: 0 0 15px rgba(43, 221, 102, 0.15) !important; 
         }
-        .modal-input-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #2bdd66; opacity: 0.8; z-index: 5; }
-        .error-border { border-color: #ef4444 !important; }
-        .modal-input option {
-          background-color: #0d162d !important;
-          color: white !important;
-          padding: 10px;
-        }
-        .btn-emerald-solid { background: #2bdd66; color: #000 !important; }
+        .modal-input-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #2bdd66; opacity: 0.7; z-index: 5; }
+        .btn-emerald-solid { background: #2bdd66; color: #000 !important; cursor: pointer; }
         .btn-glass-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn-glass-secondary:hover { background: rgba(255, 255, 255, 0.1); }
       `}</style>
     </>
   );

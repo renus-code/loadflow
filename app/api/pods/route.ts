@@ -59,6 +59,10 @@ export async function POST(req: NextRequest) {
       imageUrl: uploadResult.secure_url,
     });
 
+    // Save the podUrl to the Load document so it's easily accessible in all load queries
+    load.podUrl = uploadResult.secure_url;
+    await load.save();
+
     // NOTE: We no longer auto-complete the load. 
     // Dispatchers must verify and complete manually in the dashboard.
     // This allows for human verification of the POD before closing the load.

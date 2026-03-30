@@ -20,6 +20,9 @@ const TrailerSchema: Schema = new Schema({
   model: { type: String, required: true },
   trailerType: { type: String, enum: ['Dry Van', 'Reefer', 'Tri Axle', 'Flatbed'], required: true },
   createdAt: { type: Date, default: Date.now },
+}, {
+  timestamps: true,
+  optimisticConcurrency: true,
 });
 
 export default mongoose.models.Trailer ||

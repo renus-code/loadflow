@@ -20,6 +20,9 @@ const TruckSchema: Schema = new Schema({
   model: { type: String, required: true },
   truckType: { type: String, enum: ['Sleeper Cab', 'Day Cab'], required: true },
   createdAt: { type: Date, default: Date.now },
+}, {
+  timestamps: true,
+  optimisticConcurrency: true,
 });
 
 export default mongoose.models.Truck || mongoose.model<ITruck & Document>('Truck', TruckSchema);

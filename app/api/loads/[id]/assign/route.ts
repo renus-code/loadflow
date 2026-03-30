@@ -12,28 +12,42 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await dbConnect();
     const { id } = await params;
-    const { assignedDriverId, truckNumber, trailerNumber } = await req.json();
+    const body = await req.json();
+    const { assignedDriverId, truckNumber, trailerNumber, truckType, trailerType } = body;
 
     if (!assignedDriverId || !truckNumber || !trailerNumber) {
       return NextResponse.json({ error: "Driver, Truck Number, and Trailer Number are required" }, { status: 400 });
     }
 
-    const loadCheck = await Load.findById(id);
-    if (!loadCheck) return NextResponse.json({ error: "Load not found" }, { status: 404 });
+    const load = await Load.findById(id);
+    if (!load) return NextResponse.json({ error: "Load not found" }, { status: 404 });
     
-    if (user.role === 'Dispatcher' && loadCheck.createdBy?.toString() !== user.id) {
+    if (user.role === 'Dispatcher' && load.createdBy?.toString() !== user.id) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Assigning driver, truck, and trailer. 
-    // Status remains PENDING until the driver starts pickups.
-    const updatedLoad = await Load.findByIdAndUpdate(
-      id,
-      { assignedDriverId, truckNumber, trailerNumber },
-      { new: true, runValidators: true }
-    ).populate('assignedDriverId', 'name email');
+    // Explicitly check for version mismatch if __v is provided
+    if (body.__v !== undefined && load.__v !== body.__v) {
+      return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+    }
 
-    return NextResponse.json(updatedLoad);
+    // Assigning driver, truck, and trailer. 
+    load.assignedDriverId = assignedDriverId;
+    load.truckNumber = truckNumber;
+    load.trailerNumber = trailerNumber;
+    if (truckType) load.truckType = truckType;
+    if (trailerType) load.trailerType = trailerType;
+
+    try {
+      await load.save();
+      const populatedLoad = await Load.findById(id).populate('assignedDriverId', 'name email');
+      return NextResponse.json(populatedLoad);
+    } catch (saveError: any) {
+      if (saveError.name === 'VersionError') {
+        return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+      }
+      throw saveError;
+    }
   } catch (error: unknown) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Assign Error" }, { status: 500 });
   }

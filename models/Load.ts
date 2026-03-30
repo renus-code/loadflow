@@ -33,6 +33,7 @@ export interface ILoad extends Document {
   status: 'PENDING' | 'IN_TRANSIT' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
   podUrl?: string;
   createdAt: Date;
+  __v: number;
 }
 
 const StopSchema = new Schema({
@@ -82,6 +83,9 @@ const LoadSchema: Schema = new Schema({
   },
   podUrl: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
+}, {
+  timestamps: true,
+  optimisticConcurrency: true
 });
 
 if (mongoose.models.Load) {

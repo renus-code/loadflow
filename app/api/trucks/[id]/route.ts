@@ -14,14 +14,49 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const updateData = await req.json();
 
     await connectToDatabase();
-    const updatedTruck = await Truck.findByIdAndUpdate(id, updateData, { new: true });
+    const truck = await Truck.findById(id);
 
-    if (!updatedTruck) {
+    if (!truck) {
       return NextResponse.json({ error: 'Truck not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updatedTruck, { status: 200 });
+    // Uniqueness check for updates
+    const checkFields = [];
+    if (updateData.truckNo) checkFields.push({ truckNo: updateData.truckNo });
+    if (updateData.vin) checkFields.push({ vin: updateData.vin });
+    if (updateData.plate) checkFields.push({ plate: updateData.plate });
+
+    if (checkFields.length > 0) {
+      const duplicate = await Truck.findOne({
+        $or: checkFields,
+        _id: { $ne: id }
+      });
+      if (duplicate) {
+        if (duplicate.truckNo === updateData.truckNo) return NextResponse.json({ error: "Truck number already exists" }, { status: 409 });
+        if (duplicate.vin === updateData.vin) return NextResponse.json({ error: "VIN number already exists" }, { status: 409 });
+        if (duplicate.plate === updateData.plate) return NextResponse.json({ error: "License plate already exists" }, { status: 409 });
+      }
+    }
+
+    // Update fields from body
+    Object.keys(updateData).forEach((key) => {
+      if (key !== '_id' && key !== '__v' && key !== 'createdAt' && key !== 'updatedAt') {
+        truck[key] = updateData[key];
+      }
+    });
+
+    // Explicitly check for version mismatch if __v is provided
+    if (updateData.__v !== undefined && truck.__v !== updateData.__v) {
+      return NextResponse.json({ error: 'Data has been modified by another user. Please refresh.' }, { status: 409 });
+    }
+
+    await truck.save();
+
+    return NextResponse.json(truck, { status: 200 });
   } catch (error: any) {
+    if (error.name === 'VersionError') {
+      return NextResponse.json({ error: 'Data has been modified by another user. Please refresh.' }, { status: 409 });
+    }
     console.error('Update truck error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

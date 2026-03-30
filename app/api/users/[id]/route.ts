@@ -44,11 +44,32 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     delete body.passwordHash;
     delete body.password;
 
-    const user = await User.findByIdAndUpdate(resolvedParams.id, body, { new: true, runValidators: true }).select('-passwordHash');
-    
+    const user = await User.findById(resolvedParams.id);
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    return NextResponse.json(user, { status: 200 });
-  } catch (error) {
+
+    // Update fields from body
+    Object.keys(body).forEach((key) => {
+      if (key !== '_id' && key !== '__v' && key !== 'createdAt' && key !== 'updatedAt') {
+        user[key] = body[key];
+      }
+    });
+
+    // Explicitly check for version mismatch if __v is provided in the body
+    if (body.__v !== undefined && user.__v !== body.__v) {
+      return NextResponse.json({ error: 'Data has been modified by another user. Please refresh.' }, { status: 409 });
+    }
+
+    await user.save();
+    
+    // Return user without passwordHash
+    const userResponse = user.toObject();
+    delete userResponse.passwordHash;
+
+    return NextResponse.json(userResponse, { status: 200 });
+  } catch (error: any) {
+    if (error.name === 'VersionError') {
+      return NextResponse.json({ error: 'Data has been modified by another user. Please refresh.' }, { status: 409 });
+    }
     console.error(error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

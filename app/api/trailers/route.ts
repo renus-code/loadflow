@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
     // Check if duplicate trailer exists
     const existingTrailer = await Trailer.findOne({ $or: [{ trailerNo }, { vin }, { plate }] });
     if (existingTrailer) {
-      if (existingTrailer.trailerNo === trailerNo) return NextResponse.json({ error: "Trailer number already exists" }, { status: 400 });
-      if (existingTrailer.vin === vin) return NextResponse.json({ error: "VIN number already exists" }, { status: 400 });
-      if (existingTrailer.plate === plate) return NextResponse.json({ error: "License plate already exists" }, { status: 400 });
+      if (existingTrailer.trailerNo === trailerNo) return NextResponse.json({ error: "Trailer number already exists" }, { status: 409 });
+      if (existingTrailer.vin === vin) return NextResponse.json({ error: "VIN number already exists" }, { status: 409 });
+      if (existingTrailer.plate === plate) return NextResponse.json({ error: "License plate already exists" }, { status: 409 });
     }
 
     const newTrailer = await Trailer.create({

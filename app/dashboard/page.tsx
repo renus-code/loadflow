@@ -319,6 +319,7 @@ export default function Dashboard() {
   const [drivers, setDrivers] = useState<{ _id: string; name: string; email?: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { searchTerm, setSearchTerm } = useSearch();
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedLoad, setSelectedLoad] = useState<ILoad | null>(null);
   const [editingLoadId, setEditingLoadId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -482,7 +483,8 @@ export default function Dashboard() {
         deliveries: data.deliveries.map(d => ({
           ...d,
           date: new Date(d.date)
-        }))
+        })),
+        __v: editingLoadId ? loads.find(l => String(l._id) === editingLoadId)?.__v : undefined
       };
 
       const res = await fetch(url, {
@@ -490,11 +492,25 @@ export default function Dashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
+      if (res.status === 409) {
+        const errData = await res.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        setShowModal(false);
+        setEditingLoadId(null);
+        reset();
+        fetchLoads();
+        return;
+      }
+
       if (res.ok) {
         setShowModal(false);
         setEditingLoadId(null);
         reset();
         fetchLoads();
+      } else {
+        const errData = await res.json();
+        alert(`Failed to save load: ${errData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Failed to save load:", error);
@@ -556,11 +572,29 @@ export default function Dashboard() {
   };
 
   const filteredLoads = loads.filter((l) => {
+    // Search Term Filter (Load Number Only)
     const searchLower = (searchTerm || "").toLowerCase().trim();
-    if (!searchLower) return true;
+    if (searchLower && !(l.loadNumber || "").toLowerCase().includes(searchLower)) {
+      return false;
+    }
 
-    // Restrict search EXCLUSIVELY to Load Number as requested
-    return (l.loadNumber || "").toLowerCase().includes(searchLower);
+    // Status Filter (KPI Clicked)
+    if (!statusFilter || statusFilter === "ALL") return true; 
+    
+    if (statusFilter === "PENDING") {
+       return l.status === "PENDING" || !l.status;
+    }
+    if (statusFilter === "IN_TRANSIT") {
+       return l.status === "IN_TRANSIT" || l.status === "PICKED_UP";
+    }
+    if (statusFilter === "AWAITING_VERIFY") {
+       return l.status === "DELIVERED";
+    }
+    if (statusFilter === "COMPLETED") {
+       return l.status === "COMPLETED";
+    }
+
+    return true; 
   });
 
   const totalLoadsCount = loads.length;
@@ -673,52 +707,66 @@ export default function Dashboard() {
             icon: "task_alt",
             bg: "rgba(255, 255, 255, 0.03)",
           },
-        ].map((stat, i) => (
-          <div key={i} className="col-12 col-sm-6 col-md-4 col-xl">
-            <div
-              className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all`}
-              style={{ animationDelay: `${i * 100}ms`, background: stat.bg }}
-            >
+        ].map((stat, i) => {
+          const statusValue = stat.label === "All Loads" ? "ALL" : 
+                            stat.label === "Pending" ? "PENDING" : 
+                            stat.label === "In Transit" ? "IN_TRANSIT" : 
+                            stat.label === "Awaiting Verify" ? "AWAITING_VERIFY" : 
+                            stat.label === "Completed" ? "COMPLETED" : null;
+          
+          const isActive = statusFilter === statusValue || (!statusFilter && statusValue === "ALL");
+          
+          return (
+            <div key={i} className="col-12 col-sm-6 col-md-4 col-xl" style={{ cursor: "pointer" }} onClick={() => setStatusFilter(statusValue)}>
               <div
-                className="position-absolute top-0 start-0 h-100"
-                style={{ width: "6px", background: stat.color }}
-              ></div>
-              <p
-                className="text-uppercase fw-black mb-4"
-                style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.15rem",
-                  color: "#ffffff",
-                  opacity: 0.6,
+                className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all ${isActive ? 'active-filter-card' : ''}`}
+                style={{ 
+                  animationDelay: `${i * 100}ms`, 
+                  background: stat.bg,
+                  border: isActive ? `1px solid ${stat.color}` : '1px solid rgba(255,255,255,0.1)'
                 }}
               >
-                {stat.label}
-              </p>
-              <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
-                <h3
-                  className="fw-black mb-0"
+                <div
+                  className="position-absolute top-0 start-0 h-100"
+                  style={{ width: "6px", background: stat.color }}
+                ></div>
+                <p
+                  className="text-uppercase fw-black mb-4"
                   style={{
-                    color: "#fff",
-                    fontSize: "3.5rem",
-                    fontFamily: "var(--font-syne)",
-                    letterSpacing: "-0.05em",
-                    lineHeight: "1",
+                    fontSize: "11px",
+                    letterSpacing: "0.15rem",
+                    color: "#ffffff",
+                    opacity: 0.6,
                   }}
                 >
-                  {stat.value}
-                </h3>
-                <span className="material-symbols-outlined stat-icon-bg">
-                  {stat.icon}
-                </span>
+                  {stat.label}
+                </p>
+                <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
+                  <h3
+                    className="fw-black mb-0"
+                    style={{
+                      color: "#fff",
+                      fontSize: "clamp(2rem, 8vw, 3.5rem)",
+                      fontFamily: "var(--font-syne)",
+                      letterSpacing: "-0.05em",
+                      lineHeight: "1",
+                    }}
+                  >
+                    {stat.value}
+                  </h3>
+                  <span className="material-symbols-outlined stat-icon-bg">
+                    {stat.icon}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* DISPATCH table SECTION - GLASS V4 */}
       <div className="card border border-white border-opacity-10 shadow-2xl rounded-5 overflow-hidden animate-slide-up bg-transparent">
-        <div className="card-header border-bottom border-white border-opacity-10 px-5 py-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div className="card-header border-bottom border-white border-opacity-10 px-3 px-md-5 py-3 py-md-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
           <div className="d-flex align-items-center gap-4">
             <div className="d-flex flex-column">
               <h2
@@ -736,9 +784,10 @@ export default function Dashboard() {
           <div className="ms-auto d-flex align-items-center gap-3">
             {/* COMPACT PREMIUM SEARCH */}
             <div
-              className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-10 shadow-lg"
+              className="glass-card-stitch p-1 rounded-pill d-flex align-items-center border border-white border-opacity-10 shadow-lg flex-grow-1 flex-md-grow-0"
               style={{
-                width: "320px",
+                maxWidth: "400px",
+                minWidth: "200px",
                 background: "rgba(0, 0, 0, 0.4)",
                 backdropFilter: "blur(20px)",
               }}
@@ -1360,6 +1409,18 @@ export default function Dashboard() {
           background-position: right 1rem center !important;
           background-size: 16px 12px !important;
           appearance: none !important;
+        }
+        .active-filter-card {
+          box-shadow: 0 0 30px rgba(43, 221, 102, 0.15) !important;
+          transform: translateY(-5px);
+          background: rgba(255, 255, 255, 0.05) !important;
+        }
+        .active-filter-card::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: rgba(255, 255, 255, 0.03);
+          pointer-events: none;
         }
       `}</style>
     </div>

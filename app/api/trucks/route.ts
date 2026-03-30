@@ -34,12 +34,11 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    // Check if duplicate truck exists
     const existingTruck = await Truck.findOne({ $or: [{ truckNo }, { vin }, { plate }] });
     if (existingTruck) {
-      if (existingTruck.truckNo === truckNo) return NextResponse.json({ error: "Truck number already exists" }, { status: 400 });
-      if (existingTruck.vin === vin) return NextResponse.json({ error: "VIN number already exists" }, { status: 400 });
-      if (existingTruck.plate === plate) return NextResponse.json({ error: "License plate already exists" }, { status: 400 });
+      if (existingTruck.truckNo === truckNo) return NextResponse.json({ error: "Truck number already exists" }, { status: 409 });
+      if (existingTruck.vin === vin) return NextResponse.json({ error: "VIN number already exists" }, { status: 409 });
+      if (existingTruck.plate === plate) return NextResponse.json({ error: "License plate already exists" }, { status: 409 });
     }
 
     const newTruck = await Truck.create({

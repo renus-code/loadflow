@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -9,6 +10,14 @@ interface ConfirmationModalProps {
   type?: 'warning' | 'danger';
   confirmText?: string;
   cancelText?: string;
+}
+
+// Internal portal wrapper to escape stacking contexts
+function ModalPortal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+  return createPortal(children, document.body);
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -28,19 +37,23 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const glowClass = isDanger ? 'shadow-glow-danger' : 'shadow-glow-warning';
 
   return (
+    <ModalPortal>
     <div 
       className="modal show d-block" 
       style={{ 
-        backgroundColor: 'rgba(0,0,0,0.7)', 
-        backdropFilter: 'blur(12px)', 
-        zIndex: 1100,
-        transition: 'all 0.3s ease'
+        backgroundColor: 'transparent', 
+        backdropFilter: 'blur(12px)',
+        zIndex: 999999,
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
       onClick={onClose}
     >
       <div 
-        className="modal-dialog modal-dialog-centered" 
-        style={{ maxWidth: '360px' }}
+        className="modal-dialog animate-scale-in" 
+        style={{ maxWidth: '360px', marginTop: '10vh' }}
         onClick={e => e.stopPropagation()}
       >
         <div 
@@ -155,6 +168,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         }
       `}</style>
     </div>
+    </ModalPortal>
   );
 };
 

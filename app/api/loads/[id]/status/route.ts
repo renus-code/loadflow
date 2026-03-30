@@ -55,44 +55,47 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     // Handle overall status update OR driver/truck/trailer assignment
-    const updateFields: Record<string, string | null | number> = {};
-
     if (status) {
       const allStatuses = ['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'];
       if (!allStatuses.includes(status)) {
         return NextResponse.json({ error: "Invalid status" }, { status: 400 });
       }
       
-      // POD requirement for COMPLETED status
       if (status === 'COMPLETED' && !pod) {
         return NextResponse.json({ error: "Proof of Delivery (POD) is required before completing the load" }, { status: 400 });
       }
 
-      // Role constraints for overall load status
       if (user.role === 'Driver') {
         return NextResponse.json({ error: "Drivers must update status per stop" }, { status: 403 });
       }
-      updateFields.status = status;
+      loadCheck.status = status;
     }
 
-    if (assignedDriverId !== undefined) updateFields.assignedDriverId = assignedDriverId || null;
-    if (truckNumber !== undefined) updateFields.truckNumber = truckNumber;
-    if (trailerNumber !== undefined) updateFields.trailerNumber = trailerNumber;
-    if (truckType !== undefined) updateFields.truckType = truckType || null;
-    if (trailerType !== undefined) updateFields.trailerType = trailerType || null;
+    if (assignedDriverId !== undefined) loadCheck.assignedDriverId = assignedDriverId || null;
+    if (truckNumber !== undefined) loadCheck.truckNumber = truckNumber;
+    if (trailerNumber !== undefined) loadCheck.trailerNumber = trailerNumber;
+    if (truckType !== undefined) loadCheck.truckType = truckType || null;
+    if (trailerType !== undefined) loadCheck.trailerType = trailerType || null;
 
-    if (Object.keys(updateFields).length === 0) {
-      return NextResponse.json({ error: "No valid fields provided for update" }, { status: 400 });
+    // Explicitly check for version mismatch if __v is provided
+    if (body.__v !== undefined && loadCheck.__v !== body.__v) {
+      return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
     }
 
-    const updatedLoad = await Load.findByIdAndUpdate(
-      id,
-      { $set: updateFields },
-      { returnDocument: "after", runValidators: true }
-    ).populate('assignedDriverId', 'name email');
-
-    return NextResponse.json({ ...updatedLoad?.toObject(), podUrl: pod?.imageUrl });
+    try {
+      await loadCheck.save();
+      const finalLoad = await Load.findById(id).populate('assignedDriverId', 'name email');
+      return NextResponse.json({ ...finalLoad?.toObject(), podUrl: pod?.imageUrl });
+    } catch (saveError: any) {
+      if (saveError.name === 'VersionError') {
+        return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+      }
+      throw saveError;
+    }
   } catch (error: unknown) {
+    if ((error as any).name === 'VersionError') {
+      return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+    }
     return NextResponse.json({ error: error instanceof Error ? error.message : "An error occurred" }, { status: 500 });
   }
 }

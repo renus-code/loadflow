@@ -47,13 +47,30 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     delete body.assignedDriverId;
     delete body.status;
 
-    const updatedLoad = await Load.findByIdAndUpdate(
-      id,
-      body,
-      { new: true, runValidators: true }
-    );
+    const load = await Load.findById(id);
+    if (!load) return NextResponse.json({ error: "Load not found" }, { status: 404 });
 
-    return NextResponse.json(updatedLoad);
+    // Update fields from body
+    Object.keys(body).forEach((key) => {
+      if (key !== '_id' && key !== '__v' && key !== 'createdAt' && key !== 'updatedAt') {
+        load[key] = body[key];
+      }
+    });
+
+    // Explicitly check for version mismatch if __v is provided
+    if (body.__v !== undefined && load.__v !== body.__v) {
+      return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+    }
+
+    try {
+      await load.save();
+      return NextResponse.json(load);
+    } catch (saveError: any) {
+      if (saveError.name === 'VersionError') {
+        return NextResponse.json({ error: "Data has been modified by another user. Please refresh." }, { status: 409 });
+      }
+      throw saveError;
+    }
   } catch (error: unknown) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

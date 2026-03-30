@@ -310,6 +310,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
     number | null
   >(null);
   const [showPodPreview, setShowPodPreview] = useState(false);
+  const [hasViewedPod, setHasViewedPod] = useState(false);
   const [trucks, setTrucks] = useState<Truck[]>([]);
   const [trailers, setTrailers] = useState<Trailer[]>([]);
 
@@ -383,9 +384,22 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           stopType: type,
           stopIndex: index,
           stopStatus: newStatus,
+          __v: load.__v
         }),
       });
+
+      if (response.status === 409) {
+        const errData = await response.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        onUpdate();
+        return;
+      }
+
       if (response.ok) onUpdate();
+      else {
+        const errData = await response.json();
+        alert(`Failed to update stop status: ${errData.error || "Unknown error"}`);
+      }
     } catch (error) {
       console.error("Failed to update stop status", error);
     }
@@ -403,7 +417,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
     e.stopPropagation();
     try {
       const response = await fetch(`/api/loads/${load._id}/assign`, {
-        method: "PATCH",
+        method: "PUT", // API uses PUT for assignment
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           assignedDriverId: selectedDriverId,
@@ -411,11 +425,24 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           trailerNumber,
           truckType,
           trailerType,
+          __v: load.__v
         }),
       });
+
+      if (response.status === 409) {
+        const errData = await response.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        onUpdate();
+        setShowEditAssignment(false);
+        return;
+      }
+
       if (response.ok) {
         onUpdate();
         setShowEditAssignment(false);
+      } else {
+        const errData = await response.json();
+        alert(`Assignment failed: ${errData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Assignment failed", error);
@@ -425,12 +452,33 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
   const handleUnassign = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const response = await fetch(`/api/loads/${load._id}/unassign`, {
+      const response = await fetch(`/api/loads/${load._id}/status`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assignedDriverId: null,
+          truckNumber: null,
+          trailerNumber: null,
+          truckType: null,
+          trailerType: null,
+          __v: load.__v
+        })
       });
+
+      if (response.status === 409) {
+        const errData = await response.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        onUpdate();
+        setShowEditAssignment(false);
+        return;
+      }
+
       if (response.ok) {
         onUpdate();
         setShowEditAssignment(false);
+      } else {
+        const errData = await response.json();
+        alert(`Unassignment failed: ${errData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Unassignment failed", error);
@@ -443,8 +491,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
       const response = await fetch(`/api/loads/${load._id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "DELIVERED" }),
+        body: JSON.stringify({ status: "DELIVERED", __v: load.__v }),
       });
+
+      if (response.status === 409) {
+        const errData = await response.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        onUpdate();
+        return;
+      }
+
       if (response.ok) onUpdate();
     } catch (error) {
       console.error("Submission failed", error);
@@ -457,8 +513,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
       const response = await fetch(`/api/loads/${load._id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "COMPLETED" }),
+        body: JSON.stringify({ status: "COMPLETED", __v: load.__v }),
       });
+
+      if (response.status === 409) {
+        const errData = await response.json();
+        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        onUpdate();
+        return;
+      }
+
       if (response.ok) onUpdate();
     } catch (error) {
       console.error("Approval failed", error);
@@ -1222,11 +1286,14 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                     {user.role !== "Driver" && load.podUrl && (
                       <button
                         type="button"
-                        className="btn btn-outline-white-glass px-4 py-3 rounded-pill fw-black text-uppercase"
-                        style={{ fontSize: "11px", letterSpacing: "2px" }}
-                        onClick={() => setShowPodPreview(true)}
+                        className="btn btn-outline-white-glass px-4 py-3 rounded-pill fw-black text-uppercase transition-all hover-glass"
+                        style={{ fontSize: "11px", letterSpacing: "2px", background: hasViewedPod ? "rgba(43, 221, 102, 0.1)" : "rgba(99, 102, 241, 0.15)", borderColor: hasViewedPod ? "rgba(43, 221, 102, 0.4)" : "rgba(99, 102, 241, 0.4)" }}
+                        onClick={() => {
+                          setShowPodPreview(true);
+                          setHasViewedPod(true);
+                        }}
                       >
-                        Verify POD
+                        {hasViewedPod ? "View POD (Verified)" : "View POD"}
                       </button>
                     )}
 
@@ -1246,7 +1313,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                         <button
                           type="button"
                           className={`btn ${
-                            load.status === "DELIVERED"
+                            load.status === "DELIVERED" && hasViewedPod
                               ? "btn-emerald shadow-glow-emerald animate-pulse-slow"
                               : "btn-secondary opacity-50 cursor-not-allowed"
                           } px-5 py-3 rounded-pill fw-black text-uppercase`}
@@ -1254,14 +1321,15 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             fontSize: "11px",
                             letterSpacing: "2px",
                             border:
-                              load.status === "DELIVERED"
+                              load.status === "DELIVERED" && hasViewedPod
                                 ? "none"
                                 : "1px solid rgba(255, 255, 255, 0.1)",
                           }}
                           onClick={handleApproveLoad}
-                          disabled={load.status !== "DELIVERED"}
+                          title={load.status === "DELIVERED" && !hasViewedPod ? "You must view the POD document first" : ""}
+                          disabled={load.status !== "DELIVERED" || !hasViewedPod}
                         >
-                          Verify & Accomplish
+                          Mark as Completed
                         </button>
                       )}
                     {load.status === "COMPLETED" && (

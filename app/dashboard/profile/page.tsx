@@ -136,6 +136,13 @@ export default function ProfilePage() {
     }
   };
 
+  const todayStr = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   if (!user) return null;
 
   // Icons
@@ -150,6 +157,23 @@ export default function ProfilePage() {
 
   return (
     <div className="container py-2 animate-fade-in dashboard-page-container">
+      {/* HEADER SECTION */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-4 border-opacity-10 border-white">
+        <div className="text-start">
+          <h1
+            className="display-6 fw-black text-white m-0 tracking-tight"
+            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em", fontWeight: 900 }}
+          >
+            My <span className="text-gradient-emerald" style={{ fontWeight: 900 }}>Profile</span>
+          </h1>
+          <p
+            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
+            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
+          >
+            {todayStr} • PERSONAL SETTINGS
+          </p>
+        </div>
+      </div>
       <div className="row justify-content-center">
         <div className="col-lg-10 col-xl-9">
           <div className="glass-card main-profile-card rounded-4 border border-white border-opacity-10 shadow-2xl overflow-hidden position-relative p-3">
