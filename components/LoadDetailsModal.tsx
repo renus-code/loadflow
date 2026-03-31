@@ -15,7 +15,7 @@ interface Truck {
   make: string;
   model: string;
   year: number;
-  truckType: 'Sleeper Cab' | 'Day Cab';
+  truckType: "Sleeper Cab" | "Day Cab";
 }
 
 interface Trailer {
@@ -24,7 +24,7 @@ interface Trailer {
   make: string;
   model: string;
   year: number;
-  trailerType: 'Dry Van' | 'Reefer' | 'Tri Axle' | 'Flatbed';
+  trailerType: "Dry Van" | "Reefer" | "Tri Axle" | "Flatbed";
 }
 
 interface LoadDetailsModalProps {
@@ -41,12 +41,14 @@ const GlassSelect = ({
   options,
   placeholder,
   variant = "indigo",
+  disabled = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
   placeholder: string;
   variant?: "indigo" | "emerald";
+  disabled?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,26 +74,30 @@ const GlassSelect = ({
     <div
       className="position-relative"
       ref={containerRef}
-      style={{ zIndex: isOpen ? 1050 : 1 }}
+      style={{ zIndex: isOpen ? 2000 : 1 }}
     >
       {/* Trigger Button */}
       <div
-        onClick={() => setIsOpen(!isOpen)}
-        className="d-flex align-items-center justify-content-between px-3 cursor-pointer"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        className="d-flex align-items-center justify-content-between px-3"
         style={{
           minHeight: "42px",
           borderRadius: "14px",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.45 : 1,
           border: isOpen
             ? `1.5px solid rgba(${accentRgb}, 0.6)`
             : "1.5px solid rgba(255, 255, 255, 0.1)",
-          background: isOpen
-            ? `rgba(${accentRgb}, 0.08)`
-            : "rgba(255, 255, 255, 0.04)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          boxShadow: isOpen
-            ? `0 0 0 3px rgba(${accentRgb}, 0.12), 0 4px 20px rgba(${accentRgb}, 0.15)`
-            : "0 2px 8px rgba(0,0,0,0.2)",
+          background: disabled 
+            ? "rgba(25, 30, 45, 1)" 
+            : isOpen
+              ? `rgba(${accentRgb}, 0.15)`
+              : "rgba(30, 35, 50, 1)",
+          boxShadow: disabled 
+            ? "none" 
+            : isOpen
+              ? `0 0 0 3px rgba(${accentRgb}, 0.12), 0 4px 20px rgba(${accentRgb}, 0.15)`
+              : "0 2px 8px rgba(0,0,0,0.2)",
           transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
           userSelect: "none",
         }}
@@ -122,7 +128,9 @@ const GlassSelect = ({
             width: "22px",
             height: "22px",
             borderRadius: "50%",
-            background: isOpen ? `rgba(${accentRgb}, 0.15)` : "rgba(255,255,255,0.05)",
+            background: isOpen
+              ? `rgba(${accentRgb}, 0.15)`
+              : "rgba(255,255,255,0.05)",
             transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
             flexShrink: 0,
           }}
@@ -155,16 +163,15 @@ const GlassSelect = ({
             left: 0,
             right: 0,
             borderRadius: "16px",
-            border: `1px solid rgba(${accentRgb}, 0.2)`,
-            background: "rgba(8, 10, 20, 0.92)",
-            backdropFilter: "blur(30px)",
-            WebkitBackdropFilter: "blur(30px)",
-            boxShadow: `0 20px 60px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(${accentRgb}, 0.15)`,
+            border: `1px solid rgba(${accentRgb}, 0.4)`,
+            background: "#05070a",
+            boxShadow: `0 24px 80px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.1), 0 8px 32px rgba(${accentRgb}, 0.2)`,
             padding: "8px",
             maxHeight: "240px",
             overflowY: "auto",
-            zIndex: 1051,
-            animation: "glassDropdownOpen 0.2s cubic-bezier(0.4, 0, 0.2, 1) both",
+            zIndex: 2001,
+            animation:
+              "glassDropdownOpen 0.2s cubic-bezier(0.4, 0, 0.2, 1) both",
           }}
         >
           {/* Top accent line */}
@@ -219,15 +226,25 @@ const GlassSelect = ({
                     }
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     {/* Dot indicator */}
                     <div
                       style={{
                         width: "6px",
                         height: "6px",
                         borderRadius: "50%",
-                        background: isSelected ? accentColor : "rgba(255,255,255,0.15)",
-                        boxShadow: isSelected ? `0 0 6px ${accentColor}` : "none",
+                        background: isSelected
+                          ? accentColor
+                          : "rgba(255,255,255,0.15)",
+                        boxShadow: isSelected
+                          ? `0 0 6px ${accentColor}`
+                          : "none",
                         flexShrink: 0,
                         transition: "all 0.15s ease",
                       }}
@@ -238,7 +255,9 @@ const GlassSelect = ({
                         fontWeight: 800,
                         textTransform: "uppercase",
                         letterSpacing: "0.09em",
-                        color: isSelected ? accentColor : "rgba(255,255,255,0.65)",
+                        color: isSelected
+                          ? accentColor
+                          : "rgba(255,255,255,0.65)",
                         transition: "color 0.15s ease",
                       }}
                     >
@@ -325,15 +344,25 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           const tData = await trucksRes.json();
           setTrucks(tData);
           // Pre-populate specs if already assigned
-          const currentTruck = tData.find((t: any) => t.truckNo === load.truckNumber);
-          if (currentTruck) setTruckSpecs(`${currentTruck.year} ${currentTruck.make} ${currentTruck.model}`);
+          const currentTruck = tData.find(
+            (t: any) => t.truckNo === load.truckNumber,
+          );
+          if (currentTruck)
+            setTruckSpecs(
+              `${currentTruck.year} ${currentTruck.make} ${currentTruck.model}`,
+            );
         }
         if (trailersRes.ok) {
           const trData = await trailersRes.json();
           setTrailers(trData);
           // Pre-populate specs if already assigned
-          const currentTrailer = trData.find((tr: any) => tr.trailerNo === load.trailerNumber);
-          if (currentTrailer) setTrailerSpecs(`${currentTrailer.year} ${currentTrailer.make} ${currentTrailer.model}`);
+          const currentTrailer = trData.find(
+            (tr: any) => tr.trailerNo === load.trailerNumber,
+          );
+          if (currentTrailer)
+            setTrailerSpecs(
+              `${currentTrailer.year} ${currentTrailer.make} ${currentTrailer.model}`,
+            );
         }
       } catch (error) {
         console.error("Failed to fetch vehicles", error);
@@ -384,13 +413,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           stopType: type,
           stopIndex: index,
           stopStatus: newStatus,
-          __v: load.__v
+          __v: load.__v,
         }),
       });
 
       if (response.status === 409) {
         const errData = await response.json();
-        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        alert(
+          errData.error ||
+            "Load has been modified by another user. Please refresh.",
+        );
         onUpdate();
         return;
       }
@@ -398,7 +430,9 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
       if (response.ok) onUpdate();
       else {
         const errData = await response.json();
-        alert(`Failed to update stop status: ${errData.error || "Unknown error"}`);
+        alert(
+          `Failed to update stop status: ${errData.error || "Unknown error"}`,
+        );
       }
     } catch (error) {
       console.error("Failed to update stop status", error);
@@ -425,13 +459,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           trailerNumber,
           truckType,
           trailerType,
-          __v: load.__v
+          __v: load.__v,
         }),
       });
 
       if (response.status === 409) {
         const errData = await response.json();
-        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        alert(
+          errData.error ||
+            "Load has been modified by another user. Please refresh.",
+        );
         onUpdate();
         setShowEditAssignment(false);
         return;
@@ -461,13 +498,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           trailerNumber: null,
           truckType: null,
           trailerType: null,
-          __v: load.__v
-        })
+          __v: load.__v,
+        }),
       });
 
       if (response.status === 409) {
         const errData = await response.json();
-        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        alert(
+          errData.error ||
+            "Load has been modified by another user. Please refresh.",
+        );
         onUpdate();
         setShowEditAssignment(false);
         return;
@@ -496,7 +536,10 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
       if (response.status === 409) {
         const errData = await response.json();
-        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        alert(
+          errData.error ||
+            "Load has been modified by another user. Please refresh.",
+        );
         onUpdate();
         return;
       }
@@ -518,7 +561,10 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
       if (response.status === 409) {
         const errData = await response.json();
-        alert(errData.error || "Load has been modified by another user. Please refresh.");
+        alert(
+          errData.error ||
+            "Load has been modified by another user. Please refresh.",
+        );
         onUpdate();
         return;
       }
@@ -547,7 +593,8 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           className="modal-content border-0 rounded-5 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: "radial-gradient(circle at top right, #0f1629, #05070a)",
+            background:
+              "radial-gradient(circle at top right, #0f1629, #05070a)",
             boxShadow:
               "0 0 50px rgba(0,0,0,0.5), inset 0 0 100px rgba(99, 102, 241, 0.08)",
           }}
@@ -748,7 +795,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             </svg>
                           </div>
                           <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
-                            Assets
+                            Fleet Assignment
                           </h6>
                         </div>
                         {(user.role === "Admin" ||
@@ -788,61 +835,124 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                       {load.assignedDriverId && !showEditAssignment ? (
                         <div className="animate-fade-in">
                           <div className="mb-4">
-                            <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-1 d-block">
-                              Driver
-                            </label>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#a855f7"
+                                strokeWidth="2.5"
+                                style={{ filter: "drop-shadow(0 0 4px rgba(168, 85, 247, 0.4))" }}
+                              >
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                              </svg>
+                              <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                Assigned Operator
+                              </label>
+                            </div>
                             <div className="fw-black fs-4 text-white">
                               {(load.assignedDriverId as unknown as Driver)
                                 ?.name || "Active Driver"}
                             </div>
                           </div>
-                          <div className="row g-3">
-                            <div className="col-6">
-                              <div
-                                className="p-3 rounded-4 border border-white border-opacity-5"
-                                style={{
-                                  background: "rgba(255, 255, 255, 0.03)",
-                                }}
-                              >
-                                <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-1 d-block">
-                                  Vector Unit
-                                </label>
-                                <div className="fw-black text-white">
-                                  {load.truckNumber || "—"}
+                          <div className="row g-4">
+                            {/* Truck Block */}
+                            <div className="col-12">
+                              <div className="row g-3">
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="#6366f1"
+                                      strokeWidth="2.5"
+                                      style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}
+                                    >
+                                      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+                                      <path d="M19 18h2a1 1 0 0 0 1-1v-4.24a2 2 0 0 0-.81-1.6l-3.19-2.39V18Z" />
+                                      <circle cx="7" cy="18" r="2" />
+                                      <circle cx="17" cy="18" r="2" />
+                                    </svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Truck Type
+                                    </label>
+                                  </div>
+                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(99, 102, 241, 0.1)" }}>
+                                    {load.truckType || "—"}
+                                  </div>
                                 </div>
-                                <div className="d-flex flex-wrap gap-2 mt-2">
-                                  {load.truckType && (
-                                    <div className="px-2 py-0.5 rounded bg-indigo bg-opacity-10 border border-indigo border-opacity-20 text-indigo fw-black text-uppercase x-small">
-                                      {load.truckType}
-                                    </div>
-                                  )}
-                                  <div className="x-small text-white opacity-40 fw-bold text-uppercase">
-                                    {truckSpecs || "TECHNICAL SPECS PENDING"}
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="#6366f1"
+                                      strokeWidth="2.5"
+                                      style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}
+                                    >
+                                      <rect x="3" y="11" width="18" height="10" rx="2" />
+                                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Vector Unit
+                                    </label>
+                                  </div>
+                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
+                                    {load.truckNumber || "—"}
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            <div className="col-6">
-                              <div
-                                className="p-3 rounded-4 border border-white border-opacity-5"
-                                style={{
-                                  background: "rgba(255, 255, 255, 0.03)",
-                                }}
-                              >
-                                <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-1 d-block">
-                                  Relay Unit
-                                </label>
-                                <div className="fw-black text-white">
-                                  {load.trailerNumber || "—"}
+                            {/* Trailer Block */}
+                            <div className="col-12">
+                              <div className="row g-3">
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="#10b981"
+                                      strokeWidth="2.5"
+                                      style={{ filter: "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))" }}
+                                    >
+                                      <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" />
+                                      <path d="M2 15h20" />
+                                    </svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Trailer Type
+                                    </label>
+                                  </div>
+                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
+                                    {load.trailerType || "—"}
+                                  </div>
                                 </div>
-                                <div className="d-flex flex-wrap gap-2 mt-2">
-                                  {load.trailerType && (
-                                    <div className="px-2 py-0.5 rounded bg-emerald bg-opacity-10 border border-emerald border-opacity-20 text-emerald fw-black text-uppercase x-small">
-                                      {load.trailerType}
-                                    </div>
-                                  )}
-                                  <div className="x-small text-white opacity-40 fw-bold text-uppercase">
-                                    {trailerSpecs || "TECHNICAL SPECS PENDING"}
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="#10b981"
+                                      strokeWidth="2.5"
+                                      style={{ filter: "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))" }}
+                                    >
+                                      <path d="m15 7 1 1h5l1 1v10l-1 1h-6l-1-1v-5l-1-1h-4l-1-1v-5l1-1h5z" />
+                                    </svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Relay Unit
+                                    </label>
+                                  </div>
+                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
+                                    {load.trailerNumber || "—"}
                                   </div>
                                 </div>
                               </div>
@@ -851,17 +961,19 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                         </div>
                       ) : (
                         <div
-                          className="p-4 rounded-4 border border-white border-opacity-10"
+                          className="p-4 rounded-4 border border-white border-opacity-10 pb-5"
                           style={{
-                            background: "rgba(255, 255, 255, 0.02)",
-                            boxShadow: "inset 0 0 40px rgba(99, 102, 241, 0.03)",
-                            backdropFilter: "blur(5px)",
+                            background: "#0b101f",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
                           }}
                         >
                           <div className="mb-4">
-                            <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-2 d-block">
-                              Driver
-                            </label>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                              <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                Assigned Operator
+                              </label>
+                            </div>
                             <GlassSelect
                               value={selectedDriverId}
                               onChange={setSelectedDriverId}
@@ -873,138 +985,154 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             />
                           </div>
                           <div className="row g-4 mb-4">
-                            {/* TRUCK SECTION */}
                             <div className="col-12">
                               <div className="row g-3">
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70 text-indigo">
-                                      <path d="M10 17h4V5H2v12h3" /><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" /><circle cx="7.5" cy="17.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" />
-                                    </svg>
-                                    <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest d-block m-0">
-                                      Vector Unit (Truck)
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={truckNumber}
-                                    onChange={(val) => {
-                                      setTruckNumber(val);
-                                      const selected = trucks.find(t => t.truckNo === val);
-                                      if (selected) {
-                                        setTruckSpecs(`${selected.year} ${selected.make} ${selected.model}`);
-                                        setTruckType(selected.truckType);
-                                      }
-                                    }}
-                                    placeholder="Select Truck ID..."
-                                    options={trucks
-                                      .filter(t => !truckType || t.truckType === truckType)
-                                      .map(t => ({ value: t.truckNo, label: t.truckNo }))}
-                                  />
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70 text-indigo">
-                                      <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
-                                    </svg>
-                                    <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest d-block m-0">
-                                      Cab Configuration
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Truck Type
                                     </label>
                                   </div>
                                   <GlassSelect
                                     value={truckType}
                                     onChange={(val) => {
                                       setTruckType(val);
-                                      // If current selected truck doesn't match new type, clear it
-                                      const currentTruck = trucks.find(t => t.truckNo === truckNumber);
-                                      if (currentTruck && val && currentTruck.truckType !== val) {
+                                      const currentTruck = trucks.find(
+                                        (t) => t.truckNo === truckNumber,
+                                      );
+                                      if (
+                                        currentTruck &&
+                                        val &&
+                                        currentTruck.truckType !== val
+                                      ) {
                                         setTruckNumber("");
                                         setTruckSpecs("");
                                       }
                                     }}
                                     placeholder="Select Cab Type..."
                                     options={[
-                                      { value: 'Sleeper Cab', label: 'Sleeper Cab' },
-                                      { value: 'Day Cab', label: 'Day Cab' }
+                                      {
+                                        value: "Sleeper Cab",
+                                        label: "Sleeper Cab",
+                                      },
+                                      { value: "Day Cab", label: "Day Cab" },
                                     ]}
                                     variant="indigo"
                                   />
                                 </div>
-                              </div>
-                              {truckSpecs && (
-                                <div className="mt-2 x-small text-white opacity-40 fw-bold text-uppercase px-2 italic">
-                                  Specs: {truckSpecs}
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Vector Unit (Truck)
+                                    </label>
+                                  </div>
+                                  <GlassSelect
+                                    value={truckNumber}
+                                    disabled={!truckType}
+                                    onChange={(val) => {
+                                      setTruckNumber(val);
+                                      const selected = trucks.find(
+                                        (t) => t.truckNo === val,
+                                      );
+                                      if (selected) {
+                                        setTruckSpecs(
+                                          `${selected.year} ${selected.make} ${selected.model}`,
+                                        );
+                                        setTruckType(selected.truckType);
+                                      }
+                                    }}
+                                    placeholder={truckType ? "Select Truck ID..." : "Select Type First"}
+                                    options={trucks
+                                      .filter(
+                                        (t) =>
+                                          !truckType ||
+                                          t.truckType === truckType,
+                                      )
+                                      .map((t) => ({
+                                        value: t.truckNo,
+                                        label: t.truckNo,
+                                      }))}
+                                  />
                                 </div>
-                              )}
+                              </div>
                             </div>
 
-                            {/* TRAILER SECTION */}
                             <div className="col-12">
                               <div className="row g-3">
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70 text-emerald">
-                                      <path d="M2 17h20v-4H2v4z" /><path d="M2 9h20v-4H2v4z" /><path d="M12 9v8" />
-                                    </svg>
-                                    <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest d-block m-0">
-                                      Relay Unit (Trailer)
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={trailerNumber}
-                                    onChange={(val) => {
-                                      setTrailerNumber(val);
-                                      const selected = trailers.find(t => t.trailerNo === val);
-                                      if (selected) {
-                                        setTrailerSpecs(`${selected.year} ${selected.make} ${selected.model}`);
-                                        setTrailerType(selected.trailerType);
-                                      }
-                                    }}
-                                    placeholder="Select Trailer ID..."
-                                    options={trailers
-                                      .filter(t => !trailerType || t.trailerType === trailerType)
-                                      .map(t => ({ value: t.trailerNo, label: t.trailerNo }))}
-                                  />
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70 text-emerald">
-                                      <rect x="2" y="2" width="20" height="20" rx="2" strokeWidth="2.5"/>
-                                      <path d="M7 2v20M17 2v20M2 7h20M2 17h20"/>
-                                    </svg>
-                                    <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest d-block m-0">
-                                      Trailer Category
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><path d="M16 8h5l2 3v5h-7V8z"></path><circle cx="5.5" cy="18.5" r="2.5"></circle></svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Trailer Type
                                     </label>
                                   </div>
                                   <GlassSelect
                                     value={trailerType}
                                     onChange={(val) => {
                                       setTrailerType(val);
-                                      // If current selected trailer doesn't match new type, clear it
-                                      const currentTrailer = trailers.find(t => t.trailerNo === trailerNumber);
-                                      if (currentTrailer && val && currentTrailer.trailerType !== val) {
+                                      const currentTrailer = trailers.find(
+                                        (t) => t.trailerNo === trailerNumber,
+                                      );
+                                      if (
+                                        currentTrailer &&
+                                        val &&
+                                        currentTrailer.trailerType !== val
+                                      ) {
                                         setTrailerNumber("");
                                         setTrailerSpecs("");
                                       }
                                     }}
                                     placeholder="Select Type..."
                                     options={[
-                                      { value: 'Dry Van', label: 'Dry Van' },
-                                      { value: 'Reefer', label: 'Reefer' },
-                                      { value: 'Tri Axle', label: 'Tri Axle' },
-                                      { value: 'Flatbed', label: 'Flatbed' }
+                                      { value: "Dry Van", label: "Dry Van" },
+                                      { value: "Reefer", label: "Reefer" },
+                                      { value: "Tri Axle", label: "Tri Axle" },
+                                      { value: "Flatbed", label: "Flatbed" },
                                     ]}
                                     variant="emerald"
                                   />
                                 </div>
-                              </div>
-                              {trailerSpecs && (
-                                <div className="mt-2 x-small text-white opacity-40 fw-bold text-uppercase px-2 italic">
-                                  Specs: {trailerSpecs}
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                      Relay Unit (Trailer)
+                                    </label>
+                                  </div>
+                                  <GlassSelect
+                                    value={trailerNumber}
+                                    disabled={!trailerType}
+                                    onChange={(val) => {
+                                      setTrailerNumber(val);
+                                      const selected = trailers.find(
+                                        (t) => t.trailerNo === val,
+                                      );
+                                      if (selected) {
+                                        setTrailerSpecs(
+                                          `${selected.year} ${selected.make} ${selected.model}`,
+                                        );
+                                        setTrailerType(selected.trailerType);
+                                      }
+                                    }}
+                                    placeholder={trailerType ? "Select Trailer ID..." : "Select Type First"}
+                                    options={trailers
+                                      .filter(
+                                        (t) =>
+                                          !trailerType ||
+                                          t.trailerType === trailerType,
+                                      )
+                                      .map((t) => ({
+                                        value: t.trailerNo,
+                                        label: t.trailerNo,
+                                      }))}
+                                  />
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </div>
-                          <div className="d-flex gap-2 pt-2">
+                          <div className="d-flex gap-3 pt-4 mt-2">
                             {load.assignedDriverId && (
                               <button
                                 className="btn btn-outline-light btn-sm flex-grow-1 rounded-pill fw-bold"
@@ -1287,7 +1415,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                       <button
                         type="button"
                         className="btn btn-outline-white-glass px-4 py-3 rounded-pill fw-black text-uppercase transition-all hover-glass"
-                        style={{ fontSize: "11px", letterSpacing: "2px", background: hasViewedPod ? "rgba(43, 221, 102, 0.1)" : "rgba(99, 102, 241, 0.15)", borderColor: hasViewedPod ? "rgba(43, 221, 102, 0.4)" : "rgba(99, 102, 241, 0.4)" }}
+                        style={{
+                          fontSize: "11px",
+                          letterSpacing: "2px",
+                          background: hasViewedPod
+                            ? "rgba(43, 221, 102, 0.1)"
+                            : "rgba(99, 102, 241, 0.15)",
+                          borderColor: hasViewedPod
+                            ? "rgba(43, 221, 102, 0.4)"
+                            : "rgba(99, 102, 241, 0.4)",
+                        }}
                         onClick={() => {
                           setShowPodPreview(true);
                           setHasViewedPod(true);
@@ -1326,8 +1463,14 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 : "1px solid rgba(255, 255, 255, 0.1)",
                           }}
                           onClick={handleApproveLoad}
-                          title={load.status === "DELIVERED" && !hasViewedPod ? "You must view the POD document first" : ""}
-                          disabled={load.status !== "DELIVERED" || !hasViewedPod}
+                          title={
+                            load.status === "DELIVERED" && !hasViewedPod
+                              ? "You must view the POD document first"
+                              : ""
+                          }
+                          disabled={
+                            load.status !== "DELIVERED" || !hasViewedPod
+                          }
                         >
                           Mark as Completed
                         </button>
@@ -1503,13 +1646,11 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
         }
 
         .ether-card {
-          background: rgba(6, 14, 32, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow:
-            inset 0 0 30px rgba(99, 102, 241, 0.02),
-            0 10px 40px rgba(0, 0, 0, 0.4);
+          background: #090f1d;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
           position: relative;
-          overflow: hidden;
+          overflow: visible;
         }
 
         .ether-card::before {

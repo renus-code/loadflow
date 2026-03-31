@@ -9,13 +9,13 @@ import UserSidebarProfile from "./UserSidebarProfile";
 import { useAuth } from "@/context/AuthContext";
 
 // ─── PREMIUM ICONS (LUCIDE STYLE) ─────────────────────────────────────────────
-const LayoutGridIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+const LayoutGridIcon = ({ active }: { active?: boolean }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke={active ? "#0ea5e9" : "currentColor"} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" style={active ? { filter: "drop-shadow(0 0 4px rgba(14, 165, 233, 0.4))" } : {}}>
     <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" />
   </svg>
 );
-const PackagePlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+const PackagePlusIcon = ({ active }: { active?: boolean }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke={active ? "#10b981" : "currentColor"} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" style={active ? { filter: "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))" } : {}}>
     <path d="M16 16h6" />
     <path d="M19 13v6" />
     <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
@@ -24,8 +24,8 @@ const PackagePlusIcon = () => (
     <line x1="12" y1="22" x2="12" y2="12" />
   </svg>
 );
-const UsersIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+const UsersIcon = ({ active }: { active?: boolean }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke={active ? "#818cf8" : "currentColor"} strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" style={active ? { filter: "drop-shadow(0 0 4px rgba(129, 140, 248, 0.4))" } : {}}>
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
@@ -83,8 +83,7 @@ export default function Sidebar() {
         }`} 
         style={{
           width: isCollapsed ? '90px' : '280px', 
-          background: 'rgba(9, 19, 40, 0.95)', 
-          backdropFilter: 'blur(20px)', 
+          background: '#04070e', 
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowX: 'hidden',
           zIndex: isMobileOpen ? 1002 : 100
@@ -92,8 +91,10 @@ export default function Sidebar() {
 
         {/* MOBILE CLOSE BUTTON */}
         <button 
-          className="d-lg-none btn border-0 text-white rounded-circle p-2 m-2 position-absolute end-0 top-0 bg-glass-white-10"
+          className="d-lg-none btn border-0 text-white rounded-circle p-2 m-2 position-absolute end-0 top-0"
+          style={{ background: 'rgba(255, 255, 255, 0.05)' }}
           onClick={() => setIsMobileOpen(false)}
+          title="Close Sidebar"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -129,8 +130,8 @@ export default function Sidebar() {
             }`}
           >
             {pathname === '/dashboard' && <div className="active-indicator-compact bg-emerald shadow-emerald"></div>}
-            <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${pathname === '/dashboard' ? 'text-emerald' : ''}`} style={{ width: '24px' }}>
-              <LayoutGridIcon />
+            <div className="icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '24px' }}>
+              <LayoutGridIcon active={pathname === '/dashboard'} />
             </div>
             <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname === '/dashboard' ? 'text-white' : ''}>Dashboard</span>
           </Link>
@@ -144,9 +145,8 @@ export default function Sidebar() {
                 : 'text-white-50 bg-transparent hover-bg-white-5 hover-text-white'
               }`}
             >
-              {isCreateModalOpen && <div className="active-indicator-compact bg-emerald shadow-emerald"></div>}
-              <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${isCreateModalOpen ? 'text-emerald' : ''}`} style={{ width: '24px' }}>
-                <PackagePlusIcon />
+              <div className="icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '24px' }}>
+                <PackagePlusIcon active={isCreateModalOpen} />
               </div>
               <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={isCreateModalOpen ? 'text-white' : ''}>Create New Load</span>
             </button>
@@ -162,17 +162,16 @@ export default function Sidebar() {
                 }`}
              >
                 {pathname.startsWith('/dashboard/users') && <div className="active-indicator-compact bg-blue shadow-admin"></div>}
-                <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${pathname.startsWith('/dashboard/users') ? 'text-blue' : ''}`} style={{ width: '24px' }}>
-                  <UsersIcon />
+                <div className="icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '24px' }}>
+                  <UsersIcon active={pathname.startsWith('/dashboard/users')} />
                 </div>
                 <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/users') ? 'text-white' : ''}>User Management</span>
              </Link>
           )}
         </div>
 
-        {/* FOOTER / PROFILE - GLASS CARD */}
         <div className="mt-auto pb-4 px-2" style={{ transition: 'all 0.4s ease' }}>
-           <div className="rounded-4 bg-glass-10 border border-white border-opacity-10 p-1 shadow-profile-compact">
+           <div className="rounded-4 border border-white border-opacity-10 p-1 shadow-profile-compact" style={{ background: '#0a101f' }}>
              <UserSidebarProfile isCollapsed={isCollapsed} />
            </div>
         </div>

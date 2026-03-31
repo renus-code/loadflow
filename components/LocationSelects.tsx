@@ -36,6 +36,7 @@ interface LocationSelectProps {
   onChange: (v: string) => void;
   id?: string;
   className?: string;
+  style?: React.CSSProperties;
   placeholder?: string;
 }
 
@@ -44,6 +45,7 @@ export function StateProvinceSelect({
   onChange,
   id,
   className,
+  style,
 }: LocationSelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -75,6 +77,7 @@ export function StateProvinceSelect({
         autoComplete="off"
         spellCheck={false}
         className={className}
+        style={style}
         value={value || ""}
         placeholder="State/Province (e.g. ON, IL)"
         onChange={(e) => {
@@ -86,8 +89,8 @@ export function StateProvinceSelect({
       />
       {open && filtered.length > 0 && (
         <ul
-          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
+          className="list-unstyled position-absolute w-100 border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto", background: "#05070a" }}
         >
           {filtered.map(([code, name, flag]) => (
             <li key={code}>
@@ -122,6 +125,7 @@ export function CitySelect({
   onChange,
   id,
   className,
+  style,
   placeholder = "City",
 }: LocationSelectProps & { stateCode: string }) {
   const { cities, loading } = useCities(stateCode);
@@ -148,6 +152,7 @@ export function CitySelect({
         required
         autoComplete="off"
         className={className}
+        style={style}
         value={value || ""}
         placeholder={loading ? "Loading..." : placeholder}
         disabled={loading || !stateCode}
@@ -159,8 +164,8 @@ export function CitySelect({
       />
       {open && filtered.length > 0 && (
         <ul
-          className="list-unstyled position-absolute w-100 bg-dark border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
-          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto" }}
+          className="list-unstyled position-absolute w-100 border border-white border-opacity-10 rounded-4 shadow-2xl mt-1 py-1"
+          style={{ zIndex: 9999, maxHeight: "220px", overflowY: "auto", background: "#05070a" }}
         >
           {filtered.map((city) => (
             <li key={city}>
