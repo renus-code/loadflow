@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define the MONGODB_URI environment variable inside .env');
 }
 
 /**
@@ -52,7 +52,7 @@ async function connectToDatabase() {
     if (e.code === 'ECONNREFUSED' && e.syscall === 'querySrv') {
       console.error('💡 DIAGNOSTIC: SRV DNS Resolution Refused.');
       console.error('   This usually means your network/VPN blocks SRV records.');
-      console.error('   FIX: Use the "Standard Connection String" (mongodb://...) in .env.local');
+      console.error('   FIX: Use the "Standard Connection String" (mongodb://...) in .env');
     }
     
     throw e;

@@ -48,74 +48,66 @@ export default function UserSidebarProfile({ isCollapsed = false }: { isCollapse
     .toUpperCase()
     .substring(0, 2);
 
-  const isProfileActive = pathname === "/dashboard/profile";
+  const isProfileActive = pathname.startsWith("/dashboard/profile");
 
   return (
-    <div className={`mt-auto ${isCollapsed ? 'p-0 pb-2' : 'p-4'}`} style={{ transition: 'all 0.4s ease' }}>
+    <div className={`mt-auto ${isCollapsed ? 'p-1' : 'p-3'}`} style={{ transition: 'all 0.4s ease', overflow: 'hidden' }}>
       <div 
         title={isCollapsed ? user.name : ""}
-        className={`d-flex align-items-center gap-3 px-1 mb-4 group cursor-pointer hover-tilt ${isCollapsed ? 'justify-content-center mb-2 px-0 py-2' : ''}`}
+        className="d-flex align-items-center gap-3 px-1 mb-4 group cursor-pointer hover-tilt text-nowrap"
       >
         <div 
           className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-lg flex-shrink-0 border border-white border-opacity-30 profile-avatar" 
-          style={{ width: isCollapsed ? '48px' : '52px', height: isCollapsed ? '48px' : '52px', fontSize: isCollapsed ? '1rem' : '1.2rem', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', transition: 'all 0.4s ease' }}
+          style={{ width: isCollapsed ? '42px' : '48px', height: isCollapsed ? '42px' : '48px', fontSize: isCollapsed ? '1rem' : '1.2rem', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', transition: 'all 0.4s ease' }}
         >
           {initials}
         </div>
-        {!isCollapsed && (
-          <div className="flex-grow-1 animate-fade-in" style={{ minWidth: 0 }}>
-            <div className="fw-black text-white mb-0" style={{ fontSize: '1.05rem', letterSpacing: '0.01em', lineHeight: '1.1' }}>
-              {user.name}
-            </div>
-            <div className="d-flex align-items-center gap-2 mt-2">
-              <span 
-                className="badge rounded-pill fw-black text-uppercase tracking-widest px-2 py-1" 
-                style={{ 
-                  fontSize: '0.55rem', 
-                  background: '#2bdd66', 
-                  color: '#0d1117',
-                  boxShadow: '0 0 12px rgba(43, 221, 102, 0.4)' 
-                }}
-              >
-                {user.role}
-              </span>
-            </div>
+        <div className="flex-grow-1" style={{ minWidth: 0, opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }}>
+          <div className="fw-black text-white mb-0" style={{ fontSize: '1.05rem', letterSpacing: '0.01em', lineHeight: '1.1' }}>
+            {user.name}
           </div>
-        )}
+          <div className="d-flex align-items-center gap-2 mt-2">
+            <span 
+              className="badge rounded-pill fw-black text-uppercase tracking-widest px-2 py-1" 
+              style={{ 
+                fontSize: '0.55rem', 
+                background: '#2bdd66', 
+                color: '#0d1117',
+                boxShadow: '0 0 12px rgba(43, 221, 102, 0.4)' 
+              }}
+            >
+              {user.role}
+            </span>
+          </div>
+        </div>
       </div>
       
-      {!isCollapsed && <div className="border-bottom border-white border-opacity-10 mb-3 mx-2 animate-fade-in"></div>}
+      <div className="border-bottom border-white border-opacity-10 mb-3 mx-2" style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }}></div>
 
-      <div className={`d-flex flex-column gap-2 ${isCollapsed ? 'align-items-center' : ''}`}>
+      <div className="d-flex flex-column gap-2">
         <Link
           href="/dashboard/profile"
-          title={isCollapsed ? "My Profile" : ""}
-          className={`btn d-flex align-items-center gap-3 fw-bold transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative ${
-            isCollapsed ? 'justify-content-center width-56 height-56 p-0' : 'px-3 py-3 w-100 text-start'
-          } ${
+          className={`btn d-flex align-items-center gap-3 fw-bold transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative px-3 py-3 w-100 text-start text-nowrap ${
             isProfileActive 
-            ? 'bg-profile-glow text-white shadow-profile border-profile' 
+            ? 'bg-profile-glow shadow-profile border-profile' 
             : 'text-white-50 hover-bg-white-5 hover-text-white'
           }`}
         >
-          {isCollapsed && isProfileActive && <div className="active-indicator-compact bg-purple shadow-purple"></div>}
-          <div className="icon-container d-flex align-items-center justify-content-center">
+          {isProfileActive && <div className="active-indicator-compact bg-purple shadow-purple"></div>}
+          <div className={`icon-container d-flex align-items-center justify-content-center flex-shrink-0 ${isProfileActive ? 'text-purple' : ''}`} style={{ width: '24px' }}>
             <UserSettingsIcon />
           </div>
-          {!isCollapsed && <span className="small text-uppercase tracking-wider animate-fade-in">My Profile</span>}
+          <span className={`small text-uppercase tracking-wider ${isProfileActive ? 'text-white' : ''}`} style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }}>My Profile</span>
         </Link>
 
         <button
           onClick={() => logout(router)}
-          title={isCollapsed ? "Sign out" : ""}
-          className={`btn d-flex align-items-center gap-3 fw-bold text-white-50 hover-bg-danger-glass transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative ${
-            isCollapsed ? 'justify-content-center width-56 height-56 p-0' : 'px-3 py-3 w-100 text-start'
-          }`}
+          className="btn d-flex align-items-center gap-3 fw-bold text-white-50 hover-bg-danger-glass transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative px-3 py-3 w-100 text-start text-nowrap"
         >
-          <div className="logout-icon-container d-flex align-items-center justify-content-center">
+          <div className="logout-icon-container d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '24px' }}>
             <LogOutIcon />
           </div>
-          {!isCollapsed && <span className="small text-uppercase tracking-wider animate-fade-in">Sign out</span>}
+          <span className="small text-uppercase tracking-wider group-hover:text-white" style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }}>Sign out</span>
         </button>
       </div>
 
@@ -131,23 +123,26 @@ export default function UserSidebarProfile({ isCollapsed = false }: { isCollapse
         }
         .active-indicator-compact {
            position: absolute;
-           left: -8px;
+           left: 0;
+           top: 50%;
+           transform: translateY(-50%);
            width: 4px;
            height: 24px;
            border-radius: 0 4px 4px 0;
            transition: all 0.3s ease;
         }
         .bg-purple { background: #8b5cf6; }
+        .text-purple { color: #a78bfa; }
         .shadow-purple { box-shadow: 0 0 15px #8b5cf6; }
         
-        .bg-profile-glow { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 100%); color: #a78bfa !important; border: 1px solid rgba(139, 92, 246, 0.4) !important; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
+        .bg-profile-glow { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 100%); border: 1px solid rgba(139, 92, 246, 0.4) !important; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
         .shadow-profile { box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.4); }
         .border-profile { border: 1px solid rgba(139, 92, 246, 0.4) !important; }
         .hover-bg-white-5:hover { background-color: rgba(255, 255, 255, 0.05); }
         .hover-text-white:hover { color: white !important; }
-        .hover-bg-danger-glass:hover { background-color: rgba(239, 68, 68, 0.1) !important; color: #f87171 !important; }
-        .group:hover .logout-icon-container { transform: scale(1.1); color: #f87171 !important; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5)); }
-        .group:hover .icon-container { transform: scale(1.1); color: white !important; }
+        .hover-bg-danger-glass:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+        .group:hover .logout-icon-container { transform: scale(1.1); color: #f87171 !important; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5)); opacity: 1; }
+        .group:hover .icon-container { transform: scale(1.1); }
         
         .logout-icon-container { transition: all 0.3s ease; color: #ef4444; opacity: 0.8; }
         .icon-container { transition: all 0.3s ease; }
@@ -157,6 +152,7 @@ export default function UserSidebarProfile({ isCollapsed = false }: { isCollapse
         .group:hover .profile-avatar { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); transform: scale(1.08) rotate(2deg); }
         .hover-tilt:hover { transform: translateY(-3px); }
         .active-scale-95:active { transform: scale(0.95); }
+        .group:hover .group-hover\:text-white { color: white !important; }
       `}</style>
     </div>
   );

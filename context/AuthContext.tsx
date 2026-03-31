@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // ─── IDLE SESSION TIMEOUT (30 MINUTES) ───────────────────────────────────────
+  // ─── IDLE SESSION TIMEOUT (1 HOUR) ───────────────────────────────────────────
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const store = storeRef.current;
@@ -93,11 +93,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only execute the timeout logic if we actually have an active user session
       if (!store.getState().user) return;
 
-      // 30 minutes in milliseconds
+      // 1 hour in milliseconds
       timeoutId = setTimeout(() => {
          console.log("Idle timeout reached. Logging out...");
          store.getState().logout(router);
-      }, 30 * 60 * 1000); 
+      }, 60 * 60 * 1000); 
     };
 
     // Events that count as activity

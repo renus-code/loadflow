@@ -34,14 +34,12 @@ export default function Sidebar() {
   const pathname = usePathname();
   const user = useAuth((state) => state.user);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  const isCollapsed = !isHovered;
 
-  // Initialize collapse state from localStorage
   useEffect(() => {
-    const savedState = localStorage.getItem('sidebar-collapsed');
-    if (savedState === 'true') setIsCollapsed(true);
-
     const handleToggleMobile = () => setIsMobileOpen((prev) => !prev);
     window.addEventListener('toggle-sidebar', handleToggleMobile);
     
@@ -61,12 +59,6 @@ export default function Sidebar() {
     setIsMobileOpen(false);
   }, [pathname]);
 
-  const toggleSidebar = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
-    localStorage.setItem('sidebar-collapsed', String(newState));
-  };
-
   const handleCreateLoad = () => {
     window.dispatchEvent(new CustomEvent('open-create-load'));
     setIsMobileOpen(false);
@@ -83,7 +75,10 @@ export default function Sidebar() {
         />
       )}
 
-      <aside className={`d-flex flex-column h-100 border-end border-white border-opacity-5 flex-shrink-0 animate-fade-in shadow-2xl position-relative ${
+      <aside 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`d-flex flex-column h-100 border-end border-white border-opacity-5 flex-shrink-0 animate-fade-in shadow-2xl position-relative ${
           isMobileOpen ? 'mobile-open' : ''
         }`} 
         style={{
@@ -91,30 +86,9 @@ export default function Sidebar() {
           background: 'rgba(9, 19, 40, 0.95)', 
           backdropFilter: 'blur(20px)', 
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflowX: 'hidden',
           zIndex: isMobileOpen ? 1002 : 100
         }}>
-        
-        {/* TOGGLE BUTTON (DESKTOP ONLY) */}
-        <button 
-          onClick={toggleSidebar}
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          className="d-none d-lg-flex position-absolute top-50 start-100 translate-middle rounded-circle border border-white border-opacity-10 align-items-center justify-content-center shadow-lg hover-scale-110 active-scale-90"
-          style={{ 
-            width: '32px', 
-            height: '32px', 
-            zIndex: 101, 
-            marginLeft: '-4px', 
-            cursor: 'pointer', 
-            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            background: 'rgba(9, 19, 40, 1)',
-            border: '1px solid rgba(43, 221, 102, 0.3)'
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" 
-               style={{ transform: isCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)', color: '#2bdd66' }}>
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
 
         {/* MOBILE CLOSE BUTTON */}
         <button 
@@ -128,91 +102,77 @@ export default function Sidebar() {
         </button>
         
         {/* BRANDING */}
-        <div className={`pt-5 pb-4 mb-4 ${isCollapsed ? 'd-flex justify-content-center' : 'px-4'}`} style={{ transition: 'all 0.4s ease' }}>
-          <Link href="/" className="d-flex align-items-center gap-3 text-decoration-none hover-tilt group">
-            <div className="rounded-4 overflow-hidden d-flex align-items-center justify-content-center shadow-2xl bg-white p-2 flex-shrink-0" 
-                 style={{ width: '52px', height: '52px', border: '2px solid rgba(43, 221, 102, 0.1)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
+        <div className="pt-5 pb-4 mb-4 px-3" style={{ transition: 'all 0.4s ease', paddingLeft: '1.2rem' }}>
+          <Link href="/" className="d-flex align-items-center gap-3 text-decoration-none hover-tilt group text-nowrap">
+            <div className="rounded-4 d-flex align-items-center justify-content-center shadow-2xl bg-white p-2 flex-shrink-0" 
+                 style={{ width: '48px', height: '48px', border: '2px solid rgba(43, 221, 102, 0.1)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
               <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
-            <span className={`fs-1 fw-black d-flex align-items-center animate-fade-in ${isCollapsed ? 'd-lg-none' : ''}`} style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.05em' }}>
+            <span className="fs-3 fw-black d-flex align-items-center" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.05em', opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }}>
               <span className="text-white">Load</span><span style={{ color: '#2bdd66' }}>Flow</span>
             </span>
           </Link>
         </div>
 
         {/* NAVIGATION SECTIONS */}
-        <div className={`flex-grow-1 p-3 d-flex flex-column gap-3 overflow-auto no-scrollbar ${isCollapsed ? 'align-items-lg-center px-lg-0' : ''}`}>
-          {!isCollapsed && (
-            <label className="text-white text-uppercase x-small fw-black opacity-60 px-3 mb-2 tracking-widest mt-2 animate-fade-in d-none d-lg-block">
-              Workspace
-            </label>
-          )}
+        <div className="flex-grow-1 p-3 d-flex flex-column gap-3 overflow-y-auto overflow-x-hidden no-scrollbar">
+          <label className="text-white text-uppercase x-small fw-black opacity-60 px-3 mb-2 tracking-widest mt-2 text-nowrap" style={{ opacity: isCollapsed ? 0 : 0.6, transition: 'opacity 0.2s ease' }}>
+            Workspace
+          </label>
           
           <Link
             href="/dashboard"
-            title={isCollapsed ? "Dashboard" : ""}
-            className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative ${
-              isCollapsed ? 'justify-content-lg-center width-56-lg height-56-lg p-lg-0' : 'px-3 py-3 w-100'
-            } ${
+            className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
               pathname === '/dashboard' 
-              ? 'bg-emerald-glow text-white shadow-emerald border-emerald' 
+              ? 'bg-emerald-glow shadow-emerald border-emerald' 
               : 'text-white-50 hover-bg-white-5 hover-text-white'
             }`}
-             style={{ padding: '1rem' }}
           >
-            {isCollapsed && pathname === '/dashboard' && <div className="active-indicator-compact d-none d-lg-block bg-emerald shadow-emerald"></div>}
-            <div className="icon-wrapper d-flex align-items-center justify-content-center">
+            {pathname === '/dashboard' && <div className="active-indicator-compact bg-emerald shadow-emerald"></div>}
+            <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${pathname === '/dashboard' ? 'text-emerald' : ''}`} style={{ width: '24px' }}>
               <LayoutGridIcon />
             </div>
-            <span className={`animate-fade-in ${isCollapsed ? 'd-lg-none' : ''}`}>Dashboard</span>
+            <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname === '/dashboard' ? 'text-white' : ''}>Dashboard</span>
           </Link>
 
           {user?.role === 'Dispatcher' && (
             <button
               onClick={handleCreateLoad}
-              title={isCollapsed ? "Create New Load" : ""}
-              className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 border-0 text-start group position-relative ${
-                isCollapsed ? 'justify-content-lg-center width-56-lg height-56-lg p-lg-0' : 'px-3 py-3 w-100'
-              } ${
+              className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 border-0 text-start group position-relative px-3 py-3 w-100 text-nowrap ${
                 isCreateModalOpen 
-                ? 'bg-emerald-glow text-white shadow-emerald border-emerald' 
+                ? 'bg-emerald-glow shadow-emerald border-emerald' 
                 : 'text-white-50 bg-transparent hover-bg-white-5 hover-text-white'
               }`}
-               style={{ padding: '1rem' }}
             >
-              {isCollapsed && isCreateModalOpen && <div className="active-indicator-compact d-none d-lg-block bg-emerald shadow-emerald"></div>}
-              <div className="icon-wrapper d-flex align-items-center justify-content-center">
+              {isCreateModalOpen && <div className="active-indicator-compact bg-emerald shadow-emerald"></div>}
+              <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${isCreateModalOpen ? 'text-emerald' : ''}`} style={{ width: '24px' }}>
                 <PackagePlusIcon />
               </div>
-              <span className={`animate-fade-in ${isCollapsed ? 'd-lg-none' : ''}`}>Create New Load</span>
+              <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={isCreateModalOpen ? 'text-white' : ''}>Create New Load</span>
             </button>
           )}
 
           {user?.role === 'Admin' && (
              <Link
                 href="/dashboard/users"
-                title={isCollapsed ? "User Management" : ""}
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative ${
-                  isCollapsed ? 'justify-content-lg-center width-56-lg height-56-lg p-lg-0' : 'px-3 py-3 w-100'
-                } ${
-                  pathname === '/dashboard/users' 
-                  ? 'bg-admin-glow text-white shadow-admin border-admin' 
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
+                  pathname.startsWith('/dashboard/users') 
+                  ? 'bg-admin-glow shadow-admin border-admin' 
                   : 'text-white-50 hover-bg-white-5 hover-text-white'
                 }`}
-                style={{ padding: '1rem' }}
              >
-                {isCollapsed && pathname === '/dashboard/users' && <div className="active-indicator-compact d-none d-lg-block bg-blue shadow-admin"></div>}
-                <div className="icon-wrapper d-flex align-items-center justify-content-center">
+                {pathname.startsWith('/dashboard/users') && <div className="active-indicator-compact bg-blue shadow-admin"></div>}
+                <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${pathname.startsWith('/dashboard/users') ? 'text-blue' : ''}`} style={{ width: '24px' }}>
                   <UsersIcon />
                 </div>
-                <span className={`animate-fade-in ${isCollapsed ? 'd-lg-none' : ''}`}>User Management</span>
+                <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/users') ? 'text-white' : ''}>User Management</span>
              </Link>
           )}
         </div>
 
         {/* FOOTER / PROFILE - GLASS CARD */}
-        <div className={`mt-auto pb-4 ${isCollapsed ? 'px-lg-2' : 'px-3'}`}>
-           <div className={`rounded-4 bg-glass-10 border border-white border-opacity-10 p-1 shadow-profile-compact ${isCollapsed ? 'd-lg-flex justify-content-lg-center' : ''}`} style={{ transition: 'all 0.4s ease' }}>
+        <div className="mt-auto pb-4 px-2" style={{ transition: 'all 0.4s ease' }}>
+           <div className="rounded-4 bg-glass-10 border border-white border-opacity-10 p-1 shadow-profile-compact">
              <UserSidebarProfile isCollapsed={isCollapsed} />
            </div>
         </div>
@@ -240,14 +200,18 @@ export default function Sidebar() {
 
           .active-indicator-compact {
              position: absolute;
-             left: -8px;
+             left: 0;
+             top: 50%;
+             transform: translateY(-50%);
              width: 4px;
              height: 24px;
              border-radius: 0 4px 4px 0;
              transition: all 0.3s ease;
           }
           .bg-emerald { background: #2bdd66; }
+          .text-emerald { color: #2bdd66; }
           .bg-blue { background: #3b82f6; }
+          .text-blue { color: #3b82f6; }
           .icon-wrapper { transition: all 0.3s ease; }
           .group:hover .icon-wrapper { transform: scale(1.1); color: white !important; }
 
@@ -262,11 +226,11 @@ export default function Sidebar() {
           .shadow-2xl { box-shadow: 15px 0 60px -10px rgba(0,0,0,0.6); }
           .shadow-profile-compact { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
           
-          .bg-emerald-glow { background: linear-gradient(135deg, rgba(43, 221, 102, 0.2) 0%, rgba(43, 221, 102, 0.05) 100%); border: 1px solid rgba(43, 221, 102, 0.2) !important; color: #2bdd66 !important; box-shadow: 0 0 30px rgba(43, 221, 102, 0.1); }
+          .bg-emerald-glow { background: linear-gradient(135deg, rgba(43, 221, 102, 0.2) 0%, rgba(43, 221, 102, 0.05) 100%); border: 1px solid rgba(43, 221, 102, 0.2) !important; box-shadow: 0 0 30px rgba(43, 221, 102, 0.1); }
           .shadow-emerald { box-shadow: 0 8px 25px -5px rgba(43, 221, 102, 0.3); }
           .border-emerald { border: 1px solid rgba(43, 221, 102, 0.3) !important; }
           
-          .bg-admin-glow { background: linear-gradient(135deg, rgba(30, 64, 175, 0.2) 0%, rgba(30, 64, 175, 0.05) 100%); color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.2) !important; }
+          .bg-admin-glow { background: linear-gradient(135deg, rgba(30, 64, 175, 0.2) 0%, rgba(30, 64, 175, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.2) !important; }
           .shadow-admin { box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.2); }
           .border-admin { border: 1px solid rgba(59, 130, 246, 0.3) !important; }
           

@@ -53,7 +53,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // Update fields from body
     Object.keys(body).forEach((key) => {
       if (key !== '_id' && key !== '__v' && key !== 'createdAt' && key !== 'updatedAt') {
-        load[key] = body[key];
+        load.set(key, body[key]);
       }
     });
 
