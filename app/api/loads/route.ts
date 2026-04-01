@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Load, { IStop } from "@/models/Load";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   try {
@@ -57,22 +58,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing or invalid required fields (loadNumber, pickups, deliveries, quantity, weight)" }, { status: 400 });
     }
 
+    const { getMockCoordinates, calculateMockRouteStats } = await import('@/lib/maps');
+
+    const enrichedPickups = await Promise.all(pickups.map(async (p: IStop) => {
+      const coords = await getMockCoordinates(p.address, p.city, p.state);
+      return { ...p, date: new Date(p.date), lat: coords.lat, lng: coords.lng };
+    }));
+    
+    const enrichedDeliveries = await Promise.all(deliveries.map(async (d: IStop) => {
+      const coords = await getMockCoordinates(d.address, d.city, d.state);
+      return { ...d, date: new Date(d.date), lat: coords.lat, lng: coords.lng };
+    }));
+
+    const routeStats = await calculateMockRouteStats(enrichedPickups, enrichedDeliveries);
+
     const newLoad = await Load.create({
       loadNumber,
-      pickups: pickups.map((p: IStop) => ({
-        ...p,
-        date: new Date(p.date)
-      })),
-      deliveries: deliveries.map((d: IStop) => ({
-        ...d,
-        date: new Date(d.date)
-      })),
+      pickups: enrichedPickups,
+      deliveries: enrichedDeliveries,
+      totalDistance: routeStats.distance,
+      estimatedDuration: routeStats.duration,
       quantity: Number(quantity),
       quantityUnit,
       weight: Number(weight),
       weightUnit,
       createdBy: user!.id,
       status: 'PENDING'
+    });
+
+    await logAction({
+      req,
+      userId: user!.id,
+      action: 'LOAD_CREATED',
+      entityType: 'Load',
+      entityId: newLoad._id.toString(),
+      details: { loadNumber },
     });
 
     return NextResponse.json(newLoad, { status: 201 });

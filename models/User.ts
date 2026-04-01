@@ -18,6 +18,9 @@ export interface IUser extends Document {
   loginAttempts?: number;
   isLocked?: boolean;
   lockedUntil?: Date | null;
+  tokenVersion: number;              // Session Revocation: Increment this to instantly invalidate all JWTs for this user
+  twoFactorSecret?: string;          // 2FA TOTP secret string
+  isTwoFactorEnabled: boolean;       // Whether the user has setup 2FA
   createdAt: Date;
 }
 
@@ -44,6 +47,9 @@ const UserSchema = new Schema<IUser>(
     loginAttempts: { type: Number, default: 0 },
     isLocked: { type: Boolean, default: false },
     lockedUntil: { type: Date, default: null },
+    tokenVersion: { type: Number, default: 0 },
+    twoFactorSecret: { type: String, required: false },
+    isTwoFactorEnabled: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
   },
   {

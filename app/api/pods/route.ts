@@ -26,6 +26,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File and loadId are required" }, { status: 400 });
     }
 
+    // ── FILE TYPE & SIZE GUARD ─────────────────────────────────────────────────────
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'File is too large. Maximum allowed size is 10 MB.' },
+        { status: 400 }
+      );
+    }
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only image files (JPEG, PNG, WEBP, etc.) are accepted.' },
+        { status: 400 }
+      );
+    }
+
     await dbConnect();
 
     // Verify load exists and if Driver, belongs to them

@@ -5,8 +5,15 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email: rawEmail, password, confirmPassword } = await req.json();
-    const email = rawEmail?.toLowerCase().trim();
+    const body = await req.json();
+    const { email: rawEmail, password, confirmPassword } = body;
+
+    // ── INPUT TYPE GUARD ─────────────────────────────────────────────────────
+    if (typeof rawEmail !== 'string' || typeof password !== 'string' || typeof confirmPassword !== 'string') {
+      return NextResponse.json({ error: 'Invalid input types' }, { status: 400 });
+    }
+
+    const email = rawEmail.toLowerCase().trim();
 
     if (!email || !password || !confirmPassword) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });

@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import { checkRateLimit } from '@/lib/ratelimit';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email: rawEmail } = await req.json();
-    const email = rawEmail?.toLowerCase().trim();
+    // ── RATE LIMIT ───────────────────────────────────────────────────────────
+    const limitResponse = checkRateLimit(req, { max: 5, windowMs: 60 * 60 * 1000 });
+    if (limitResponse) return limitResponse;
+
+    const body = await req.json();
+    const { email: rawEmail } = body;
+
+    // ── INPUT TYPE GUARD ─────────────────────────────────────────────────────
+    if (typeof rawEmail !== 'string') {
+      return NextResponse.json({ error: 'Invalid input types' }, { status: 400 });
+    }
+
+    const email = rawEmail.toLowerCase().trim();
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });

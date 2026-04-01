@@ -3,11 +3,20 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/ratelimit';
+import { logAction } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email: rawEmail, password, role } = await req.json();
-    const email = rawEmail?.toLowerCase().trim();
+    const body = await req.json();
+    const { name, email: rawEmail, password, role } = body;
+
+    // ── INPUT TYPE GUARD ─────────────────────────────────────────────────────
+    if (typeof rawEmail !== 'string') {
+      return NextResponse.json({ error: 'Invalid input types' }, { status: 400 });
+    }
+
+    const email = rawEmail.toLowerCase().trim();
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -35,6 +44,7 @@ export async function POST(req: NextRequest) {
         existingUser.role = role || existingUser.role;
         if (passwordHash) existingUser.passwordHash = passwordHash;
         await existingUser.save();
+        await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITE_UPDATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email, role } });
         return NextResponse.json({ message: 'Invitation updated successfully' }, { status: 200 });
       } else {
         // Create new invitation
@@ -46,10 +56,15 @@ export async function POST(req: NextRequest) {
           isPending: !password, // If no password provided, it's a pending invitation
         });
         await newUser.save();
+        await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITED', entityType: 'User', entityId: newUser._id.toString(), details: { email, role } });
         return NextResponse.json({ message: 'Invitation sent successfully', userId: newUser._id }, { status: 201 });
       }
     } else {
       // PUBLIC MODE: Self-Registration
+      // ── RATE LIMIT (public path only — admin invites are RBAC-protected) ────────
+      const limitResponse = checkRateLimit(req, { max: 10, windowMs: 60 * 60 * 1000 });
+      if (limitResponse) return limitResponse;
+
       const { 
         phone, 
         licenseNumber, 
@@ -58,7 +73,7 @@ export async function POST(req: NextRequest) {
         city, 
         province, 
         postalCode 
-      } = await req.json().catch(() => ({})); 
+      } = body;
 
       if (!password) {
         return NextResponse.json({ error: 'Password is required' }, { status: 400 });
@@ -112,6 +127,8 @@ export async function POST(req: NextRequest) {
 
       existingUser.isPending = false;
       await existingUser.save();
+
+      await logAction({ req, userId: existingUser._id.toString(), action: 'USER_ACTIVATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email } });
 
       return NextResponse.json({ message: 'Account activated successfully' }, { status: 200 });
     }

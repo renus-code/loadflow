@@ -284,6 +284,22 @@ export default function UserManagement() {
     } catch (error) { console.error("Approve reset error:", error); }
   };
 
+  const handleRevokeSession = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to revoke all active sessions for ${name}? They will be instantly logged out.`)) return;
+    try {
+      const res = await fetch(`/api/users/${id}/revoke`, { method: "POST" });
+      if (res.ok) {
+        alert(`All sessions revoked for ${name}.`);
+        fetchUsers();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || 'Failed to revoke session');
+      }
+    } catch (error) {
+      console.error("Revoke error:", error);
+    }
+  };
+
   const openEditModal = (user: User) => {
     setEditingId(user._id);
     const nameParts = user.name.split(" ");
@@ -419,6 +435,7 @@ export default function UserManagement() {
                         {u.resetPasswordApproved && (
                           <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">Reset Approved</span>
                         )}
+                        <button onClick={() => handleRevokeSession(u._id, u.name)} className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all" style={{ fontSize: '0.75rem' }} title="Instantly log out this user everywhere">Revoke</button>
                         <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
                         <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
                       </div>
@@ -558,6 +575,8 @@ export default function UserManagement() {
         
         .btn-outline-white-20 { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
         .btn-outline-white-20:hover { background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.5); }
+        .btn-outline-warning-20 { border: 1px solid rgba(245, 158, 11, 0.3); color: rgba(245, 158, 11, 0.8); }
+        .btn-outline-warning-20:hover { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.5); }
         .btn-outline-danger-20 { border: 1px solid rgba(239, 68, 68, 0.3); color: rgba(239, 68, 68, 0.8); }
         .btn-outline-danger-20:hover { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.5); }
 

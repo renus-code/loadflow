@@ -9,6 +9,8 @@ export interface IStop {
   date: Date;
   time: string;
   status: 'PENDING' | 'PICKED_UP' | 'DELIVERED';
+  lat?: number;
+  lng?: number;
 }
 
 export interface ILoad extends Document {
@@ -22,6 +24,9 @@ export interface ILoad extends Document {
   quantityUnit: 'skids' | 'pallets' | 'packages' | 'pieces' | 'box' | 'cases';
   weight: number;
   weightUnit: 'lbs' | 'kg';
+  
+  totalDistance?: number;       // In miles (mock feature)
+  estimatedDuration?: number;   // In hours (mock feature)
   
   truckType?: 'Sleeper Cab' | 'Day Cab' | null;
   trailerType?: 'Dry Van' | 'Reefer' | 'Tri Axle' | 'Flatbed' | null;
@@ -44,6 +49,8 @@ const StopSchema = new Schema({
   appointmentNumber: { type: String, required: true },
   date: { type: Date, required: true },
   time: { type: String, required: true },
+  lat: { type: Number, required: false },
+  lng: { type: Number, required: false },
   status: { type: String, enum: ['PENDING', 'PICKED_UP', 'DELIVERED'], default: 'PENDING' },
 }, { _id: false });
 
@@ -66,6 +73,9 @@ const LoadSchema: Schema = new Schema({
     required: true, 
     enum: ['lbs', 'kg'] 
   },
+
+  totalDistance: { type: Number, required: false },
+  estimatedDuration: { type: Number, required: false },
 
   truckType: { type: String, enum: ['Sleeper Cab', 'Day Cab'], default: null },
   trailerType: { type: String, enum: ['Dry Van', 'Reefer', 'Tri Axle', 'Flatbed'], default: null },

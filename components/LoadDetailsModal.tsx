@@ -773,6 +773,41 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           </div>
                         </div>
                       </div>
+
+                      {/* ROUTE STATS */}
+                      {(load.totalDistance != null || load.estimatedDuration != null) && (
+                        <div className="row mt-4 pt-4 border-top border-white border-opacity-5 animate-fade-in">
+                          <div className="col-6">
+                            <div className="d-flex align-items-center gap-2 mb-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-emerald opacity-70">
+                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                                <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+                              </svg>
+                              <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
+                                Route Distance
+                              </label>
+                            </div>
+                            <div className="fw-black fs-3 text-white">
+                              {load.totalDistance ? load.totalDistance.toLocaleString() : "—"}{" "}
+                              <span className="opacity-40 fs-6 fw-medium">mi</span>
+                            </div>
+                          </div>
+                          <div className="col-6 text-end">
+                            <div className="d-flex align-items-center justify-content-end gap-2 mb-1">
+                              <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
+                                Est. Transit Time
+                              </label>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-emerald opacity-70">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                              </svg>
+                            </div>
+                            <div className="fw-black fs-3 text-white">
+                              {load.estimatedDuration ? load.estimatedDuration.toLocaleString() : "—"}{" "}
+                              <span className="opacity-40 fs-6 fw-medium">hrs</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

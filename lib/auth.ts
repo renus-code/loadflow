@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 
 export async function getUserFromRequest(req: NextRequest) {
   try {
@@ -11,7 +13,15 @@ export async function getUserFromRequest(req: NextRequest) {
     );
 
     const { payload } = await jwtVerify(token, secret);
-    return payload as { id: string; role: 'Admin' | 'Dispatcher' | 'Driver' };
+    
+    // Deep token verification against Database
+    await dbConnect();
+    const dbUser = await User.findById(payload.id).select('tokenVersion');
+    if (!dbUser || dbUser.tokenVersion !== payload.tokenVersion) {
+      return null;
+    }
+
+    return payload as { id: string; role: 'Admin' | 'Dispatcher' | 'Driver'; tokenVersion: number };
   } catch (error) {
     return null;
   }

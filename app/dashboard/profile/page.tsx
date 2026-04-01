@@ -43,6 +43,13 @@ export default function ProfilePage() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [isCheckingPassword, setIsCheckingPassword] = useState(false);
 
+  // 2FA State
+  const [twoFactorQr, setTwoFactorQr] = useState<string>('');
+  const [twoFactorSecret, setTwoFactorSecret] = useState<string>('');
+  const [twoFactorCode, setTwoFactorCode] = useState<string>('');
+  const [isGenerating2FA, setIsGenerating2FA] = useState(false);
+  const [isVerifying2FA, setIsVerifying2FA] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -134,6 +141,50 @@ export default function ProfilePage() {
       setMessage({ type: "danger", text: "Connection error. Please try again." });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generate2FA = async () => {
+    setIsGenerating2FA(true);
+    setMessage({ type: "", text: "" });
+    try {
+      const res = await fetch("/api/auth/2fa/generate", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setTwoFactorQr(data.qrCode);
+        setTwoFactorSecret(data.secret);
+      } else {
+        setMessage({ type: "danger", text: data.error || "Failed to generate 2FA" });
+      }
+    } catch {
+      setMessage({ type: "danger", text: "Connection error" });
+    } finally {
+      setIsGenerating2FA(false);
+    }
+  };
+
+  const verify2FA = async () => {
+    if (!twoFactorCode) return;
+    setIsVerifying2FA(true);
+    setMessage({ type: "", text: "" });
+    try {
+      const res = await fetch("/api/auth/2fa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: twoFactorCode })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage({ type: "success", text: "Two-Factor Authentication successfully enabled!" });
+        setTwoFactorQr('');
+        refreshUser();
+      } else {
+        setMessage({ type: "danger", text: data.error || "Failed to verify 2FA code" });
+      }
+    } catch {
+      setMessage({ type: "danger", text: "Connection error" });
+    } finally {
+      setIsVerifying2FA(false);
     }
   };
 
@@ -372,6 +423,99 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </form>
+
+              {/* TWO-FACTOR AUTHENTICATION SECTION */}
+              <div className="row g-3 mt-4">
+                <div className="col-12">
+                   <h5 className="label-modern text-orange d-flex align-items-center gap-2">
+                      <div className="bg-orange bg-opacity-20 p-1 rounded-circle flex-shrink-0" style={{ width: '6px', height: '6px' }}></div>
+                      Two-Factor Authentication (2FA)
+                   </h5>
+                </div>
+
+                <div className="col-12">
+                  <div className="security-section rounded-3 p-4 border border-white border-opacity-05 position-relative overflow-hidden">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+                      <div>
+                        <div className="d-flex align-items-center gap-3 mb-2">
+                          <div className="d-flex align-items-center justify-content-center rounded-circle" style={{ width: 44, height: 44, background: (user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.15)' : 'rgba(255, 255, 255, 0.05)', border: `1px solid ${(user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.3)' : 'rgba(255, 255, 255, 0.1)'}` }}>
+                            <ShieldCheckIcon />
+                          </div>
+                          <div>
+                            <h6 className="text-white fw-bold mb-1 fs-5">Authenticator App</h6>
+                            <p className={`mb-0 small fw-bold ${(user as any).isTwoFactorEnabled ? 'text-emerald' : 'text-white-50'}`}>
+                              {(user as any).isTwoFactorEnabled ? 'Status: Active and Securing Your Account' : 'Status: Disabled — Setup Recommended'}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-white text-opacity-60 small mt-3 mb-0" style={{ maxWidth: '400px' }}>
+                          Add an extra layer of security to your account by requiring a 6-digit code from your authenticator app (like Google Authenticator or Authy) when signing in.
+                        </p>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        {!(user as any).isTwoFactorEnabled && !twoFactorQr && (
+                          <button 
+                            type="button" 
+                            className="btn btn-outline-light px-4 py-2 rounded-pill fw-bold"
+                            onClick={generate2FA}
+                            disabled={isGenerating2FA}
+                          >
+                            {isGenerating2FA ? 'Generating...' : 'Setup 2FA Now'}
+                          </button>
+                        )}
+                        {(user as any).isTwoFactorEnabled && (
+                          <div className="badge rounded-pill fw-black px-3 py-2 text-uppercase" style={{ background: '#2bdd66', color: '#0d1117', letterSpacing: '0.1em' }}>
+                            <i className="bi bi-shield-lock-fill me-2"></i>Enabled
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* QR Code Setup Area */}
+                    {twoFactorQr && (
+                      <div className="mt-4 pt-4 border-top border-white border-opacity-10 animate-fade-in">
+                        <div className="row align-items-center">
+                          <div className="col-md-5 text-center text-md-start mb-4 mb-md-0">
+                            <h6 className="text-white fw-bold">1. Scan the QR Code</h6>
+                            <p className="text-white-50 small mb-3">Open your authenticator app and scan this code.</p>
+                            <div className="bg-white p-2 rounded-4 d-inline-block shadow-lg mx-auto mx-md-0">
+                              <img src={twoFactorQr} alt="2FA QR Code" width="160" height="160" className="rounded-3" />
+                            </div>
+                            <div className="mt-3">
+                              <span className="text-white-50 x-small text-uppercase tracking-widest d-block mb-1">Manual Secret Key</span>
+                              <code className="text-orange user-select-all bg-dark px-2 py-1 rounded border border-white border-opacity-10">{twoFactorSecret}</code>
+                            </div>
+                          </div>
+                          <div className="col-md-7">
+                            <h6 className="text-white fw-bold">2. Enter Verification Code</h6>
+                            <p className="text-white-50 small mb-3">Type the 6-digit code generated by the app.</p>
+                            <div className="d-flex gap-3 max-w-sm">
+                              <input 
+                                type="text" 
+                                className="form-control glass-input text-center fs-4 letter-spacing-2 flex-grow-1" 
+                                placeholder="000 000" 
+                                maxLength={6}
+                                value={twoFactorCode}
+                                onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                                style={{ letterSpacing: '0.25em' }}
+                              />
+                              <button 
+                                type="button" 
+                                className="btn btn-emerald-premium rounded-3 px-4 fw-bold"
+                                onClick={verify2FA}
+                                disabled={isVerifying2FA || twoFactorCode.length !== 6}
+                              >
+                                {isVerifying2FA ? 'Verifying...' : 'Verify'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -411,7 +555,9 @@ export default function ProfilePage() {
         .badge-premium { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: white; font-weight: 800; text-transform: uppercase; }
         .bg-emerald { background-color: #2bdd66 !important; }
         .security-section { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .btn-emerald-premium { background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); box-shadow: 0 8px 30px rgba(43, 221, 102, 0.3); }
+        .btn-emerald-premium { background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); box-shadow: 0 8px 30px rgba(43, 221, 102, 0.3); color: #0d1117 !important; }
+        .text-orange { color: #ff6b00; }
+        .bg-orange { background-color: #ff6b00 !important; }
         .alert-premium { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
         .alert-success { background: rgba(43, 221, 102, 0.08); color: #2bdd66; }
         .alert-error { background: rgba(239, 68, 68, 0.08); color: #f87171; }

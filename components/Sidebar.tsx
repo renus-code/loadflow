@@ -29,6 +29,15 @@ const UsersIcon = ({ active }: { active?: boolean }) => (
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
+const ScrollTextIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <line x1="10" y1="9" x2="8" y2="9" />
+  </svg>
+);
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -166,6 +175,23 @@ export default function Sidebar() {
                   <UsersIcon active={pathname.startsWith('/dashboard/users')} />
                 </div>
                 <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/users') ? 'text-white' : ''}>User Management</span>
+             </Link>
+          )}
+
+          {user?.role === 'Admin' && (
+             <Link
+                href="/dashboard/audit"
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
+                  pathname.startsWith('/dashboard/audit') 
+                  ? 'bg-admin-glow shadow-admin border-admin' 
+                  : 'text-white-50 hover-bg-white-5 hover-text-white'
+                }`}
+             >
+                {pathname.startsWith('/dashboard/audit') && <div className="active-indicator-compact bg-blue shadow-admin"></div>}
+                <div className={`icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0 ${pathname.startsWith('/dashboard/audit') ? 'text-blue' : ''}`} style={{ width: '24px' }}>
+                  <ScrollTextIcon />
+                </div>
+                <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/audit') ? 'text-white' : ''}>Audit Logs</span>
              </Link>
           )}
         </div>

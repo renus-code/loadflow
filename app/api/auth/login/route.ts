@@ -1,16 +1,28 @@
 // Login API: Checks passwords and sets a secure login cookie.
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import { checkRateLimit } from '@/lib/ratelimit';
 
 const MAX_ATTEMPTS = 3; // Lock after 3 failed attempts
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { email: rawEmail, password } = await req.json();
-    const email = rawEmail?.toLowerCase().trim();
+    // ── RATE LIMIT ───────────────────────────────────────────────────────────
+    const limitResponse = checkRateLimit(req, { max: 10, windowMs: 15 * 60 * 1000 });
+    if (limitResponse) return limitResponse;
+
+    const body = await req.json();
+    const { email: rawEmail, password } = body;
+
+    // ── INPUT TYPE GUARD ─────────────────────────────────────────────────────
+    if (typeof rawEmail !== 'string' || typeof password !== 'string') {
+      return NextResponse.json({ error: 'Invalid input types' }, { status: 400 });
+    }
+
+    const email = rawEmail.toLowerCase().trim();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -68,6 +80,25 @@ export async function POST(req: Request) {
       );
     }
 
+    // ── 2FA CHECK ────────────────────────────────────────────────────────────
+    if (user.isTwoFactorEnabled) {
+      const { code } = body;
+      
+      if (!code) {
+        return NextResponse.json(
+          { message: 'Two-factor authentication required', requires2FA: true },
+          { status: 200 }
+        );
+      }
+
+      const { verify } = await import('otplib');
+      const result = await verify({ token: code, secret: user.twoFactorSecret! });
+
+      if (!result.valid) {
+        return NextResponse.json({ error: 'Invalid two-factor authentication code' }, { status: 400 });
+      }
+    }
+
     // ── SUCCESS — reset attempt counter ──────────────────────────────────────
     await User.findByIdAndUpdate(user._id, { loginAttempts: 0, isLocked: false });
 
@@ -75,7 +106,11 @@ export async function POST(req: Request) {
     const secret = new TextEncoder().encode(
       process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod'
     );
-    const token = await new SignJWT({ id: user._id.toString(), role: user.role })
+    const token = await new SignJWT({ 
+      id: user._id.toString(), 
+      role: user.role, 
+      tokenVersion: user.tokenVersion || 0 
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('24h')
