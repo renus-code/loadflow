@@ -26,6 +26,10 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    if (user.role === 'Admin' && userPayload?.id !== user._id.toString()) {
+      // NOTE: Allow Admins to approve resets for other Admins for password recovery
+    }
+
     // Approve the reset: set approved to true and request to false
     user.resetPasswordApproved = true;
     user.resetPasswordRequested = false;

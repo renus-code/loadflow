@@ -1,10 +1,19 @@
 // Login API: Checks passwords and sets a secure login cookie.
+<<<<<<< Updated upstream
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { checkRateLimit } from '@/lib/ratelimit';
+=======
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { SignJWT } from "jose";
+import connectToDatabase from "@/lib/mongodb";
+import User from "@/models/User";
+import Notification from "@/models/Notification";
+>>>>>>> Stashed changes
 
 const MAX_ATTEMPTS = 3; // Lock after 3 failed attempts
 
@@ -25,26 +34,32 @@ export async function POST(req: NextRequest) {
     const email = rawEmail.toLowerCase().trim();
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 },
+      );
     }
 
     await connectToDatabase();
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 },
+      );
     }
 
     // ── LOCKOUT CHECK ────────────────────────────────────────────────────────
-    if (user.isLocked) {
+    if (user.isLocked && user.role !== "Admin") {
       return NextResponse.json(
         {
-          error: 'Account is locked',
+          error: "Account is locked",
           locked: true,
           message:
-            'Your account has been locked due to too many failed login attempts. Please contact an administrator to unlock your account, or submit a password reset request.',
+            "Your account has been locked due to too many failed login attempts. Please contact an administrator to unlock your account, or submit a password reset request.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -53,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (!isMatch) {
       const newAttempts = (user.loginAttempts || 0) + 1;
 
-      if (newAttempts >= MAX_ATTEMPTS) {
+      if (newAttempts >= MAX_ATTEMPTS && user.role !== "Admin") {
         // Lock the account
         await User.findByIdAndUpdate(user._id, {
           loginAttempts: newAttempts,
@@ -61,22 +76,30 @@ export async function POST(req: NextRequest) {
         });
         return NextResponse.json(
           {
-            error: 'Account locked',
+            error: "Account locked",
             locked: true,
             message: `Account locked after ${MAX_ATTEMPTS} failed attempts. Contact your administrator to unlock it.`,
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
       // Increment attempt counter
       await User.findByIdAndUpdate(user._id, { loginAttempts: newAttempts });
+
+      if (user.role === "Admin") {
+        return NextResponse.json(
+          { error: "Invalid credentials" },
+          { status: 401 },
+        );
+      }
+
       const remaining = MAX_ATTEMPTS - newAttempts;
       return NextResponse.json(
         {
-          error: `Invalid credentials. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining before account lockout.`,
+          error: `Invalid credentials. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining before account lockout.`,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -100,38 +123,56 @@ export async function POST(req: NextRequest) {
     }
 
     // ── SUCCESS — reset attempt counter ──────────────────────────────────────
-    await User.findByIdAndUpdate(user._id, { loginAttempts: 0, isLocked: false });
+    await User.findByIdAndUpdate(user._id, {
+      loginAttempts: 0,
+      isLocked: false,
+    });
 
     // Generate JWT
     const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || 'fallback_secret_for_development_do_not_use_in_prod'
+      process.env.JWT_SECRET ||
+        "fallback_secret_for_development_do_not_use_in_prod",
     );
+<<<<<<< Updated upstream
     const token = await new SignJWT({ 
       id: user._id.toString(), 
       role: user.role, 
       tokenVersion: user.tokenVersion || 0 
     })
       .setProtectedHeader({ alg: 'HS256' })
+=======
+    const token = await new SignJWT({
+      id: user._id.toString(),
+      role: user.role,
+    })
+      .setProtectedHeader({ alg: "HS256" })
+>>>>>>> Stashed changes
       .setIssuedAt()
-      .setExpirationTime('24h')
+      .setExpirationTime("24h")
       .sign(secret);
 
     const response = NextResponse.json(
-      { message: 'Login successful', user: { id: user._id, name: user.name, role: user.role } },
-      { status: 200 }
+      {
+        message: "Login successful",
+        user: { id: user._id, name: user.name, role: user.role },
+      },
+      { status: 200 },
     );
 
-    response.cookies.set('token', token, {
+    response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 60 * 60 * 24,
-      path: '/',
+      path: "/",
     });
 
     return response;
   } catch (error: unknown) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

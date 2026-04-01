@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import Notification from '@/models/Notification';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { logAction } from '@/lib/audit';
@@ -25,15 +26,18 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     const existingUser = await User.findOne({ email });
 
-    // Check if the request is from an Admin (to create an invitation)
-    const adminPayload = await getUserFromRequest(req);
-    const isAdmin = requireRole(adminPayload, ['Admin']);
+    const userPayload = await getUserFromRequest(req);
+    const isAdmin = requireRole(userPayload, ['Admin']);
+    const isDispatcher = requireRole(userPayload, ['Dispatcher']);
 
-    if (isAdmin) {
-      // ADMIN MODE: Create or Update Invitation
+    if (isAdmin || (isDispatcher && (role === 'Driver' || !role))) {
+      // ADMIN or DISPATCHER MODE: Create invitation/request
       if (existingUser && !existingUser.isPending) {
         return NextResponse.json({ error: 'User already exists and is fully registered' }, { status: 400 });
       }
+
+      // Enforce Driver role if requester is Dispatcher
+      const targetRole = isDispatcher ? 'Driver' : (role || 'Driver');
 
       const salt = password ? await bcrypt.genSalt(10) : null;
       const passwordHash = password ? await bcrypt.hash(password, salt!) : undefined;
@@ -41,24 +45,46 @@ export async function POST(req: NextRequest) {
       if (existingUser) {
         // Update existing pending user
         existingUser.name = name || existingUser.name;
-        existingUser.role = role || existingUser.role;
+        existingUser.role = targetRole;
         if (passwordHash) existingUser.passwordHash = passwordHash;
         await existingUser.save();
         await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITE_UPDATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email, role } });
         return NextResponse.json({ message: 'Invitation updated successfully' }, { status: 200 });
       } else {
-        // Create new invitation
+        // Create new invitation or request
         const newUser = new User({
           name: name || 'Invited User',
           email,
           passwordHash: passwordHash || null,
-          role: role || 'Driver',
-          isPending: !password, // If no password provided, it's a pending invitation
+          role: targetRole,
+          isPending: true, // Dispatchers always create pending users
+          requestedBy: isDispatcher ? userPayload!.id : undefined
         });
         await newUser.save();
+<<<<<<< Updated upstream
         await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITED', entityType: 'User', entityId: newUser._id.toString(), details: { email, role } });
         return NextResponse.json({ message: 'Invitation sent successfully', userId: newUser._id }, { status: 201 });
+=======
+
+        // Create Admin Notification for Dispatcher requests
+        if (isDispatcher) {
+          try {
+            await Notification.create({
+              message: `New driver request: ${name || email} submitted by Dispatcher ${userPayload!.email}`,
+              type: 'INFO',
+              targetRole: 'Admin',
+              link: '/dashboard/users'
+            });
+          } catch (notifErr) {
+            console.error('Failed to create notification:', notifErr);
+          }
+        }
+
+        return NextResponse.json({ message: 'Driver request submitted successfully', userId: newUser._id }, { status: 201 });
+>>>>>>> Stashed changes
       }
+    } else if (isDispatcher) {
+      return NextResponse.json({ error: 'Dispatchers can only request driver accounts.' }, { status: 403 });
     } else {
       // PUBLIC MODE: Self-Registration
       // ── RATE LIMIT (public path only — admin invites are RBAC-protected) ────────

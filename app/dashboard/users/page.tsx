@@ -18,7 +18,7 @@ export default function UsersPage() {
   }, [setSearchTerm]);
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'Admin')) {
+    if (!isLoading && (!user || (user.role !== 'Admin' && user.role !== 'Dispatcher'))) {
       router.push('/dashboard');
     }
   }, [user, isLoading, router]);

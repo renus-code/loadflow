@@ -19,18 +19,22 @@ export async function POST(
     }
 
     await connectToDatabase();
-
-    const user = await User.findByIdAndUpdate(
-      id,
-      { isLocked: false, loginAttempts: 0 },
-      { new: true }
-    );
-
-    if (!user) {
+    
+    // Restriction: Admins cannot unlock other Admins
+    const targetUser = await User.findById(id);
+    if (!targetUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    
+    if (targetUser.role === 'Admin' && userPayload?.id !== targetUser._id.toString()) {
+      return NextResponse.json({ error: 'Forbidden: Admins cannot unlock other Admin accounts' }, { status: 403 });
+    }
 
-    return NextResponse.json({ message: 'Account unlocked successfully', user });
+    targetUser.isLocked = false;
+    targetUser.loginAttempts = 0;
+    await targetUser.save();
+
+    return NextResponse.json({ message: 'Account unlocked successfully', user: targetUser });
   } catch (error) {
     console.error('Unlock error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

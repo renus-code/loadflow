@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import NotificationBell from "./NotificationBell";
 
 export default function MobileHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,17 +34,20 @@ export default function MobileHeader() {
           </span>
         </Link>
 
-        <button 
-          onClick={toggleMobileSidebar}
-          className="btn border-0 p-2 text-white bg-glass-white-10 rounded-3 hover-scale-110 active-scale-90"
-          aria-label="Toggle Menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <line x1="4" y1="6" x2="20" y2="6"></line>
-            <line x1="4" y1="18" x2="20" y2="18"></line>
-          </svg>
-        </button>
+        <div className="d-flex align-items-center gap-2">
+          <NotificationBell />
+          <button 
+            onClick={toggleMobileSidebar}
+            className="btn border-0 p-2 text-white bg-glass-white-10 rounded-3 hover-scale-110 active-scale-90"
+            aria-label="Toggle Menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <style jsx>{`

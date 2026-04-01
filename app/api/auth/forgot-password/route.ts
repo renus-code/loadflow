@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+<<<<<<< Updated upstream
 import { checkRateLimit } from '@/lib/ratelimit';
+=======
+import Notification from '@/models/Notification';
+>>>>>>> Stashed changes
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,6 +40,19 @@ export async function POST(req: NextRequest) {
     user.resetPasswordRequested = true;
     user.resetPasswordApproved = false; // Reset approval if it was previously approved but not used
     await user.save();
+
+    // Create a notification for Admins
+    try {
+      await Notification.create({
+        message: `Password reset requested by user: ${user.email} (${user.name})`,
+        type: 'WARNING',
+        targetRole: 'Admin',
+        link: '/dashboard/users'
+      });
+    } catch (notifErr) {
+      console.error('Failed to create notification:', notifErr);
+      // Don't fail the entire request if notification fails.
+    }
 
     return NextResponse.json({ 
       message: 'Password reset request has been sent to the administrator for approval.' 

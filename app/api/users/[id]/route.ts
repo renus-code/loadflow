@@ -47,6 +47,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const user = await User.findById(resolvedParams.id);
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
+    // Restriction: Admins cannot edit other Admins
+    if (user.role === 'Admin' && userPayload?.id !== user._id.toString()) {
+      return NextResponse.json({ error: 'Forbidden: Admins can only edit their own account' }, { status: 403 });
+    }
+
     // Update fields from body
     Object.keys(body).forEach((key) => {
       if (key !== '_id' && key !== '__v' && key !== 'createdAt' && key !== 'updatedAt') {
@@ -86,9 +91,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await connectToDatabase();
-    const user = await User.findByIdAndDelete(resolvedParams.id);
-    
+    const user = await User.findById(resolvedParams.id);
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+    // Restriction: Admins cannot delete any Admin account
+    if (user.role === 'Admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin accounts cannot be deleted' }, { status: 403 });
+    }
+
+    await User.findByIdAndDelete(resolvedParams.id);
+    
     return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error(error);

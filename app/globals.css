@@ -147,10 +147,12 @@ body {
     opacity: 0.6;
     transform: scale(1);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
   }
+
   100% {
     opacity: 0.6;
     transform: scale(1);
@@ -164,12 +166,15 @@ body {
 .border-neon-emerald {
   border-color: rgba(0, 255, 163, 0.3) !important;
 }
+
 .border-neon-indigo {
   border-color: rgba(99, 102, 241, 0.3) !important;
 }
+
 .bg-neon-emerald-opacity {
   background: rgba(0, 255, 163, 0.03);
 }
+
 .bg-neon-indigo-opacity {
   background: rgba(99, 102, 241, 0.03);
 }
@@ -209,6 +214,7 @@ body {
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -338,7 +344,7 @@ body {
   background-attachment: fixed;
 }
 
-/* ─── HYPER-PREMIUM THEME (FOODEARTH INSPIRED) ──────────────────────────── */
+/* ─── HYPER-PREMIUM THEME──────────────────────────── */
 .premium-bg {
   background:
     linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8)),
@@ -456,6 +462,7 @@ body {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   100% {
     transform: translate(50px, 50px) scale(1.2);
   }
@@ -464,9 +471,11 @@ body {
 .glow-emerald {
   background: radial-gradient(circle, #2bdd66 0%, transparent 70%);
 }
+
 .glow-indigo {
   background: radial-gradient(circle, #6366f1 0%, transparent 70%);
 }
+
 .glow-purple {
   background: radial-gradient(circle, #a855f7 0%, transparent 70%);
 }
@@ -647,15 +656,19 @@ body {
 .glow-primary {
   background: linear-gradient(135deg, #6366f1, #818cf8);
 }
+
 .glow-success {
   background: linear-gradient(135deg, #2bdd66, #10b981);
 }
+
 .glow-warning {
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
 }
+
 .glow-danger {
   background: linear-gradient(135deg, #ef4444, #dc2626);
 }
+
 .glow-info {
   background: linear-gradient(135deg, #0ea5e9, #38bdf8);
 }
@@ -708,6 +721,7 @@ iframe {
 
 /* Prevent iOS auto-zoom on inputs */
 @media screen and (max-width: 767px) {
+
   input,
   select,
   textarea {
@@ -724,7 +738,8 @@ iframe {
 /* Fix Mobile Bottom Navigation bar cutting off 100vh screens */
 .vh-100 {
   height: 100vh !important;
-  height: 100dvh !important; /* Dynamic viewport accounts for URL/Nav bars */
+  height: 100dvh !important;
+  /* Dynamic viewport accounts for URL/Nav bars */
 }
 
 .min-vh-100 {
@@ -737,9 +752,11 @@ iframe {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50rem;
 }
+
 .nav-pill-hover:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
+
 .nav-pill-hover.scrolled-hover:hover {
   background-color: rgba(0, 0, 0, 0.06);
 }
@@ -747,15 +764,84 @@ iframe {
 .ghost-btn {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .ghost-btn:hover {
   background-color: rgba(255, 255, 255, 0.25) !important;
   border-color: rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important;
   transform: translateY(-2px);
 }
+
 .ghost-btn.scrolled-ghost:hover {
   background-color: rgba(0, 0, 0, 0.1) !important;
   border-color: rgba(0, 0, 0, 0.5) !important;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-2px);
 }
+
+/* ─── SIDEBAR & NAVIGATION UTILITIES ─────────────────────────────────────── */
+.active-indicator-compact {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.icon-wrapper {
+  transition: all 0.3s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.group:hover .icon-wrapper {
+  transform: scale(1.1);
+}
+
+.bg-emerald-glow {
+  background: linear-gradient(
+    135deg,
+    rgba(43, 221, 102, 0.2) 0%,
+    rgba(43, 221, 102, 0.05) 100%
+  ) !important;
+  border: 1px solid rgba(43, 221, 102, 0.2) !important;
+  box-shadow: 0 0 30px rgba(43, 221, 102, 0.1);
+}
+
+.shadow-emerald {
+  box-shadow: 0 8px 25px -5px rgba(43, 221, 102, 0.3) !important;
+}
+
+.border-emerald {
+  border: 1px solid rgba(43, 221, 102, 0.3) !important;
+}
+
+.bg-admin-glow {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 175, 0.2) 0%,
+    rgba(30, 64, 175, 0.05) 100%
+  ) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+.shadow-admin {
+  box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.2) !important;
+}
+
+.border-admin {
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.hover-bg-white-5:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.hover-text-white:hover {
+  color: white !important;
+}

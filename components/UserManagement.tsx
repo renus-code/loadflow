@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useSearch } from "@/context/SearchContext";
+import { useAuth } from "@/context/AuthContext";
 
 // Portal — renders directly on document.body, escaping all parent stacking contexts
 function ModalPortal({ children }: { children: React.ReactNode }) {
@@ -177,6 +178,7 @@ export default function UserManagement() {
     resetPasswordApproved?: boolean;
     isLocked?: boolean;
     loginAttempts?: number;
+    requestedBy?: string;
     __v?: number;
   }
 
@@ -189,6 +191,7 @@ export default function UserManagement() {
   const setSearchTerm = useSearch((state) => state.setSearchTerm);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UserFormData>();
+  const currentUser = useAuth((state) => state.user);
 
   const fetchUsers = async () => {
     try {
@@ -276,6 +279,18 @@ export default function UserManagement() {
     } catch (error) { console.error("Unlock error:", error); }
   };
 
+  const handleApproveUser = async (id: string) => {
+    try {
+      const res = await fetch(`/api/users/${id}`, { 
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPending: false })
+      });
+      if (res.ok) fetchUsers();
+      else alert('Failed to approve user');
+    } catch (error) { console.error("Approve error:", error); }
+  };
+
   const handleApproveReset = async (id: string) => {
     try {
       const res = await fetch(`/api/users/${id}/approve-reset`, { method: "POST" });
@@ -318,7 +333,13 @@ export default function UserManagement() {
     setShowModal(true);
   };
 
+  const isDispatcher = currentUser?.role === 'Dispatcher';
+  const isAdmin = currentUser?.role === 'Admin';
+
   const filteredUsers = users.filter(u => {
+    // Dispatchers only see their own requests
+    if (isDispatcher && u.requestedBy !== currentUser?.id) return false;
+    
     const s = searchTerm.toLowerCase();
     return (u.name?.toLowerCase().includes(s) || 
             u.email?.toLowerCase().includes(s) || 
@@ -362,7 +383,7 @@ export default function UserManagement() {
 
             <button onClick={openCreateModal} className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm hover-float transition-all border-0" style={{ fontSize: '0.85rem' }}>
               <UserPlusIcon />
-              Invite User
+              {isDispatcher ? 'Request Driver' : 'Invite User'}
             </button>
           </div>
         </div>
@@ -382,7 +403,9 @@ export default function UserManagement() {
                 {loading ? (
                   <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">Loading users...</td></tr>
                 ) : filteredUsers.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">No users found.</td></tr>
+                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">
+                    {isDispatcher ? 'No requested drivers found.' : 'No users found.'}
+                  </td></tr>
                 ) : filteredUsers.map(u => (
                   <tr key={u._id} className="glass-row transition-all">
                     <td className="px-4 py-4 text-center">
@@ -416,7 +439,14 @@ export default function UserManagement() {
                     </td>
                     <td className="px-4 py-4 text-center">
                       <div className="d-flex align-items-center justify-content-center gap-2">
-                        {u.isLocked && (
+                        {u.isPending && isAdmin && (
+                          <button
+                            onClick={() => handleApproveUser(u._id)}
+                            className="btn btn-sm btn-emerald-solid rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
+                            style={{ fontSize: '0.75rem' }}
+                          >Approve Driver</button>
+                        )}
+                        {u.isLocked && isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
                           <button
                             onClick={() => handleUnlock(u._id)}
                             className="btn btn-sm fw-bold rounded-pill px-3 shadow-sm transition-all hover-float"
@@ -425,7 +455,7 @@ export default function UserManagement() {
                             Unlock
                           </button>
                         )}
-                        {u.resetPasswordRequested && (
+                        {u.resetPasswordRequested && isAdmin && (
                           <button
                             onClick={() => handleApproveReset(u._id)}
                             className="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
@@ -435,9 +465,18 @@ export default function UserManagement() {
                         {u.resetPasswordApproved && (
                           <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">Reset Approved</span>
                         )}
+<<<<<<< Updated upstream
                         <button onClick={() => handleRevokeSession(u._id, u.name)} className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all" style={{ fontSize: '0.75rem' }} title="Instantly log out this user everywhere">Revoke</button>
                         <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
                         <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
+=======
+                        {isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
+                          <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
+                        )}
+                        {isAdmin && u.role !== 'Admin' && (
+                          <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
+                        )}
+>>>>>>> Stashed changes
                       </div>
                     </td>
                   </tr>
@@ -483,6 +522,8 @@ export default function UserManagement() {
                 <h3 className="fs-3 text-white m-0" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.04em', fontWeight: 900 }}>
                   {isEditing ? (
                     <><span className="text-gradient-emerald">Edit</span> User</>
+                  ) : isDispatcher ? (
+                    <><span className="text-gradient-emerald">Request</span> New Driver</>
                   ) : (
                     <><span className="text-gradient-emerald">Invite</span> New User</>
                   )}
@@ -491,7 +532,7 @@ export default function UserManagement() {
               </div>
 
               <p className="small text-white opacity-50 mb-4 fw-medium">
-                {isEditing ? "Update account details. Email cannot be changed during registration." : "Invited users will receive access once they register with this email and set their password."}
+                {isEditing ? "Update account details. Email cannot be changed during registration." : isDispatcher ? "Fill in the driver's details. An administrator will review and approve the request." : "Invited users will receive access once they register with this email and set their password."}
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -533,22 +574,24 @@ export default function UserManagement() {
                   {errors.email && <p className="text-danger x-small mt-2 fw-bold px-1">{errors.email.message}</p>}
                 </div>
 
-                <div className="mb-5">
-                  <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Account Role *</label>
-                  <div className="position-relative">
-                    <div className="modal-input-icon"><ShieldIcon /></div>
-                    <input type="hidden" {...register("role", { required: true })} />
-                    <RoleDropdown
-                      value={watch("role") || "Driver"}
-                      onChange={(v) => setValue("role", v, { shouldValidate: true })}
-                    />
+                {!isDispatcher && (
+                  <div className="mb-5">
+                    <label className="small fw-black text-emerald mb-2 px-1 text-uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>Account Role *</label>
+                    <div className="position-relative">
+                      <div className="modal-input-icon"><ShieldIcon /></div>
+                      <input type="hidden" {...register("role", { required: true })} />
+                      <RoleDropdown
+                        value={watch("role") || "Driver"}
+                        onChange={(v) => setValue("role", v, { shouldValidate: true })}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="d-flex gap-3">
                   <button type="button" className="btn btn-glass-secondary w-50 rounded-pill py-3 fw-bold transition-all" onClick={() => setShowModal(false)}>Cancel</button>
                   <button type="submit" className="btn btn-emerald-solid w-50 text-dark rounded-pill py-3 fw-black shadow-lg border-0 transition-all hover-float">
-                    {isEditing ? 'Save Changes' : 'Send Invitation'}
+                    {isEditing ? 'Save Changes' : isDispatcher ? 'Submit Request' : 'Send Invitation'}
                   </button>
                 </div>
               </form>
