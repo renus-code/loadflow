@@ -1,2108 +1,844 @@
 {
+  "info": {
+    "_postman_id": "4acdbd57-4370-4ef7-b595-b087dc5c9e8d",
+    "name": "LoadFlow API Contract",
+    "description": "Postman collection aligned with the current LoadFlow backend implementation. Authentication is cookie-based. Login first against the same {{baseUrl}} and Postman will reuse the token cookie for protected routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "loadId",
+      "value": ""
+    },
+    {
+      "key": "podId",
+      "value": ""
+    },
+    {
+      "key": "notificationId",
+      "value": ""
+    },
+    {
+      "key": "truckId",
+      "value": ""
+    },
+    {
+      "key": "trailerId",
+      "value": ""
+    }
+  ],
   "item": [
     {
-      "name": "api",
-      "description": "",
+      "name": "Auth",
       "item": [
         {
-          "name": "auth",
-          "description": "",
-          "item": [
-            {
-              "name": "register",
-              "description": "",
-              "item": [
+          "name": "Check Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/check-email?email=driver@example.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "check-email"],
+              "query": [
                 {
-                  "id": "e81fd7df-ebbf-4d46-ae7b-4c99143bb156",
-                  "name": "Register a new user",
-                  "request": {
-                    "name": "Register a new user",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "auth", "register"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    },
-                    "auth": null
-                  },
-                  "response": [
-                    {
-                      "id": "a8733df6-643f-4ca8-b6b5-6dbd01800118",
-                      "name": "User registered successfully",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "register"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "POST",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "Created",
-                      "code": 201,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"message\": \"<string>\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    },
-                    {
-                      "id": "9f482d32-a54c-44a2-beaf-22dfe1c030d3",
-                      "name": "Email already exists",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "register"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "POST",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "Conflict",
-                      "code": 409,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                }
-              ]
-            },
-            {
-              "name": "login",
-              "description": "",
-              "item": [
-                {
-                  "id": "8cb51de9-56a5-4bc9-8627-f6c5fd43d240",
-                  "name": "Login user",
-                  "request": {
-                    "name": "Login user",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "auth", "login"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    },
-                    "auth": null
-                  },
-                  "response": [
-                    {
-                      "id": "4531f208-2cd4-41f1-b0af-1ea03aa1399f",
-                      "name": "Login success",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "login"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "POST",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"token\": \"<string>\",\n  \"user\": {\n    \"id\": \"<string>\",\n    \"email\": \"<string>\",\n    \"name\": \"<string>\",\n    \"role\": \"<string>\"\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    },
-                    {
-                      "id": "20565cb6-b4dd-4d4b-94e5-c12fbda145a1",
-                      "name": "Invalid credentials",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "login"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "POST",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"email\": \"<string>\",\n  \"password\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "Unauthorized",
-                      "code": 401,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                }
-              ]
-            },
-            {
-              "name": "me",
-              "description": "",
-              "item": [
-                {
-                  "id": "42791190-1b1c-4c60-b43b-43aeea723a93",
-                  "name": "Get current authenticated user",
-                  "request": {
-                    "name": "Get current authenticated user",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "auth", "me"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "GET",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "29b011d9-036d-468a-a316-a3b8e410da87",
-                      "name": "Current user info",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "me"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"id\": \"<string>\",\n  \"email\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    },
-                    {
-                      "id": "29e21b65-3fdb-41cf-9e6a-aebcf95f0945",
-                      "name": "Unauthorized",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "auth", "me"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": []
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "Unauthorized",
-                      "code": 401,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
+                  "key": "email",
+                  "value": "driver@example.com"
                 }
               ]
             }
-          ]
+          }
         },
         {
-          "name": "users",
-          "description": "",
-          "item": [
-            {
-              "id": "8dd659e5-19d9-49eb-a966-a6a84dcd78f2",
-              "name": "Get all users",
-              "request": {
-                "name": "Get all users",
-                "description": {},
-                "url": {
-                  "path": ["api", "users"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [{ "key": "Accept", "value": "application/json" }],
-                "method": "GET",
-                "body": {},
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "061c2300-c713-4156-b537-fd1102d95ca3",
-                  "name": "List of users",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "users"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "[\n  {\n    \"id\": \"<string>\",\n    \"email\": \"<string>\",\n    \"name\": \"<string>\",\n    \"role\": \"<string>\"\n  },\n  {\n    \"id\": \"<string>\",\n    \"email\": \"<string>\",\n    \"name\": \"<string>\",\n    \"role\": \"<string>\"\n  }\n]",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                },
-                {
-                  "id": "2b9d7bef-f980-4e18-ab44-c186a3b8fcf0",
-                  "name": "Unauthorized",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "users"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "Unauthorized",
-                  "code": 401,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
+          "name": "Register Invited User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Driver One\",\n  \"email\": \"driver@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"Driver\",\n  \"phone\": \"+1 (555) 123-4567\",\n  \"licenseNumber\": \"A1234-56789-01234\",\n  \"dob\": \"1995-04-14\",\n  \"city\": \"Toronto\",\n  \"province\": \"ON\",\n  \"postalCode\": \"M5V 2L7\",\n  \"address\": \"123 Fleet Way\"\n}"
             },
-            {
-              "name": "{id}",
-              "description": "",
-              "item": [
-                {
-                  "id": "95a87502-e07a-48e8-95ce-3e3be621b7a2",
-                  "name": "Get a user by ID",
-                  "request": {
-                    "name": "Get a user by ID",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "users", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "GET",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "40dee170-8404-448e-8f9f-a3790aa81cf6",
-                      "name": "User details",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "users", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"id\": \"<string>\",\n  \"email\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    },
-                    {
-                      "id": "75661914-db50-462d-ab46-f9683f5aa29a",
-                      "name": "User not found",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "users", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "Not Found",
-                      "code": 404,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                }
-              ]
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
             }
-          ]
+          }
         },
         {
-          "name": "loads",
-          "description": "",
-          "item": [
-            {
-              "id": "22a632e0-9e85-4619-b5f9-48a10099e204",
-              "name": "Get all loads",
-              "request": {
-                "name": "Get all loads",
-                "description": {},
-                "url": {
-                  "path": ["api", "loads"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [{ "key": "Accept", "value": "application/json" }],
-                "method": "GET",
-                "body": {},
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "3cd75991-b0e0-4e90-96d3-e21dff3de4c6",
-                  "name": "List of loads",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "loads"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "[\n  {\n    \"id\": \"<string>\",\n    \"pickupLocation\": \"<string>\",\n    \"deliveryLocation\": \"<string>\",\n    \"weight\": \"<string>\",\n    \"status\": \"<string>\",\n    \"assignedDriverId\": \"<string>\",\n    \"createdAt\": \"<dateTime>\"\n  },\n  {\n    \"id\": \"<string>\",\n    \"pickupLocation\": \"<string>\",\n    \"deliveryLocation\": \"<string>\",\n    \"weight\": \"<string>\",\n    \"status\": \"<string>\",\n    \"assignedDriverId\": \"<string>\",\n    \"createdAt\": \"<dateTime>\"\n  }\n]",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                },
-                {
-                  "id": "371b9697-0380-4b08-a6ea-950208b0d0df",
-                  "name": "Unauthorized",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "loads"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "Unauthorized",
-                  "code": 401,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
+          "name": "Admin Create Invitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dispatcher Invite\",\n  \"email\": \"dispatcher@example.com\",\n  \"role\": \"Dispatcher\"\n}"
             },
-            {
-              "id": "3a37ac57-f0e2-4328-ac71-879a114dea6a",
-              "name": "Create a new load",
-              "request": {
-                "name": "Create a new load",
-                "description": {},
-                "url": {
-                  "path": ["api", "loads"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Accept", "value": "application/json" }
-                ],
-                "method": "POST",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\"\n}",
-                  "options": {
-                    "raw": { "headerFamily": "json", "language": "json" }
-                  }
-                },
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "a21c6a03-e262-41e6-a95a-954679a47ff0",
-                  "name": "Load created",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "loads"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"id\": \"<string>\",\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\",\n  \"status\": \"<string>\",\n  \"assignedDriverId\": \"<string>\",\n  \"createdAt\": \"<dateTime>\"\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                },
-                {
-                  "id": "c9cccb96-711c-4649-8880-ea2b3aff25e9",
-                  "name": "Validation error",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "loads"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
-            },
-            {
-              "name": "{id}",
-              "description": "",
-              "item": [
-                {
-                  "id": "cf5353e7-6fe7-43be-944f-8ac191d1afe1",
-                  "name": "Get load by ID",
-                  "request": {
-                    "name": "Get load by ID",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "loads", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "GET",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "ab2a5c09-a99c-4aea-8514-b67a865b03f4",
-                      "name": "Load details",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "loads", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"id\": \"<string>\",\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\",\n  \"status\": \"<string>\",\n  \"assignedDriverId\": \"<string>\",\n  \"createdAt\": \"<dateTime>\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    },
-                    {
-                      "id": "2e46ec94-9473-4c26-bf82-0ba4d5c87196",
-                      "name": "Load not found",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "loads", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "GET",
-                        "body": {}
-                      },
-                      "status": "Not Found",
-                      "code": 404,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                },
-                {
-                  "id": "606338db-55f8-4be0-b9a8-7dc25441f208",
-                  "name": "Update a load",
-                  "request": {
-                    "name": "Update a load",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "loads", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "PUT",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"weight\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    },
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "25c925a5-ba6c-4166-8d16-e1e6b8603553",
-                      "name": "Load updated",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "loads", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "PUT",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"weight\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"id\": \"<string>\",\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\",\n  \"status\": \"<string>\",\n  \"assignedDriverId\": \"<string>\",\n  \"createdAt\": \"<dateTime>\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                },
-                {
-                  "id": "e8d79f28-8783-4ee6-9a14-305841f75400",
-                  "name": "Delete a load",
-                  "request": {
-                    "name": "Delete a load",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "loads", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "DELETE",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "c6552c41-ba8d-43d0-b0eb-5be0b2841b95",
-                      "name": "Load deleted (no content)",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "loads", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "DELETE",
-                        "body": {}
-                      },
-                      "status": "No Content",
-                      "code": 204,
-                      "header": [],
-                      "cookie": [],
-                      "_postman_previewlanguage": "text"
-                    },
-                    {
-                      "id": "227e01e5-8c8d-4e38-8db0-4c53985e8b87",
-                      "name": "Load not found",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "loads", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "DELETE",
-                        "body": {}
-                      },
-                      "status": "Not Found",
-                      "code": 404,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"error\": {\n    \"code\": \"<string>\",\n    \"message\": \"<string>\",\n    \"details\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  }\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                },
-                {
-                  "name": "assign",
-                  "description": "",
-                  "item": [
-                    {
-                      "id": "c870625d-81ba-459c-984f-c1625dbd0e74",
-                      "name": "Assign a driver to a load",
-                      "request": {
-                        "name": "Assign a driver to a load",
-                        "description": {},
-                        "url": {
-                          "path": ["api", "loads", ":id", "assign"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id",
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              }
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "PUT",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"assignedDriverId\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        },
-                        "auth": {
-                          "type": "bearer",
-                          "bearer": [
-                            { "key": "token", "value": "{{bearerToken}}" }
-                          ]
-                        }
-                      },
-                      "response": [
-                        {
-                          "id": "ab985cbe-d91f-4128-afa4-040453459ddd",
-                          "name": "Load assigned",
-                          "originalRequest": {
-                            "url": {
-                              "path": ["api", "loads", ":id", "assign"],
-                              "host": ["{{baseUrl}}"],
-                              "query": [],
-                              "variable": [
-                                {
-                                  "disabled": false,
-                                  "description": {
-                                    "content": "(Required) ",
-                                    "type": "text/plain"
-                                  },
-                                  "type": "any",
-                                  "value": "<string>",
-                                  "key": "id"
-                                }
-                              ]
-                            },
-                            "header": [
-                              {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                              },
-                              { "key": "Accept", "value": "application/json" },
-                              {
-                                "description": {
-                                  "content": "Added as a part of security scheme: bearer",
-                                  "type": "text/plain"
-                                },
-                                "key": "Authorization",
-                                "value": "Bearer <token>"
-                              }
-                            ],
-                            "method": "PUT",
-                            "body": {
-                              "mode": "raw",
-                              "raw": "{\n  \"assignedDriverId\": \"<string>\"\n}",
-                              "options": {
-                                "raw": {
-                                  "headerFamily": "json",
-                                  "language": "json"
-                                }
-                              }
-                            }
-                          },
-                          "status": "OK",
-                          "code": 200,
-                          "header": [
-                            {
-                              "key": "Content-Type",
-                              "value": "application/json"
-                            }
-                          ],
-                          "body": "{\n  \"id\": \"<string>\",\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\",\n  \"status\": \"<string>\",\n  \"assignedDriverId\": \"<string>\",\n  \"createdAt\": \"<dateTime>\"\n}",
-                          "cookie": [],
-                          "_postman_previewlanguage": "json"
-                        }
-                      ],
-                      "event": [],
-                      "protocolProfileBehavior": { "disableBodyPruning": true }
-                    }
-                  ]
-                },
-                {
-                  "name": "status",
-                  "description": "",
-                  "item": [
-                    {
-                      "id": "f1627e98-24a9-4387-b7e0-666f475f8651",
-                      "name": "Update the status of a load",
-                      "request": {
-                        "name": "Update the status of a load",
-                        "description": {},
-                        "url": {
-                          "path": ["api", "loads", ":id", "status"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id",
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              }
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" }
-                        ],
-                        "method": "PUT",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"status\": \"<string>\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        },
-                        "auth": {
-                          "type": "bearer",
-                          "bearer": [
-                            { "key": "token", "value": "{{bearerToken}}" }
-                          ]
-                        }
-                      },
-                      "response": [
-                        {
-                          "id": "b2fb1ff8-1058-434d-a635-bdd39eb79b9d",
-                          "name": "Load status updated",
-                          "originalRequest": {
-                            "url": {
-                              "path": ["api", "loads", ":id", "status"],
-                              "host": ["{{baseUrl}}"],
-                              "query": [],
-                              "variable": [
-                                {
-                                  "disabled": false,
-                                  "description": {
-                                    "content": "(Required) ",
-                                    "type": "text/plain"
-                                  },
-                                  "type": "any",
-                                  "value": "<string>",
-                                  "key": "id"
-                                }
-                              ]
-                            },
-                            "header": [
-                              {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                              },
-                              { "key": "Accept", "value": "application/json" },
-                              {
-                                "description": {
-                                  "content": "Added as a part of security scheme: bearer",
-                                  "type": "text/plain"
-                                },
-                                "key": "Authorization",
-                                "value": "Bearer <token>"
-                              }
-                            ],
-                            "method": "PUT",
-                            "body": {
-                              "mode": "raw",
-                              "raw": "{\n  \"status\": \"<string>\"\n}",
-                              "options": {
-                                "raw": {
-                                  "headerFamily": "json",
-                                  "language": "json"
-                                }
-                              }
-                            }
-                          },
-                          "status": "OK",
-                          "code": 200,
-                          "header": [
-                            {
-                              "key": "Content-Type",
-                              "value": "application/json"
-                            }
-                          ],
-                          "body": "{\n  \"id\": \"<string>\",\n  \"pickupLocation\": \"<string>\",\n  \"deliveryLocation\": \"<string>\",\n  \"weight\": \"<string>\",\n  \"status\": \"<string>\",\n  \"assignedDriverId\": \"<string>\",\n  \"createdAt\": \"<dateTime>\"\n}",
-                          "cookie": [],
-                          "_postman_previewlanguage": "json"
-                        }
-                      ],
-                      "event": [],
-                      "protocolProfileBehavior": { "disableBodyPruning": true }
-                    }
-                  ]
-                }
-              ]
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
             }
-          ]
+          }
         },
         {
-          "name": "pods",
-          "description": "",
-          "item": [
+          "name": "Login",
+          "event": [
             {
-              "id": "636f87ba-f4af-4a51-9398-46a483e23358",
-              "name": "Upload a Proof of Delivery (POD)",
-              "request": {
-                "name": "Upload a Proof of Delivery (POD)",
-                "description": {},
-                "url": {
-                  "path": ["api", "pods"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Accept", "value": "application/json" }
-                ],
-                "method": "POST",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"loadId\": \"<string>\",\n  \"imageUrl\": \"<string>\"\n}",
-                  "options": {
-                    "raw": { "headerFamily": "json", "language": "json" }
-                  }
-                },
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "fcff3b60-e32a-4438-af12-1fa4f9ebe9bc",
-                  "name": "POD uploaded successfully",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "pods"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"loadId\": \"<string>\",\n  \"imageUrl\": \"<string>\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"id\": \"<string>\",\n  \"loadId\": \"<string>\",\n  \"imageUrl\": \"<string>\",\n  \"uploadedAt\": \"<dateTime>\"\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login request completed', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "});"
+                ]
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
         },
         {
-          "name": "trucks",
-          "description": "",
-          "item": [
-            {
-              "id": "7ad5ffd7-2c9b-4d68-b20c-453e234b24a2",
-              "name": "Get all trucks",
-              "request": {
-                "name": "Get all trucks",
-                "description": {},
-                "url": {
-                  "path": ["api", "trucks"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [{ "key": "Accept", "value": "application/json" }],
-                "method": "GET",
-                "body": {},
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "edae1e83-5d6d-4b53-a482-ca73ef44a91d",
-                  "name": "List of trucks",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "trucks"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "[\n  {\n    \"value\": \"reference #/components/schemas/TruckResponse not found in the OpenAPI spec\"\n  },\n  {\n    \"value\": \"reference #/components/schemas/TruckResponse not found in the OpenAPI spec\"\n  }\n]",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
-            },
-            {
-              "id": "698e73d8-4b1c-4ce4-9296-596fdf3558e1",
-              "name": "Create a new truck",
-              "request": {
-                "name": "Create a new truck",
-                "description": {},
-                "url": {
-                  "path": ["api", "trucks"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Accept", "value": "application/json" }
-                ],
-                "method": "POST",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTruckRequest not found in the OpenAPI spec\"\n}",
-                  "options": {
-                    "raw": { "headerFamily": "json", "language": "json" }
-                  }
-                },
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "d6d38b69-eea5-4c9e-84df-a99b09c4afba",
-                  "name": "Truck created",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "trucks"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTruckRequest not found in the OpenAPI spec\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"value\": \"reference #/components/schemas/TruckResponse not found in the OpenAPI spec\"\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
-            },
-            {
-              "name": "{id}",
-              "description": "",
-              "item": [
-                {
-                  "id": "9df17a52-8b3a-481b-a222-2c5c71d096dd",
-                  "name": "Update a truck",
-                  "request": {
-                    "name": "Update a truck",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "trucks", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "PUT",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTruckRequest not found in the OpenAPI spec\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    },
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "4b2110a8-d60a-4cf9-88ba-e47248a7cbb8",
-                      "name": "Truck updated",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "trucks", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "PUT",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTruckRequest not found in the OpenAPI spec\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"value\": \"reference #/components/schemas/TruckResponse not found in the OpenAPI spec\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                },
-                {
-                  "id": "94a7b858-c89a-41e1-a341-3388ba5e4def",
-                  "name": "Delete a truck",
-                  "request": {
-                    "name": "Delete a truck",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "trucks", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "973d3f42-4245-4d4f-a7eb-f0bc7213c3ea",
-                      "name": "Truck deleted successfully",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "trucks", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "DELETE",
-                        "body": {}
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [],
-                      "cookie": [],
-                      "_postman_previewlanguage": "text"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                }
-              ]
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
             }
-          ]
+          }
         },
         {
-          "name": "trailers",
-          "description": "",
-          "item": [
-            {
-              "id": "bf9786c3-00fb-42c4-a1c2-37cf98763382",
-              "name": "Get all trailers",
-              "request": {
-                "name": "Get all trailers",
-                "description": {},
-                "url": {
-                  "path": ["api", "trailers"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [{ "key": "Accept", "value": "application/json" }],
-                "method": "GET",
-                "body": {},
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "f09ada34-5f8d-48e9-bdd5-d692a2555062",
-                  "name": "List of trailers",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "trailers"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "GET",
-                    "body": {}
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "[\n  {\n    \"value\": \"reference #/components/schemas/TrailerResponse not found in the OpenAPI spec\"\n  },\n  {\n    \"value\": \"reference #/components/schemas/TrailerResponse not found in the OpenAPI spec\"\n  }\n]",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@example.com\"\n}"
             },
-            {
-              "id": "48ff2a87-1c23-4da7-adb3-2cd5b57188da",
-              "name": "Create a new trailer",
-              "request": {
-                "name": "Create a new trailer",
-                "description": {},
-                "url": {
-                  "path": ["api", "trailers"],
-                  "host": ["{{baseUrl}}"],
-                  "query": [],
-                  "variable": []
-                },
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Accept", "value": "application/json" }
-                ],
-                "method": "POST",
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTrailerRequest not found in the OpenAPI spec\"\n}",
-                  "options": {
-                    "raw": { "headerFamily": "json", "language": "json" }
-                  }
-                },
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                }
-              },
-              "response": [
-                {
-                  "id": "eb6582f0-1374-4865-a7ae-7fa2ee9dff8b",
-                  "name": "Trailer created",
-                  "originalRequest": {
-                    "url": {
-                      "path": ["api", "trailers"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": []
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" },
-                      {
-                        "description": {
-                          "content": "Added as a part of security scheme: bearer",
-                          "type": "text/plain"
-                        },
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "method": "POST",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTrailerRequest not found in the OpenAPI spec\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "header": [
-                    { "key": "Content-Type", "value": "application/json" }
-                  ],
-                  "body": "{\n  \"value\": \"reference #/components/schemas/TrailerResponse not found in the OpenAPI spec\"\n}",
-                  "cookie": [],
-                  "_postman_previewlanguage": "json"
-                }
-              ],
-              "event": [],
-              "protocolProfileBehavior": { "disableBodyPruning": true }
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@example.com\",\n  \"password\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}"
             },
-            {
-              "name": "{id}",
-              "description": "",
-              "item": [
-                {
-                  "id": "d3643e22-5b1e-4f7e-b70d-8362e02c08e0",
-                  "name": "Update a trailer",
-                  "request": {
-                    "name": "Update a trailer",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "trailers", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
-                    ],
-                    "method": "PUT",
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTrailerRequest not found in the OpenAPI spec\"\n}",
-                      "options": {
-                        "raw": { "headerFamily": "json", "language": "json" }
-                      }
-                    },
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "460243f7-084e-46f4-be1c-60b9df473df5",
-                      "name": "Trailer updated",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "trailers", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                          },
-                          { "key": "Accept", "value": "application/json" },
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "PUT",
-                        "body": {
-                          "mode": "raw",
-                          "raw": "{\n  \"value\": \"reference #/components/schemas/CreateTrailerRequest not found in the OpenAPI spec\"\n}",
-                          "options": {
-                            "raw": {
-                              "headerFamily": "json",
-                              "language": "json"
-                            }
-                          }
-                        }
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [
-                        { "key": "Content-Type", "value": "application/json" }
-                      ],
-                      "body": "{\n  \"value\": \"reference #/components/schemas/TrailerResponse not found in the OpenAPI spec\"\n}",
-                      "cookie": [],
-                      "_postman_previewlanguage": "json"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                },
-                {
-                  "id": "8ef7ee9d-800a-4f79-8942-e97508d087f2",
-                  "name": "Delete a trailer",
-                  "request": {
-                    "name": "Delete a trailer",
-                    "description": {},
-                    "url": {
-                      "path": ["api", "trailers", ":id"],
-                      "host": ["{{baseUrl}}"],
-                      "query": [],
-                      "variable": [
-                        {
-                          "type": "any",
-                          "value": "<string>",
-                          "key": "id",
-                          "disabled": false,
-                          "description": {
-                            "content": "(Required) ",
-                            "type": "text/plain"
-                          }
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "body": {},
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [{ "key": "token", "value": "{{bearerToken}}" }]
-                    }
-                  },
-                  "response": [
-                    {
-                      "id": "350ff0e5-bcb7-4309-8863-0c538cb20345",
-                      "name": "Trailer deleted successfully",
-                      "originalRequest": {
-                        "url": {
-                          "path": ["api", "trailers", ":id"],
-                          "host": ["{{baseUrl}}"],
-                          "query": [],
-                          "variable": [
-                            {
-                              "disabled": false,
-                              "description": {
-                                "content": "(Required) ",
-                                "type": "text/plain"
-                              },
-                              "type": "any",
-                              "value": "<string>",
-                              "key": "id"
-                            }
-                          ]
-                        },
-                        "header": [
-                          {
-                            "description": {
-                              "content": "Added as a part of security scheme: bearer",
-                              "type": "text/plain"
-                            },
-                            "key": "Authorization",
-                            "value": "Bearer <token>"
-                          }
-                        ],
-                        "method": "DELETE",
-                        "body": {}
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "header": [],
-                      "cookie": [],
-                      "_postman_previewlanguage": "text"
-                    }
-                  ],
-                  "event": [],
-                  "protocolProfileBehavior": { "disableBodyPruning": true }
-                }
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Check Current Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile/check-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile", "check-password"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Driver\",\n  \"phone\": \"+1 (555) 222-3333\",\n  \"address\": \"456 Updated Ave\",\n  \"city\": \"Toronto\",\n  \"province\": \"ON\",\n  \"postalCode\": \"M5V 1A1\",\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"Password123!New\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile", "update"]
+            }
+          }
+        },
+        {
+          "name": "Generate 2FA",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/2fa/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "2fa", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Verify 2FA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/2fa/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "2fa", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Dispatcher\",\n  \"role\": \"Dispatcher\",\n  \"phone\": \"+1 (555) 999-0000\",\n  \"isLocked\": false,\n  \"loginAttempts\": 0,\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Approve Reset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/approve-reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "approve-reset"]
+            }
+          }
+        },
+        {
+          "name": "Unlock User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/unlock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "unlock"]
+            }
+          }
+        },
+        {
+          "name": "Revoke User Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/revoke",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "revoke"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications?page=1&limit=10&all=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "all", "value": "false" }
               ]
             }
-          ]
+          }
+        },
+        {
+          "name": "Mark All Notifications Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver Requests",
+      "item": [
+        {
+          "name": "Create Driver Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"New\",\n  \"lastName\": \"Driver\",\n  \"email\": \"newdriver@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/driver-requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "driver-requests"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit?page=1&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "100" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Loads",
+      "item": [
+        {
+          "name": "Get Loads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/loads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads"]
+            }
+          }
+        },
+        {
+          "name": "Create Load",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loadNumber\": \"LD-2410\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 12,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 38000,\n  \"weightUnit\": \"lbs\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads"]
+            }
+          }
+        },
+        {
+          "name": "Get Load By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Load",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loadNumber\": \"LD-2410-UPDATED\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 10,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 36000,\n  \"weightUnit\": \"lbs\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Or Cancel Load",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Assign Load",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedDriverId\": \"{{userId}}\",\n  \"truckNumber\": \"TRK-100\",\n  \"trailerNumber\": \"TRL-200\",\n  \"truckType\": \"Day Cab\",\n  \"trailerType\": \"Dry Van\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}", "assign"]
+            }
+          }
+        },
+        {
+          "name": "Patch Load Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Patch Stop Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stopType\": \"pickups\",\n  \"stopIndex\": 0,\n  \"stopStatus\": \"PICKED_UP\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loads/{{loadId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loads", "{{loadId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PODs",
+      "item": [
+        {
+          "name": "Upload POD",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "loadId",
+                  "type": "text",
+                  "value": "{{loadId}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pods",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pods"]
+            }
+          }
+        },
+        {
+          "name": "Get POD By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pods/{{podId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pods", "{{podId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete POD",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pods/{{podId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pods", "{{podId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trucks",
+      "item": [
+        {
+          "name": "Get Trucks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trucks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trucks"]
+            }
+          }
+        },
+        {
+          "name": "Create Truck",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"truckNo\": \"TRK-100\",\n  \"vin\": \"1FTFW1E50NFA00001\",\n  \"plate\": \"ONTRK100\",\n  \"year\": 2024,\n  \"make\": \"Freightliner\",\n  \"model\": \"Cascadia\",\n  \"truckType\": \"Day Cab\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trucks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trucks"]
+            }
+          }
+        },
+        {
+          "name": "Update Truck",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"truckNo\": \"TRK-100\",\n  \"vin\": \"1FTFW1E50NFA00001\",\n  \"plate\": \"ONTRK100\",\n  \"year\": 2025,\n  \"make\": \"Freightliner\",\n  \"model\": \"Cascadia Evolution\",\n  \"truckType\": \"Sleeper Cab\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trucks/{{truckId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trucks", "{{truckId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Truck",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trucks/{{truckId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trucks", "{{truckId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trailers",
+      "item": [
+        {
+          "name": "Get Trailers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trailers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trailers"]
+            }
+          }
+        },
+        {
+          "name": "Create Trailer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trailerNo\": \"TRL-200\",\n  \"vin\": \"5MADN5327RC000001\",\n  \"plate\": \"ONTRL200\",\n  \"year\": 2024,\n  \"make\": \"Utility\",\n  \"model\": \"3000R\",\n  \"trailerType\": \"Dry Van\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trailers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trailers"]
+            }
+          }
+        },
+        {
+          "name": "Update Trailer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trailerNo\": \"TRL-200\",\n  \"vin\": \"5MADN5327RC000001\",\n  \"plate\": \"ONTRL200\",\n  \"year\": 2025,\n  \"make\": \"Utility\",\n  \"model\": \"3000R Updated\",\n  \"trailerType\": \"Reefer\",\n  \"__v\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trailers/{{trailerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trailers", "{{trailerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Trailer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trailers/{{trailerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trailers", "{{trailerId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Swagger",
+      "item": [
+        {
+          "name": "Get Swagger JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/swagger",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "swagger"]
+            }
+          }
         }
       ]
     }
-  ],
-  "event": [],
-  "variable": [{ "key": "baseUrl", "value": "http://localhost:3000" }],
-  "info": {
-    "_postman_id": "cee1348c-7039-4016-9f7d-fa633960e3b4",
-    "name": "LoadFlow API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": {
-      "content": "Contract-first API design for LoadFlow - A lightweight dispatch system for small trucking companies.\n",
-      "type": "text/plain"
-    }
-  }
+  ]
 }

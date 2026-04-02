@@ -1,40 +1,119 @@
 openapi: 3.0.3
 info:
   title: LoadFlow API
-  version: 1.0.0
+  version: 1.1.0
   description: |
-    Contract-first API design for LoadFlow — a high-performance, Zero-Trust dispatch system for modern trucking companies.
+    OpenAPI contract for the currently implemented LoadFlow backend.
 
-    **Static Frontend Routes (no API):**
-    - `/contact` — Contact page with support form, email (support@loadflow.ca), and phone (+1 437-383-1996). No backend API is called.
+    Notes:
+    - Authentication is cookie-based using the `token` cookie.
+    - Public registration is invitation-based. Admins can also use the same register endpoint to create invitations.
+    - Password reset is approval-based: users request reset, admins approve, then users reset.
+    - POD uploads use `multipart/form-data`.
+
+    Static frontend-only routes:
+    - `/`
+    - `/login`
+    - `/register`
+    - `/forgot-password`
+    - `/reset-password`
+    - `/dashboard`
+    - `/dashboard/profile`
+    - `/dashboard/users`
+    - `/contact`
+    - `/api-docs`
 servers:
   - url: http://localhost:3000
-    description: Local dev environment
+    description: Local development
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Loads
+  - name: PODs
+  - name: Trucks
+  - name: Trailers
 
 paths:
+  /api/auth/check-email:
+    get:
+      tags: [Auth]
+      summary: Check whether an email exists and whether it is still pending activation
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Email lookup result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckEmailResponse'
+        '400':
+          description: Missing email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Admin accounts cannot register through the public flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Email not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/auth/register:
     post:
-      summary: Register a new user
       tags: [Auth]
+      summary: Register an invited user or create/update an invitation as an admin
+      description: |
+        This endpoint has two runtime modes:
+        - Public mode: activates a previously invited Driver or Dispatcher account.
+        - Admin mode: creates or updates an invited user.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              oneOf:
+                - $ref: '#/components/schemas/PublicRegisterRequest'
+                - $ref: '#/components/schemas/AdminInviteRequest'
       responses:
-        '201':
-          description: User registered successfully
+        '200':
+          description: Registration activation or invitation update completed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User registered successfully
-        '409':
-          description: Email already exists
+                $ref: '#/components/schemas/MessageResponse'
+        '201':
+          description: Invitation created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/MessageResponse'
+                  - type: object
+                    properties:
+                      userId:
+                        type: string
+        '400':
+          description: Validation error or already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden or not invited
           content:
             application/json:
               schema:
@@ -42,8 +121,8 @@ paths:
 
   /api/auth/login:
     post:
-      summary: Login user
       tags: [Auth]
+      summary: Login and mint the auth cookie
       requestBody:
         required: true
         content:
@@ -52,80 +131,57 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login success
+          description: Login succeeded
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: HttpOnly auth cookie
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: '#/components/schemas/LoginSuccessResponse'
+        '400':
+          description: Missing email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Invalid credentials
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LockedAccountResponse'
 
   /api/auth/me:
     get:
-      summary: Get current authenticated user
       tags: [Auth]
+      summary: Get the currently authenticated user
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: Current user info
+          description: Current user
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
         '401':
-          description: Unauthorized
+          description: No valid auth cookie
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
-  /api/users:
-    get:
-      summary: Get all users
-      tags: [Users]
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: List of users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/users/{id}:
-    get:
-      summary: Get a user by ID
-      tags: [Users]
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: user_1
-      responses:
-        '200':
-          description: User details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
         '404':
           description: User not found
           content:
@@ -133,21 +189,115 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/loads:
-    get:
-      summary: Get all loads
-      tags: [Loads]
-      security:
-        - cookieAuth: []
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Clear the auth cookie
       responses:
         '200':
-          description: List of loads
+          description: Logout completed
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LoadResponse'
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request a password reset for admin approval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Request accepted or suppressed for privacy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Missing email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password after admin approval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Reset not approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/profile/check-password:
+    post:
+      tags: [Auth]
+      summary: Validate the current password for the logged-in user
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword]
+              properties:
+                currentPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+        '400':
+          description: Missing password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
@@ -155,9 +305,614 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/auth/profile/update:
     post:
-      summary: Create a new load
+      tags: [Auth]
+      summary: Update the logged-in user's profile and optionally change password
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      role:
+                        type: string
+                        enum: [Admin, Dispatcher, Driver]
+                      email:
+                        type: string
+                        format: email
+                      city:
+                        type: string
+                        nullable: true
+                      province:
+                        type: string
+                        nullable: true
+        '400':
+          description: Invalid update request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized or current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/2fa/generate:
+    post:
+      tags: [Auth]
+      summary: Generate a 2FA secret and QR code for the logged-in user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 2FA setup secret generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret:
+                    type: string
+                  qrCode:
+                    type: string
+                    description: Data URL for the QR code image
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/2fa/verify:
+    post:
+      tags: [Auth]
+      summary: Verify a 2FA code and enable 2FA for the logged-in user
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: 2FA enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request or code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users:
+    get:
+      tags: [Users]
+      summary: Get users
+      description: Available to Admin and Dispatcher roles
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}:
+    get:
+      tags: [Users]
+      summary: Get a user by id
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: User record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags: [Users]
+      summary: Update a user
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Users]
+      summary: Delete a user
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}/approve-reset:
+    post:
+      tags: [Users]
+      summary: Approve a password reset request
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Reset approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}/unlock:
+    post:
+      tags: [Users]
+      summary: Unlock a locked account
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Account unlocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}/revoke:
+    post:
+      tags: [Users]
+      summary: Revoke all active sessions for a user
+      description: Admin only. Increments the target user's token version.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Sessions revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/notifications:
+    get:
+      tags: [Users]
+      summary: Get notifications for the logged-in user or role
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: all
+          schema:
+            type: boolean
+            default: false
+          description: Include read notifications when true
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Users]
+      summary: Mark all notifications as read for the logged-in user/role
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Notifications updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/notifications/{id}:
+    patch:
+      tags: [Users]
+      summary: Mark a single notification as read
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Notification updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+        '400':
+          description: Missing id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Users]
+      summary: Delete a single notification
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Notification deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Missing id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/driver-requests:
+    post:
+      tags: [Users]
+      summary: Submit a driver request to admins
+      description: Dispatcher only
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, email]
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Driver request submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/audit:
+    get:
+      tags: [Users]
+      summary: Get audit logs
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Audit log list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/swagger:
+    get:
+      tags: [Auth]
+      summary: Get the generated Swagger JSON
+      responses:
+        '200':
+          description: OpenAPI document as JSON
+
+  /api/loads:
+    get:
       tags: [Loads]
+      summary: Get loads visible to the logged-in user
+      description: |
+        - Admin: all loads
+        - Dispatcher: all non-cancelled loads
+        - Driver: assigned non-cancelled loads only
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Load list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Load'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Loads]
+      summary: Create a load
+      description: Admin or Dispatcher only
       security:
         - cookieAuth: []
       requestBody:
@@ -172,9 +927,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoadResponse'
+                $ref: '#/components/schemas/Load'
         '400':
-          description: Validation error
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -182,78 +943,100 @@ paths:
 
   /api/loads/{id}:
     get:
-      summary: Get load by ID
       tags: [Loads]
+      summary: Get a load by id
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: load_101
+        - $ref: '#/components/parameters/IdParam'
       responses:
         '200':
           description: Load details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoadResponse'
+                $ref: '#/components/schemas/Load'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Load not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
     put:
-      summary: Update a load
       tags: [Loads]
+      summary: Update a load
+      description: Admin or Dispatcher only. Assignment and status fields are ignored here.
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: load_101
+        - $ref: '#/components/parameters/IdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                weight:
-                  type: string
-                  example: 40000 lbs
+              allOf:
+                - $ref: '#/components/schemas/CreateLoadRequest'
+                - type: object
+                  properties:
+                    __v:
+                      type: integer
       responses:
         '200':
           description: Load updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoadResponse'
-
+                $ref: '#/components/schemas/Load'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
-      summary: Delete a load
       tags: [Loads]
+      summary: Cancel or delete a load
+      description: |
+        - Dispatcher: soft delete by setting status to `CANCELLED`
+        - Admin: permanent delete
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: load_101
+        - $ref: '#/components/parameters/IdParam'
       responses:
-        '204':
-          description: Load deleted (no content)
-        '404':
-          description: Load not found
+        '200':
+          description: Cancellation or deletion succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -261,107 +1044,233 @@ paths:
 
   /api/loads/{id}/assign:
     put:
-      summary: Assign a driver to a load
       tags: [Loads]
+      summary: Assign driver and equipment to a load
+      description: Admin or Dispatcher only
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: load_101
+        - $ref: '#/components/parameters/IdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [assignedDriverId]
-              properties:
-                assignedDriverId:
-                  type: string
-                  example: user_2
+              $ref: '#/components/schemas/AssignLoadRequest'
       responses:
         '200':
-          description: Load assigned
+          description: Load assignment updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoadResponse'
+                $ref: '#/components/schemas/Load'
+        '400':
+          description: Missing required assignment fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/loads/{id}/status:
-    put:
-      summary: Update the status of a load
+    patch:
       tags: [Loads]
+      summary: Update load status, stop status, or assignment fields
+      description: |
+        Supports three practical flows:
+        - Driver stop updates using `stopType`, `stopIndex`, and `stopStatus`
+        - Dispatcher/Admin whole-load status updates using `status`
+        - Dispatcher/Admin assignment field updates using equipment and driver fields
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: load_101
+        - $ref: '#/components/parameters/IdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [status]
-              properties:
-                status:
-                  type: string
-                  example: Delivered
+              $ref: '#/components/schemas/LoadStatusPatchRequest'
       responses:
         '200':
-          description: Load status updated
+          description: Load updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoadResponse'
+                $ref: '#/components/schemas/Load'
+        '400':
+          description: Invalid status transition or request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/pods:
     post:
-      summary: Upload a Proof of Delivery (POD)
       tags: [PODs]
+      summary: Upload a proof of delivery image/file
       security:
         - cookieAuth: []
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreatePodRequest'
+              type: object
+              required: [file, loadId]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                loadId:
+                  type: string
       responses:
         '201':
-          description: POD uploaded successfully
+          description: POD uploaded
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PodResponse'
+                $ref: '#/components/schemas/Pod'
+        '400':
+          description: Missing file or loadId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Load not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /api/pods/{id}:
+    get:
+      tags: [PODs]
+      summary: Get a POD by id
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: POD details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pod'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: POD not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [PODs]
+      summary: Delete a POD record
+      description: Admin or Dispatcher only
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: POD deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: POD not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/trucks:
     get:
-      summary: Get all trucks
       tags: [Trucks]
+      summary: Get trucks
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: List of trucks
+          description: Truck list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TruckResponse'
+                  $ref: '#/components/schemas/Truck'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
-      summary: Create a new truck
       tags: [Trucks]
+      summary: Create a truck
+      description: Admin only
       security:
         - cookieAuth: []
       requestBody:
@@ -376,68 +1285,118 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TruckResponse'
+                $ref: '#/components/schemas/Truck'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Unique field conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/trucks/{id}:
     put:
-      summary: Update a truck
       tags: [Trucks]
+      summary: Update a truck
+      description: Admin only
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 60d21b4667d0d8992e610c85
+        - $ref: '#/components/parameters/IdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTruckRequest'
+              allOf:
+                - $ref: '#/components/schemas/CreateTruckRequest'
+                - type: object
+                  properties:
+                    __v:
+                      type: integer
       responses:
         '200':
           description: Truck updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TruckResponse'
+                $ref: '#/components/schemas/Truck'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Truck not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version or unique conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
-      summary: Delete a truck
       tags: [Trucks]
+      summary: Delete a truck
+      description: Admin only
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 60d21b4667d0d8992e610c85
+        - $ref: '#/components/parameters/IdParam'
       responses:
         '200':
-          description: Truck deleted successfully
+          description: Truck deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Truck not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/trailers:
     get:
-      summary: Get all trailers
       tags: [Trailers]
+      summary: Get trailers
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: List of trailers
+          description: Trailer list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TrailerResponse'
+                  $ref: '#/components/schemas/Trailer'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
-      summary: Create a new trailer
       tags: [Trailers]
+      summary: Create a trailer
+      description: Admin only
       security:
         - cookieAuth: []
       requestBody:
@@ -452,49 +1411,92 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TrailerResponse'
+                $ref: '#/components/schemas/Trailer'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Unique field conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/trailers/{id}:
     put:
-      summary: Update a trailer
       tags: [Trailers]
+      summary: Update a trailer
+      description: Admin only
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 60d21b4667d0d8992e610c85
+        - $ref: '#/components/parameters/IdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTrailerRequest'
+              allOf:
+                - $ref: '#/components/schemas/CreateTrailerRequest'
+                - type: object
+                  properties:
+                    __v:
+                      type: integer
       responses:
         '200':
           description: Trailer updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TrailerResponse'
+                $ref: '#/components/schemas/Trailer'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trailer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Version or unique conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
-      summary: Delete a trailer
       tags: [Trailers]
+      summary: Delete a trailer
+      description: Admin only
       security:
         - cookieAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: 60d21b4667d0d8992e610c85
+        - $ref: '#/components/parameters/IdParam'
       responses:
         '200':
-          description: Trailer deleted successfully
+          description: Trailer deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trailer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   securitySchemes:
@@ -503,23 +1505,176 @@ components:
       in: cookie
       name: token
 
+  parameters:
+    IdParam:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: MongoDB document id
+
   schemas:
-    RegisterRequest:
+    MessageResponse:
       type: object
-      required: [email, password, name, role]
       properties:
-        email:
+        message:
           type: string
-          example: demo@loadflow.ca
-        password:
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
           type: string
-          example: Password123!
+      required: [error]
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        pages:
+          type: integer
+
+    Notification:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+          nullable: true
+        targetRole:
+          type: string
+          enum: [Admin, Dispatcher, Driver]
+          nullable: true
+        message:
+          type: string
+        type:
+          type: string
+        link:
+          type: string
+          nullable: true
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AuditLog:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [Admin, Dispatcher, Driver]
+          nullable: true
+        action:
+          type: string
+        entityType:
+          type: string
+          nullable: true
+        entityId:
+          type: string
+          nullable: true
+        details:
+          type: object
+          additionalProperties: true
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        id:
+          type: string
         name:
           type: string
-          example: Jane Doe
+        email:
+          type: string
+          format: email
         role:
           type: string
-          example: Dispatcher
+          enum: [Admin, Dispatcher, Driver]
+        isPending:
+          type: boolean
+        phone:
+          type: string
+          nullable: true
+        licenseNumber:
+          type: string
+          nullable: true
+        dob:
+          type: string
+          format: date-time
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        province:
+          type: string
+          nullable: true
+        postalCode:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        resetPasswordRequested:
+          type: boolean
+        resetPasswordApproved:
+          type: boolean
+        loginAttempts:
+          type: integer
+        isLocked:
+          type: boolean
+        lockedUntil:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        __v:
+          type: integer
+
+    CheckEmailResponse:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [Driver, Dispatcher]
+        isPending:
+          type: boolean
+        name:
+          type: string
 
     LoginRequest:
       type: object
@@ -527,165 +1682,463 @@ components:
       properties:
         email:
           type: string
-          example: demo@loadflow.ca
+          format: email
         password:
           type: string
-          example: Password123!
 
-    User:
+    LoginSuccessResponse:
       type: object
       properties:
-        id:
+        message:
           type: string
-          example: user_1
-        email:
-          type: string
-          example: demo@loadflow.ca
-        name:
-          type: string
-          example: Jane Doe
-        role:
-          type: string
-          example: Dispatcher
-
-    LoginResponse:
-      type: object
-      properties:
-        token:
-          type: string
-          example: jwt_token_here
         user:
-          $ref: '#/components/schemas/User'
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            role:
+              type: string
+              enum: [Admin, Dispatcher, Driver]
 
-    CreateLoadRequest:
-      type: object
-      required: [loadNumber, pickups, deliveries, weight, quantity]
-      properties:
-        loadNumber:
-          type: string
-          example: LD-2410
-        quantity:
-          type: number
-          example: 12
-        quantityUnit:
-          type: string
-          example: Pallets
-        weight:
-          type: number
-          example: 38000
-        weightUnit:
-          type: string
-          example: lbs
-        pickups:
-          type: array
-          items:
-            type: object
-            properties:
-              locationName:
-                type: string
-                example: Vancouver, BC
-              date:
-                type: string
-                format: date-time
-                example: 2026-03-01T11:00:00Z
-        deliveries:
-          type: array
-          items:
-            type: object
-            properties:
-              locationName:
-                type: string
-                example: Calgary, AB
-              date:
-                type: string
-                format: date-time
-                example: 2026-03-02T14:00:00Z
-
-    LoadResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: load_101
-        loadNumber:
-          type: string
-          example: LD-2410
-        quantity:
-          type: number
-          example: 12
-        weight:
-          type: number
-          example: 38000
-        pickups:
-          type: array
-          items:
-            type: object
-            properties:
-              locationName:
-                type: string
-                example: Vancouver, BC
-        deliveries:
-          type: array
-          items:
-            type: object
-            properties:
-              locationName:
-                type: string
-                example: Calgary, AB
-        status:
-          type: string
-          example: Pending
-        assignedDriverId:
-          type: string
-          nullable: true
-          example: null
-        createdAt:
-          type: string
-          format: date-time
-          example: 2026-03-01T11:00:00Z
-
-    CreatePodRequest:
-      type: object
-      required: [loadId, imageUrl]
-      properties:
-        loadId:
-          type: string
-          example: load_101
-        imageUrl:
-          type: string
-          example: https://storage.example.com/pod_101.jpg
-
-    PodResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: pod_1
-        loadId:
-          type: string
-          example: load_101
-        imageUrl:
-          type: string
-          example: https://storage.example.com/pod_101.jpg
-        uploadedAt:
-          type: string
-          format: date-time
-          example: 2026-03-12T10:00:00Z
-
-    ErrorResponse:
+    LockedAccountResponse:
       type: object
       properties:
         error:
-          type: object
-          properties:
-            code:
-              type: string
-              example: VALIDATION_ERROR
-            message:
-              type: string
-              example: Required fields are missing
-            details:
-              type: array
-              items:
-                type: string
-              example: []
+          type: string
+        locked:
+          type: boolean
+        message:
+          type: string
+
+    PublicRegisterRequest:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+          enum: [Driver, Dispatcher]
+        phone:
+          type: string
+        licenseNumber:
+          type: string
+        dob:
+          type: string
+          format: date
+        city:
+          type: string
+        province:
+          type: string
+        postalCode:
+          type: string
+        address:
+          type: string
+
+    AdminInviteRequest:
+      type: object
+      required: [email]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          description: Optional starter password. If omitted, invitation stays pending.
+        role:
+          type: string
+          enum: [Admin, Dispatcher, Driver]
+
+    ResetPasswordRequest:
+      type: object
+      required: [email, password, confirmPassword]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        confirmPassword:
+          type: string
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        province:
+          type: string
+        postalCode:
+          type: string
+        licenseNumber:
+          type: string
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [Admin, Dispatcher, Driver]
+        isPending:
+          type: boolean
+        phone:
+          type: string
+        licenseNumber:
+          type: string
+        city:
+          type: string
+        province:
+          type: string
+        postalCode:
+          type: string
+        address:
+          type: string
+        resetPasswordRequested:
+          type: boolean
+        resetPasswordApproved:
+          type: boolean
+        loginAttempts:
+          type: integer
+        isLocked:
+          type: boolean
+        __v:
+          type: integer
+
+    Stop:
+      type: object
+      required:
+        - address
+        - city
+        - state
+        - postalCode
+        - appointmentNumber
+        - date
+        - time
+      properties:
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        appointmentNumber:
+          type: string
+        date:
+          type: string
+          format: date-time
+        time:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, PICKED_UP, DELIVERED]
+
+    CreateLoadRequest:
+      type: object
+      required:
+        - loadNumber
+        - pickups
+        - deliveries
+        - quantity
+        - quantityUnit
+        - weight
+        - weightUnit
+      properties:
+        loadNumber:
+          type: string
+        pickups:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Stop'
+        deliveries:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Stop'
+        quantity:
+          type: number
+        quantityUnit:
+          type: string
+          enum: [skids, pallets, packages, pieces, box, cases]
+        weight:
+          type: number
+        weightUnit:
+          type: string
+          enum: [lbs, kg]
+
+    AssignLoadRequest:
+      type: object
+      required: [assignedDriverId, truckNumber, trailerNumber]
+      properties:
+        assignedDriverId:
+          type: string
+        truckNumber:
+          type: string
+        trailerNumber:
+          type: string
+        truckType:
+          type: string
+          enum: [Sleeper Cab, Day Cab]
+        trailerType:
+          type: string
+          enum: [Dry Van, Reefer, Tri Axle, Flatbed]
+        __v:
+          type: integer
+
+    LoadStatusPatchRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
+        stopType:
+          type: string
+          enum: [pickups, deliveries]
+        stopIndex:
+          type: integer
+        stopStatus:
+          type: string
+          enum: [PENDING, PICKED_UP, DELIVERED]
+        assignedDriverId:
+          type: string
+          nullable: true
+        truckNumber:
+          type: string
+          nullable: true
+        trailerNumber:
+          type: string
+          nullable: true
+        truckType:
+          type: string
+          enum: [Sleeper Cab, Day Cab]
+          nullable: true
+        trailerType:
+          type: string
+          enum: [Dry Van, Reefer, Tri Axle, Flatbed]
+          nullable: true
+        __v:
+          type: integer
+
+    Load:
+      type: object
+      properties:
+        _id:
+          type: string
+        loadNumber:
+          type: string
+        pickups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+        quantity:
+          type: number
+        quantityUnit:
+          type: string
+          enum: [skids, pallets, packages, pieces, box, cases]
+        weight:
+          type: number
+        weightUnit:
+          type: string
+          enum: [lbs, kg]
+        truckType:
+          type: string
+          enum: [Sleeper Cab, Day Cab]
+          nullable: true
+        trailerType:
+          type: string
+          enum: [Dry Van, Reefer, Tri Axle, Flatbed]
+          nullable: true
+        trailerNumber:
+          type: string
+          nullable: true
+        truckNumber:
+          type: string
+          nullable: true
+        assignedDriverId:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+          nullable: true
+        createdBy:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+        status:
+          type: string
+          enum: [PENDING, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
+        podUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        __v:
+          type: integer
+
+    Pod:
+      type: object
+      properties:
+        _id:
+          type: string
+        loadId:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Load'
+        imageUrl:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateTruckRequest:
+      type: object
+      required: [truckNo, vin, plate, year, make, model, truckType]
+      properties:
+        truckNo:
+          type: string
+        vin:
+          type: string
+        plate:
+          type: string
+        year:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        truckType:
+          type: string
+          enum: [Sleeper Cab, Day Cab]
+
+    Truck:
+      type: object
+      properties:
+        _id:
+          type: string
+        truckNo:
+          type: string
+        vin:
+          type: string
+        plate:
+          type: string
+        year:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        truckType:
+          type: string
+          enum: [Sleeper Cab, Day Cab]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        __v:
+          type: integer
+
+    CreateTrailerRequest:
+      type: object
+      required: [trailerNo, vin, plate, year, make, model, trailerType]
+      properties:
+        trailerNo:
+          type: string
+        vin:
+          type: string
+        plate:
+          type: string
+        year:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        trailerType:
+          type: string
+          enum: [Dry Van, Reefer, Tri Axle, Flatbed]
+
+    Trailer:
+      type: object
+      properties:
+        _id:
+          type: string
+        trailerNo:
+          type: string
+        vin:
+          type: string
+        plate:
+          type: string
+        year:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        trailerType:
+          type: string
+          enum: [Dry Van, Reefer, Tri Axle, Flatbed]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        __v:
+          type: integer
