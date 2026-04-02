@@ -284,7 +284,10 @@ export default function NotificationBell({
                       <Link
                         href={n.link || "#"}
                         className="text-decoration-none"
-                        onClick={() => markAsRead(n._id)}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          markAsRead(n._id);
+                        }}
                       >
                         <p className="notification-text small text-white opacity-90 m-0 fw-medium mb-1 pe-4">
                           {n.message}

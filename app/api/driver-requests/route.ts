@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Notification from "@/models/Notification";
+import User from "@/models/User";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -19,16 +20,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "First Name, Last Name, and Email are required" }, { status: 400 });
     }
 
-    // Create a notification for Admins
+    // Check if the user already exists as a member
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ error: "This email is already associated with an existing member." }, { status: 400 });
+    }
+
+    // Fetch the full requester user to get their name for the notification
+    const requester = await User.findById(user.id);
+    const requesterName = requester ? (requester.name || requester.email) : "A Dispatcher";
+
+    // Create a notification for Admins with auto-fill parameters
     await Notification.create({
-      message: `Driver Request from ${user.name || user.email}: Add ${firstName} ${lastName} (${email})`,
+      message: `Driver Request from ${requesterName}: Add ${firstName} ${lastName} (${email})`,
       type: 'INFO',
       targetRole: 'Admin',
-      link: '/dashboard/users/create'
+      link: `/dashboard/users?action=invite&email=${encodeURIComponent(email)}&firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`
     });
 
     return NextResponse.json({ message: "Driver request sent successfully" });
   } catch (error: unknown) {
+    console.error("Driver Request Error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Error" }, { status: 500 });
   }
 }

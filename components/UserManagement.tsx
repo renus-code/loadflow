@@ -5,6 +5,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import { useSearch } from "@/context/SearchContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -187,11 +188,39 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
+  const [revokeTarget, setRevokeTarget] = useState<User | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [actionStatus, setActionStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const searchTerm = useSearch((state) => state.searchTerm);
   const setSearchTerm = useSearch((state) => state.setSearchTerm);
 
+  const searchParams = useSearchParams();
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UserFormData>();
   const currentUser = useAuth((state) => state.user);
+
+  // Auto-fill from query params (e.g. from Dispatcher request notification)
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'invite') {
+      const email = searchParams.get('email');
+      const firstName = searchParams.get('firstName');
+      const lastName = searchParams.get('lastName');
+
+      if (email || firstName || lastName) {
+        setIsEditing(false);
+        setEditingId("");
+        reset({
+          email: email || "",
+          firstName: firstName || "",
+          lastName: lastName || "",
+          role: "Driver"
+        });
+        setShowModal(true);
+      }
+    }
+  }, [searchParams, reset]);
 
   const fetchUsers = async () => {
     try {
@@ -262,13 +291,27 @@ export default function UserManagement() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+  const handleDelete = (user: User) => {
+    setDeleteTarget(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
-      if (res.ok) fetchUsers();
-      else alert('Failed to delete user');
-    } catch (error) { console.error("Delete error:", error); }
+      const res = await fetch(`/api/users/${deleteTarget._id}`, { method: "DELETE" });
+      if (res.ok) {
+        setActionStatus({ type: 'success', message: `User "${deleteTarget.name}" has been permanently deleted.` });
+        fetchUsers();
+      } else {
+        const errorData = await res.json();
+        setActionStatus({ type: 'error', message: errorData.error || 'Failed to delete user.' });
+      }
+    } catch (error) {
+      setActionStatus({ type: 'error', message: 'An unexpected error occurred during deletion.' });
+    } finally {
+      setShowDeleteConfirm(false);
+    }
   };
 
   const handleUnlock = async (id: string) => {
@@ -299,19 +342,26 @@ export default function UserManagement() {
     } catch (error) { console.error("Approve reset error:", error); }
   };
 
-  const handleRevokeSession = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to revoke all active sessions for ${name}? They will be instantly logged out.`)) return;
+  const handleRevokeSession = (user: User) => {
+    setRevokeTarget(user);
+    setShowRevokeConfirm(true);
+  };
+
+  const confirmRevoke = async () => {
+    if (!revokeTarget) return;
     try {
-      const res = await fetch(`/api/users/${id}/revoke`, { method: "POST" });
+      const res = await fetch(`/api/users/${revokeTarget._id}/revoke`, { method: "POST" });
       if (res.ok) {
-        alert(`All sessions revoked for ${name}.`);
+        setActionStatus({ type: 'success', message: `All sessions revoked for ${revokeTarget.name}. They have been logged out.` });
         fetchUsers();
       } else {
         const errorData = await res.json();
-        alert(errorData.error || 'Failed to revoke session');
+        setActionStatus({ type: 'error', message: errorData.error || 'Failed to revoke sessions.' });
       }
     } catch (error) {
-      console.error("Revoke error:", error);
+      setActionStatus({ type: 'error', message: 'An unexpected error occurred.' });
+    } finally {
+      setShowRevokeConfirm(false);
     }
   };
 
@@ -439,13 +489,6 @@ export default function UserManagement() {
                     </td>
                     <td className="px-4 py-4 text-center">
                       <div className="d-flex align-items-center justify-content-center gap-2">
-                        {u.isPending && isAdmin && (
-                          <button
-                            onClick={() => handleApproveUser(u._id)}
-                            className="btn btn-sm btn-emerald-solid rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
-                            style={{ fontSize: '0.75rem' }}
-                          >Approve Driver</button>
-                        )}
                         {u.isLocked && isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
                           <button
                             onClick={() => handleUnlock(u._id)}
@@ -465,18 +508,15 @@ export default function UserManagement() {
                         {u.resetPasswordApproved && (
                           <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">Reset Approved</span>
                         )}
-<<<<<<< Updated upstream
-                        <button onClick={() => handleRevokeSession(u._id, u.name)} className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all" style={{ fontSize: '0.75rem' }} title="Instantly log out this user everywhere">Revoke</button>
-                        <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
-                        <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
-=======
+                        {isAdmin && (
+                          <button onClick={() => handleRevokeSession(u)} className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all" style={{ fontSize: '0.75rem' }} title="Instantly log out this user everywhere">Revoke</button>
+                        )}
                         {isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
                           <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
                         )}
                         {isAdmin && u.role !== 'Admin' && (
-                          <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
+                          <button onClick={() => handleDelete(u)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
                         )}
->>>>>>> Stashed changes
                       </div>
                     </td>
                   </tr>
@@ -532,7 +572,7 @@ export default function UserManagement() {
               </div>
 
               <p className="small text-white opacity-50 mb-4 fw-medium">
-                {isEditing ? "Update account details. Email cannot be changed during registration." : isDispatcher ? "Fill in the driver's details. An administrator will review and approve the request." : "Invited users will receive access once they register with this email and set their password."}
+                {isEditing ? "Update account details. Email cannot be changed during registration." : isDispatcher ? "Fill in the driver's details. An admin will review the request and send an official invitation." : "Invited users will become active as soon as they complete their registration and set a password."}
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -595,6 +635,63 @@ export default function UserManagement() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* CUSTOM DELETE CONFIRMATION MODAL */}
+      {showDeleteConfirm && (
+        <ModalPortal>
+          <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(12px)", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+            <div className="animate-scale-in w-100" style={{ maxWidth: "420px", background: "rgb(13, 18, 38)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "24px", boxShadow: "0 25px 50px rgba(0,0,0,0.6)", padding: "40px", textAlign: "center" }}>
+              <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </div>
+              <h3 className="text-white fw-black mb-3" style={{ fontFamily: 'var(--font-syne)' }}>Delete User?</h3>
+              <p className="text-white opacity-50 mb-4 fw-medium">Are you sure you want to permanently delete <strong>{deleteTarget?.name}</strong>? This action cannot be undone.</p>
+              <div className="d-flex gap-3">
+                <button className="btn btn-glass-secondary w-50 rounded-pill py-2 fw-bold" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+                <button className="btn w-50 rounded-pill py-2 fw-black border-0" style={{ background: '#ef4444', color: '#fff' }} onClick={confirmDelete}>Yes, Delete</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* CUSTOM REVOKE CONFIRMATION MODAL */}
+      {showRevokeConfirm && (
+        <ModalPortal>
+          <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+            <div className="animate-scale-in w-100" style={{ maxWidth: "420px", background: "rgb(13, 18, 38)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "24px", boxShadow: "0 25px 50px rgba(0,0,0,0.6)", padding: "40px", textAlign: "center" }}>
+              <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b" }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <h3 className="text-white fw-black mb-3" style={{ fontFamily: 'var(--font-syne)' }}>Revoke Sessions?</h3>
+              <p className="text-white opacity-50 mb-4 fw-medium">Are you sure you want to log out <strong>{revokeTarget?.name}</strong> from all devices? They will need to sign in again.</p>
+              <div className="d-flex gap-3">
+                <button className="btn btn-glass-secondary w-50 rounded-pill py-2 fw-bold" onClick={() => setShowRevokeConfirm(false)}>Cancel</button>
+                <button className="btn w-50 rounded-pill py-2 fw-black border-0" style={{ background: '#f59e0b', color: '#000' }} onClick={confirmRevoke}>Yes, Revoke</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* STATUS FEEDBACK MODAL */}
+      {actionStatus && (
+        <ModalPortal>
+          <div style={{ position: "fixed", inset: 0, zIndex: 9999999, background: "rgba(0,0,0,0.2)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+            <div className="animate-scale-in w-100" style={{ maxWidth: "400px", background: "rgb(13, 18, 38)", border: `1px solid ${actionStatus.type === 'success' ? 'rgba(45, 221, 102, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`, borderRadius: "24px", boxShadow: "0 25px 50px rgba(0,0,0,0.6)", padding: "40px", textAlign: "center" }}>
+              <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: "64px", height: "64px", borderRadius: "50%", background: actionStatus.type === 'success' ? "rgba(45, 221, 102, 0.1)" : "rgba(239, 68, 68, 0.1)", color: actionStatus.type === 'success' ? "#2bdd66" : "#ef4444" }}>
+                {actionStatus.type === 'success' ? (
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                ) : (
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                )}
+              </div>
+              <p className="text-white fw-bold mb-4">{actionStatus.message}</p>
+              <button className="btn btn-glass-secondary w-100 rounded-pill py-2 fw-bold" onClick={() => setActionStatus(null)}>Dismiss</button>
             </div>
           </div>
         </ModalPortal>

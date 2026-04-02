@@ -6,6 +6,7 @@ import Notification from '@/models/Notification';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { logAction } from '@/lib/audit';
+import { sendInvitationEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,7 +49,36 @@ export async function POST(req: NextRequest) {
         existingUser.role = targetRole;
         if (passwordHash) existingUser.passwordHash = passwordHash;
         await existingUser.save();
-        await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITE_UPDATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email, role } });
+        await logAction({ req, userId: userPayload!.id, action: 'USER_INVITE_UPDATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email, role } });
+
+        // Notify original Dispatcher that Admin has invited the user
+        if (isAdmin && existingUser.requestedBy) {
+          try {
+            await Notification.create({
+              message: `Your candidate ${existingUser.name || email} has been officially invited by the Administrator.`,
+              type: 'SUCCESS',
+              userId: existingUser.requestedBy,
+              link: '/dashboard/users'
+            });
+            
+            // SEND INVITATION EMAIL TO DRIVER
+            await sendInvitationEmail({
+              to: email,
+              name: existingUser.name || 'Candidate',
+              role: targetRole
+            });
+          } catch (notifErr) { console.error('Failed to notify/email driver for invite:', notifErr); }
+        } else if (isAdmin) {
+          // Direct admin invite (no dispatcher request)
+          try {
+            await sendInvitationEmail({
+              to: email,
+              name: existingUser.name || 'Candidate',
+              role: targetRole
+            });
+          } catch (err) { console.error('Failed to send direct admin invite email:', err); }
+        }
+
         return NextResponse.json({ message: 'Invitation updated successfully' }, { status: 200 });
       } else {
         // Create new invitation or request
@@ -61,16 +91,13 @@ export async function POST(req: NextRequest) {
           requestedBy: isDispatcher ? userPayload!.id : undefined
         });
         await newUser.save();
-<<<<<<< Updated upstream
-        await logAction({ req, userId: adminPayload!.id, action: 'USER_INVITED', entityType: 'User', entityId: newUser._id.toString(), details: { email, role } });
-        return NextResponse.json({ message: 'Invitation sent successfully', userId: newUser._id }, { status: 201 });
-=======
+        await logAction({ req, userId: userPayload!.id, action: 'USER_INVITED', entityType: 'User', entityId: newUser._id.toString(), details: { email, role } });
 
         // Create Admin Notification for Dispatcher requests
         if (isDispatcher) {
           try {
             await Notification.create({
-              message: `New driver request: ${name || email} submitted by Dispatcher ${userPayload!.email}`,
+              message: `New driver request: ${name || email} submitted by Dispatcher`,
               type: 'INFO',
               targetRole: 'Admin',
               link: '/dashboard/users'
@@ -78,10 +105,21 @@ export async function POST(req: NextRequest) {
           } catch (notifErr) {
             console.error('Failed to create notification:', notifErr);
           }
+        } else if (isAdmin) {
+          // Admin creating a direct invite
+          try {
+            await sendInvitationEmail({
+              to: email,
+              name: name || 'Invited User',
+              role: targetRole
+            });
+          } catch (err) {
+            console.error('Failed to send direct admin invite email:', err);
+          }
         }
 
-        return NextResponse.json({ message: 'Driver request submitted successfully', userId: newUser._id }, { status: 201 });
->>>>>>> Stashed changes
+        const message = isDispatcher ? 'Driver request submitted successfully' : 'Invitation sent successfully';
+        return NextResponse.json({ message, userId: newUser._id }, { status: 201 });
       }
     } else if (isDispatcher) {
       return NextResponse.json({ error: 'Dispatchers can only request driver accounts.' }, { status: 403 });
@@ -155,6 +193,28 @@ export async function POST(req: NextRequest) {
       await existingUser.save();
 
       await logAction({ req, userId: existingUser._id.toString(), action: 'USER_ACTIVATED', entityType: 'User', entityId: existingUser._id.toString(), details: { email } });
+
+      // Notify Admins of new registration
+      try {
+        await Notification.create({
+          message: `Registration Complete: ${existingUser.name} (${email}) has activated their driver account.`,
+          type: 'SUCCESS',
+          targetRole: 'Admin',
+          link: '/dashboard/users'
+        });
+      } catch (notifErr) { console.error('Failed to notify admin of activation:', notifErr); }
+
+      // Notify original Dispatcher of candidate activation
+      if (existingUser.requestedBy) {
+        try {
+          await Notification.create({
+            message: `Success! Your driver candidate ${existingUser.name} has completed registration and is now ready for assignment.`,
+            type: 'SUCCESS',
+            userId: existingUser.requestedBy,
+            link: '/dashboard'
+          });
+        } catch (notifErr) { console.error('Failed to notify dispatcher of activation:', notifErr); }
+      }
 
       return NextResponse.json({ message: 'Account activated successfully' }, { status: 200 });
     }

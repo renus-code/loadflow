@@ -449,6 +449,10 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleAssign = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (user.role !== "Dispatcher") {
+      alert("Only dispatchers can modify load assignments.");
+      return;
+    }
     try {
       const response = await fetch(`/api/loads/${load._id}/assign`, {
         method: "PUT", // API uses PUT for assignment
@@ -488,6 +492,10 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleUnassign = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (user.role !== "Dispatcher") {
+      alert("Only dispatchers can modify load assignments.");
+      return;
+    }
     try {
       const response = await fetch(`/api/loads/${load._id}/status`, {
         method: "PATCH",
@@ -552,6 +560,10 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleApproveLoad = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (user.role !== "Dispatcher") {
+      alert("Only dispatchers can finalize load status.");
+      return;
+    }
     try {
       const response = await fetch(`/api/loads/${load._id}/status`, {
         method: "PATCH",
@@ -779,10 +791,12 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                         <div className="row mt-4 pt-4 border-top border-white border-opacity-5 animate-fade-in">
                           <div className="col-6">
                             <div className="d-flex align-items-center gap-2 mb-1">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-emerald opacity-70">
-                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                                <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
-                              </svg>
+                              <div className="p-1 px-2 rounded-2 bg-emerald bg-opacity-10 border border-emerald border-opacity-10 d-flex align-items-center justify-content-center">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="3" style={{ filter: "drop-shadow(0 0 4px rgba(45, 221, 102, 0.4))" }}>
+                                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                                  <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+                                </svg>
+                              </div>
                               <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
                                 Route Distance
                               </label>
@@ -797,9 +811,11 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
                                 Est. Transit Time
                               </label>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-emerald opacity-70">
-                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                              </svg>
+                              <div className="p-1 px-2 rounded-2 bg-indigo bg-opacity-10 border border-indigo border-opacity-10 d-flex align-items-center justify-content-center">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="3" style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}>
+                                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                              </div>
                             </div>
                             <div className="fw-black fs-3 text-white">
                               {load.estimatedDuration ? load.estimatedDuration.toLocaleString() : "—"}{" "}
@@ -833,8 +849,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             Fleet Assignment
                           </h6>
                         </div>
-                        {(user.role === "Admin" ||
-                          user.role === "Dispatcher") &&
+                        {user.role === "Dispatcher" &&
                           load.assignedDriverId &&
                           !showEditAssignment && (
                             <button
@@ -993,6 +1008,26 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               </div>
                             </div>
                           </div>
+                        </div>
+                      ) : user.role === "Admin" ? (
+                        <div
+                          className="p-5 rounded-4 border border-white border-opacity-10 text-center"
+                          style={{
+                            background: "rgba(255, 255, 255, 0.02)",
+                            boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)",
+                          }}
+                        >
+                          <div
+                            className="bg-indigo bg-opacity-10 p-3 rounded-circle d-inline-flex mx-auto mb-3"
+                            style={{ border: "1px solid rgba(99, 102, 241, 0.1)" }}
+                          >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5">
+                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                          </div>
+                          <h6 className="fw-black text-white text-uppercase tracking-widest small mb-2">
+                            Fleet Assignment Pending
+                          </h6>
                         </div>
                       ) : (
                         <div
@@ -1244,8 +1279,33 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 width: "12px",
                                 height: "12px",
                                 border: "3px solid #060e20",
+                                zIndex: 2,
+                                position: "relative",
                               }}
                             ></div>
+                            {/* Pinpoint Line */}
+                            <div 
+                              className="position-absolute" 
+                              style={{ 
+                                left: "6px", 
+                                top: "6px", 
+                                width: "1.25rem", 
+                                height: "1.5px", 
+                                background: "linear-gradient(90deg, #2bdd66, rgba(45, 221, 102, 0.2))", 
+                                zIndex: 1,
+                              }} 
+                            />
+                            <div 
+                              className="position-absolute rounded-circle bg-emerald"
+                              style={{
+                                left: "1.65rem",
+                                top: "4.5px",
+                                width: "4px",
+                                height: "4px",
+                                boxShadow: "0 0 8px rgba(45, 221, 102, 0.6)",
+                                zIndex: 3
+                              }}
+                            />
                           </div>
                           <div
                             className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
@@ -1348,8 +1408,33 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 width: "12px",
                                 height: "12px",
                                 border: "3px solid #060e20",
+                                zIndex: 2,
+                                position: "relative",
                               }}
                             ></div>
+                            {/* Pinpoint Line */}
+                            <div 
+                              className="position-absolute" 
+                              style={{ 
+                                left: "6px", 
+                                top: "6px", 
+                                width: "1.25rem", 
+                                height: "1.5px", 
+                                background: "linear-gradient(90deg, #6366f1, rgba(99, 102, 241, 0.2))", 
+                                zIndex: 1,
+                              }} 
+                            />
+                            <div 
+                              className="position-absolute rounded-circle bg-indigo"
+                              style={{
+                                left: "1.65rem",
+                                top: "4.5px",
+                                width: "4px",
+                                height: "4px",
+                                boxShadow: "0 0 8px rgba(99, 102, 241, 0.6)",
+                                zIndex: 3
+                              }}
+                            />
                           </div>
                           <div
                             className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
@@ -1480,7 +1565,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                       </button>
                     )}
 
-                    {(user.role === "Admin" || user.role === "Dispatcher") &&
+                    {user.role === "Dispatcher" &&
                       load.status !== "COMPLETED" && (
                         <button
                           type="button"

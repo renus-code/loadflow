@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
-<<<<<<< Updated upstream
 import { checkRateLimit } from '@/lib/ratelimit';
-=======
 import Notification from '@/models/Notification';
->>>>>>> Stashed changes
 
 export async function POST(req: NextRequest) {
   try {

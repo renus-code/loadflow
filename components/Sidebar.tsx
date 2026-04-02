@@ -356,28 +356,10 @@ export default function Sidebar() {
             </Link>
           )}
 
-<<<<<<< Updated upstream
-          {user?.role === 'Admin' && (
-             <Link
-                href="/dashboard/users"
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
-                  pathname.startsWith('/dashboard/users') 
-                  ? 'bg-admin-glow shadow-admin border-admin' 
-                  : 'text-white-50 hover-bg-white-5 hover-text-white'
-                }`}
-             >
-                {pathname.startsWith('/dashboard/users') && <div className="active-indicator-compact bg-blue shadow-admin"></div>}
-                <div className="icon-wrapper d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '24px' }}>
-                  <UsersIcon active={pathname.startsWith('/dashboard/users')} />
-                </div>
-                <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/users') ? 'text-white' : ''}>User Management</span>
-             </Link>
-          )}
-
           {user?.role === 'Admin' && (
              <Link
                 href="/dashboard/audit"
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-2 w-100 text-nowrap ${
                   pathname.startsWith('/dashboard/audit') 
                   ? 'bg-admin-glow shadow-admin border-admin' 
                   : 'text-white-50 hover-bg-white-5 hover-text-white'
@@ -390,9 +372,8 @@ export default function Sidebar() {
                 <span style={{ opacity: isCollapsed ? 0 : 1, transition: 'opacity 0.2s ease' }} className={pathname.startsWith('/dashboard/audit') ? 'text-white' : ''}>Audit Logs</span>
              </Link>
           )}
-=======
+
           <NotificationBell variant="sidebar" isCollapsed={isCollapsed} />
->>>>>>> Stashed changes
         </div>
 
 

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import PasswordStrength from "@/components/PasswordStrength";
 import { StateProvinceSelect, CitySelect } from "@/components/LocationSelects";
@@ -24,8 +24,10 @@ type RegisterFormData = {
   postalCode: string;
 };
 
-export default function Register() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get("email");
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +44,18 @@ export default function Register() {
     trigger,
     control,
     formState: { errors },
-  } = useForm<RegisterFormData>();
+  } = useForm<RegisterFormData>({
+    defaultValues: {
+      email: emailParam || "",
+    },
+  });
+
+  // Sync email param if it changes (rare but good for UX)
+  useEffect(() => {
+    if (emailParam) {
+      setValue("email", emailParam);
+    }
+  }, [emailParam, setValue]);
 
   const selectedProvince = watch("province");
   const emailValue = watch("email");
@@ -626,5 +639,19 @@ export default function Register() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function Register() {
+  return (
+    <Suspense fallback={
+      <div className="min-vh-100 premium-bg d-flex align-items-center justify-content-center">
+        <div className="spinner-border text-emerald" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }

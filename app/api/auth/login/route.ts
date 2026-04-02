@@ -1,19 +1,11 @@
 // Login API: Checks passwords and sets a secure login cookie.
-<<<<<<< Updated upstream
-import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { SignJWT } from 'jose';
-import connectToDatabase from '@/lib/mongodb';
-import User from '@/models/User';
-import { checkRateLimit } from '@/lib/ratelimit';
-=======
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 import Notification from "@/models/Notification";
->>>>>>> Stashed changes
+import { checkRateLimit } from "@/lib/ratelimit";
 
 const MAX_ATTEMPTS = 3; // Lock after 3 failed attempts
 
@@ -133,20 +125,12 @@ export async function POST(req: NextRequest) {
       process.env.JWT_SECRET ||
         "fallback_secret_for_development_do_not_use_in_prod",
     );
-<<<<<<< Updated upstream
     const token = await new SignJWT({ 
       id: user._id.toString(), 
       role: user.role, 
       tokenVersion: user.tokenVersion || 0 
     })
-      .setProtectedHeader({ alg: 'HS256' })
-=======
-    const token = await new SignJWT({
-      id: user._id.toString(),
-      role: user.role,
-    })
       .setProtectedHeader({ alg: "HS256" })
->>>>>>> Stashed changes
       .setIssuedAt()
       .setExpirationTime("24h")
       .sign(secret);

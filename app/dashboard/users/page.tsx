@@ -4,7 +4,7 @@ import UserManagement from "@/components/UserManagement";
 import { useAuth } from "@/context/AuthContext";
 import { useSearch } from "@/context/SearchContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
 export default function UsersPage() {
   const user = useAuth((state) => state.user);
@@ -70,7 +70,9 @@ export default function UsersPage() {
 
       <div className="row justify-content-center">
         <div className="col-12 px-2">
-          <UserManagement />
+          <Suspense fallback={<div className="text-white opacity-50 p-4">Loading Management...</div>}>
+            <UserManagement />
+          </Suspense>
         </div>
       </div>
     </div>

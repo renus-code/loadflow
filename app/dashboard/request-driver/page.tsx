@@ -4,6 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+interface DriverRequestFields {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 
 const UserPlusIcon = ({ active }: { active?: boolean }) => (
   <svg
@@ -29,17 +36,18 @@ const UserPlusIcon = ({ active }: { active?: boolean }) => (
 export default function RequestDriverPage() {
   const router = useRouter();
   const user = useAuth((state) => state.user);
-  
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { register, handleSubmit: hookSubmit, formState: { errors }, reset } = useForm<DriverRequestFields>({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+    }
+  });
+
+  const onSubmit: SubmitHandler<DriverRequestFields> = async (data) => {
     setLoading(true);
     setMessage(null);
 
@@ -47,31 +55,22 @@ export default function RequestDriverPage() {
       const res = await fetch("/api/driver-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
+
+      const result = await res.json();
 
       if (res.ok) {
         setMessage({ type: "success", text: "Driver request sent successfully to Administrator." });
-        setFormData({ firstName: "", lastName: "", email: "" });
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
+        reset();
       } else {
-        const errorData = await res.json();
-        setMessage({ type: "error", text: errorData.error || "Failed to send driver request." });
+        setMessage({ type: "error", text: result.error || "Failed to send driver request." });
       }
     } catch (err) {
       setMessage({ type: "error", text: "An error occurred while sending the request." });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
   };
 
   if (!user || user.role !== "Dispatcher") {
@@ -162,70 +161,77 @@ export default function RequestDriverPage() {
 
               {/* RIGHT FORM PANEL */}
               <div className="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
-                <div className="mb-4">
-                  <h3 className="fs-4 fw-black text-white tracking-widest text-uppercase d-md-none mb-3 border-bottom border-white border-opacity-10 pb-3">
-                    <span className="text-emerald pe-2">✦</span> Request Driver
-                  </h3>
-                  <p className="text-white opacity-40 small fw-bold tracking-widest text-uppercase mb-4">Complete candidate details</p>
-                </div>
-
                 {message && (
-                  <div className={`alert ${message.type === 'success' ? 'alert-success border-emerald bg-emerald bg-opacity-10 text-emerald' : 'alert-danger border-danger bg-danger bg-opacity-10 text-danger'} rounded-4 border p-3 mb-4 d-flex align-items-center gap-3 animate-fade-in`}>
-                    <div className="fw-bold fs-6">{message.text}</div>
+                  <div className={`alert-custom ${message.type === 'success' ? 'alert-success-premium' : 'alert-danger-premium'} rounded-4 px-3 py-2 mb-3 d-flex align-items-center gap-2 animate-fade-in shadow-sm small`}>
+                    <div className="flex-shrink-0">
+                      {message.type === 'success' ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                      )}
+                    </div>
+                    <div className="fw-bold">{message.text}</div>
                   </div>
                 )}
+                
+                <div className="mb-2">
+                  <h3 className="fs-4 fw-black text-white tracking-widest text-uppercase d-md-none mb-2 border-bottom border-white border-opacity-10 pb-2">
+                    <span className="text-emerald pe-2">✦</span> Request Driver
+                  </h3>
+                  <p className="text-white opacity-40 small fw-bold tracking-widest text-uppercase mb-1">Complete candidate details</p>
+                </div>
 
-                <form onSubmit={handleSubmit} className="mt-2">
+                <form onSubmit={hookSubmit(onSubmit)} className="mt-0">
                   <div className="row g-4">
                     {/* FIRST NAME */}
                     <div className="col-md-6 form-group">
                       <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">First Name</label>
-                      <div className="input-icon-wrapper rounded-4 overflow-hidden border border-white border-opacity-10 shadow-sm transition-all focus-ring-emerald">
+                      <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.firstName ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="text"
-                          name="firstName"
+                          {...register("firstName", { required: "First name is required" })}
                           className="form-control bg-transparent text-white border-0 px-4 py-3 shadow-none w-100 fw-medium"
                           placeholder="e.g. John"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          required
                           disabled={loading}
                         />
                       </div>
+                      {errors.firstName && <div className="text-danger xx-small mt-1 ps-2 fw-bold animate-fade-in">{errors.firstName.message}</div>}
                     </div>
 
                     {/* LAST NAME */}
                     <div className="col-md-6 form-group">
                       <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">Last Name</label>
-                      <div className="input-icon-wrapper rounded-4 overflow-hidden border border-white border-opacity-10 shadow-sm transition-all focus-ring-emerald">
+                      <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.lastName ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="text"
-                          name="lastName"
+                          {...register("lastName", { required: "Last name is required" })}
                           className="form-control bg-transparent text-white border-0 px-4 py-3 shadow-none w-100 fw-medium"
                           placeholder="e.g. Doe"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          required
                           disabled={loading}
                         />
                       </div>
+                      {errors.lastName && <div className="text-danger xx-small mt-1 ps-2 fw-bold animate-fade-in">{errors.lastName.message}</div>}
                     </div>
 
                     {/* EMAIL */}
                     <div className="col-12 form-group">
                       <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">Direct Email Address</label>
-                      <div className="input-icon-wrapper rounded-4 overflow-hidden border border-white border-opacity-10 shadow-sm transition-all focus-ring-emerald">
+                      <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.email ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="email"
-                          name="email"
+                          {...register("email", { 
+                            required: "Email is required",
+                            pattern: {
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                              message: "Invalid email address"
+                            }
+                          })}
                           className="form-control bg-transparent text-white border-0 px-4 py-3 shadow-none w-100 fw-medium"
                           placeholder="john.doe@loadflow.com"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
                           disabled={loading}
                         />
                       </div>
+                      {errors.email && <div className="text-danger xx-small mt-1 ps-2 fw-bold animate-fade-in">{errors.email.message}</div>}
                     </div>
                     
                     {/* SUBMIT BUTTON */}
@@ -264,7 +270,10 @@ export default function RequestDriverPage() {
         .fw-black { font-weight: 900; }
         .text-gradient-emerald { background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-emerald { color: #2bdd66 !important; }
-        .bg-emerald { background-color: #2bdd66 !important; }
+        .bg-emerald-solid { background-color: #2bdd66 !important; }
+        .alert-success-premium { background: rgba(43, 221, 102, 0.15); color: #2bdd66; border: 1px solid rgba(43, 221, 102, 0.3); }
+        .alert-danger-premium { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .alert-custom { backdrop-filter: blur(10px); }
         .xx-small { font-size: 0.7rem; }
         
         .btn-emerald {

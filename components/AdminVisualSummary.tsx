@@ -135,42 +135,44 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
       <div className="col-12 col-xl-5">
         <div className="glass-card-stitch p-4 h-100 rounded-5 border border-white border-opacity-10 d-flex flex-column">
           <h4 className="fw-black text-white mb-4" style={{ fontFamily: 'var(--font-syne)' }}>Driver Performance</h4>
-          <div className="d-flex flex-column gap-3 overflow-auto no-scrollbar flex-grow-1" style={{ maxHeight: '280px' }}>
+          <div className="d-flex flex-column gap-2 overflow-auto no-scrollbar flex-grow-1" style={{ maxHeight: '310px' }}>
             {drivers.length === 0 ? (
               <p className="text-white opacity-30 small text-center py-5 italic mt-auto mb-auto">No drivers registered in system</p>
             ) : drivers.map(driver => {
               const stats = getDriverStats(driver._id);
+              const efficiency = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+              const efficiencyColor = efficiency >= 80 ? '#2bdd66' : efficiency >= 40 ? '#f59e0b' : '#ef4444';
               return (
-                <div key={driver._id} className="premium-inner-card p-3 rounded-4 mb-3 position-relative overflow-hidden border border-white border-opacity-5 transition-all hover-float hover-bg-white-10 group" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                  <div className="d-flex align-items-center justify-content-between">
+                <div key={driver._id} className="premium-inner-card p-2 px-3 rounded-pill mb-2 position-relative overflow-hidden border border-white border-opacity-5 transition-all hover-float hover-bg-white-10 group" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                  <div className="d-flex align-items-center justify-content-between h-100 pb-1">
                     <div className="d-flex align-items-center gap-3">
-                      {/* AVATAR - PREMIUM */}
-                      <div className="rounded-circle bg-dark bg-opacity-80 border border-white border-opacity-10 d-flex align-items-center justify-content-center fw-black text-emerald shadow-lg" style={{ width: '48px', height: '48px', fontSize: '18px', borderStyle: 'solid', borderWidth: '2px' }}>
+                      {/* AVATAR - COMPACT */}
+                      <div className="rounded-circle bg-dark bg-opacity-80 border border-white border-opacity-20 d-flex align-items-center justify-content-center fw-black text-emerald shadow-lg avatar-initial" style={{ width: '44px', height: '44px', fontSize: '18px', flexShrink: 0 }}>
                         {driver.name ? driver.name.charAt(0).toUpperCase() : '?'}
                       </div>
                       
-                      <div>
-                        <div className="fs-6 fw-black text-white mb-0 mt-n1" style={{ letterSpacing: '-0.01em' }}>{driver.name}</div>
-                        <div className="d-flex align-items-center gap-2 mt-1">
-                           <div className="text-white opacity-60 fw-black text-uppercase tracking-widest" style={{ fontSize: '10px' }}>
+                      <div className="d-flex flex-column justify-content-center">
+                        <div className="fw-black text-white mb-0 tracking-tighter" style={{ fontSize: '0.95rem' }}>{driver.name}</div>
+                        <div className="d-flex align-items-center gap-3">
+                           <div className="text-white opacity-40 fw-black text-uppercase" style={{ fontSize: '9px', letterSpacing: '0.08em' }}>
                               {stats.active} ACTIVE • {stats.completed} DONE
                            </div>
-                           <div className="bg-emerald bg-opacity-20 px-2 py-0 rounded text-emerald fw-black" style={{ fontSize: '9px', letterSpacing: '0.05em' }}>
-                              {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% EFFICIENCY
+                           <div className="fw-black text-uppercase" style={{ fontSize: '9px', color: efficiencyColor, letterSpacing: '0.08em' }}>
+                              {efficiency}% EFFICIENCY
                            </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-end pe-1">
-                      <div className="fw-black text-white h2 m-0 lh-1 group-hover-scale">{stats.total}</div>
-                      <div className="text-uppercase tracking-widest opacity-50 fw-black mt-1" style={{ fontSize: '11px' }}>Total Loads</div>
+                    <div className="text-end d-flex flex-column justify-content-center align-items-end pe-2">
+                      <div className="fw-black text-white lh-1 total-loads-count group-hover-scale">{stats.total}</div>
+                      <div className="text-uppercase tracking-widest total-loads-label">Total Loads</div>
                     </div>
                   </div>
-
-                  {/* MINI PERFORMANCE BAR */}
-                  <div className="mt-3 bg-white bg-opacity-5 rounded-pill overflow-hidden" style={{ height: '4px' }}>
-                     <div className="h-100 bg-gradient-emerald" style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, transition: 'width 1s ease' }}></div>
+                  
+                  {/* FULL WIDTH EFFICIENCY BAR */}
+                  <div className="position-absolute bottom-0 start-0 w-100 bg-white bg-opacity-5" style={{ height: '3px' }}>
+                     <div className="h-100 transition-all duration-1000" style={{ width: `${efficiency}%`, backgroundColor: efficiencyColor, boxShadow: `0 0 10px ${efficiencyColor}66` }}></div>
                   </div>
                 </div>
               );
@@ -196,8 +198,14 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
         .pulse-dot { width: 6px; height: 6px; background: #2bdd66; border-radius: 50%; display: inline-block; animation: pulse-glow 2s infinite; }
         @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(43, 221, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(43, 221, 102, 0); } }
         .group-hover-scale { transition: transform 0.3s ease; }
-        .group:hover .group-hover-scale { transform: scale(1.2); color: #fff !important; }
-        .hover-translate-x:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.08) !important; }
+        .group:hover .group-hover-scale { transform: scale(1.15); color: #fff !important; }
+        .hover-float:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.4) !important; }
+        .avatar-initial {
+          background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+          text-shadow: 0 0 10px rgba(43, 221, 102, 0.3);
+        }
+        .total-loads-count { font-size: 1.8rem; letter-spacing: -0.05em; }
+        .total-loads-label { font-size: 8px; opacity: 0.3; font-weight: 900; margin-top: -3px; }
         .fw-black { font-weight: 900; }
         .tracking-tighter { letter-spacing: -0.05em; }
         .x-small { font-size: 10px; }
