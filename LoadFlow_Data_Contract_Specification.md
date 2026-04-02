@@ -2,7 +2,7 @@
 
 This document maps the structure and transformation of the data throughout the system, ensuring consistency between the MongoDB Database Entities, the Backend DTOs, and the Frontend View Models. This prevents frontend/backend mismatches and clarifies data structures.
 
-> **Static Routes (No API):** The `/contact` page is a static frontend-only route. It renders contact info (email: support@loadflow.ca, phone: +1 (437) 383-1996) and a local form. It does not exchange data with any backend API endpoint and therefore has no DTO or DB Entity representation.
+> **Email Integration:** The system uses **Nodemailer (Gmail)** for all transactional communications, including driver invitations and registration confirmations.
 
 ---
 
@@ -10,20 +10,30 @@ This document maps the structure and transformation of the data throughout the s
 
 These represent the structures exactly as stored in our NoSQL database. They contain internal-only fields and relational ObjectIds.
 
-### 1. User Entity
+### 1. User Entity (Logistics Personnel)
 ```json
 {
   "_id": "ObjectId('64b1f8...')",
   "name": "string",
   "email": "string",
-  "passwordHash": "string",
+  "passwordHash": "string | null",
   "role": "string (Admin | Dispatcher | Driver)",
+  "isPending": "boolean (true for invited, false for activated)",
+  "phone": "string | null",
+  "licenseNumber": "string | null (Ontario/Quebec format)",
+  "dob": "date | null",
+  "city": "string | null",
+  "province": "string | null",
+  "postalCode": "string | null",
+  "address": "string | null",
+  "requestedBy": "ObjectId (Dispatcher ID for recruitment flow)",
+  "tokenVersion": "number (Session revocation index)",
+  "isTwoFactorEnabled": "boolean",
   "createdAt": "timestamp",
-  "updatedAt": "timestamp",
-  "__v": "number"
+  "updatedAt": "timestamp"
 }
 ```
-*Notice: `passwordHash` and Mongoose version keys (`__v`) are strictly private components maintained by the database.*
+*Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup.*
 
 ### 2. Load Entity (Multi-Stop Routing)
 ```json
@@ -31,16 +41,10 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "_id": "ObjectId('64b1f9...')",
   "loadNumber": "string",
   "pickups": [
-    {
-      "locationName": "string",
-      "date": "timestamp"
-    }
+    { "locationName": "string", "date": "timestamp" }
   ],
   "deliveries": [
-    {
-      "locationName": "string",
-      "date": "timestamp"
-    }
+    { "locationName": "string", "date": "timestamp" }
   ],
   "quantity": "number",
   "quantityUnit": "string",
@@ -53,7 +57,34 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "updatedAt": "timestamp"
 }
 ```
-*Notice: Cargo paths are modeled as dynamic Arrays, allowing for unlimited multi-stop logistical routing.*
+
+### 3. Notification Entity (System Alerts)
+```json
+{
+  "_id": "ObjectId('75c...)",
+  "message": "string",
+  "type": "string (INFO | WARNING | DANGER | SUCCESS)",
+  "targetRole": "string (Admin | Dispatcher | Driver)",
+  "userId": "ObjectId | null (Optional direct targeting)",
+  "link": "string (Dashboard deep link)",
+  "isRead": "boolean",
+  "createdAt": "timestamp"
+}
+```
+
+### 4. Audit Log Entity (Security Monitoring)
+```json
+{
+  "_id": "ObjectId('86d...)",
+  "userId": "ObjectId (Acting user)",
+  "action": "string (USER_INVITED | LOAD_CREATED | USER_ACTIVATED)",
+  "entityType": "string (User | Load | Auth)",
+  "entityId": "ObjectId | null",
+  "details": "JSON Object (Metadata / Diff snapshot)",
+  "ipAddress": "string",
+  "createdAt": "timestamp"
+}
+```
 
 ---
 
@@ -61,108 +92,64 @@ These represent the structures exactly as stored in our NoSQL database. They con
 
 These structures define what the frontend sends and exactly what the Next.js API returns via HTTP routes.
 
-### Create LoadRequest DTO (What the Frontend Sends)
+### Driver Recruitment Request DTO (Dispatcher)
 ```json
 {
-  "loadNumber": "LD-2410",
-  "pickups": [
-    { "locationName": "Toronto Hub", "date": "2026-04-01T08:00:00Z" }
-  ],
-  "deliveries": [
-    { "locationName": "Montreal Drop", "date": "2026-04-02T14:00:00Z" }
-  ],
-  "quantity": 10,
-  "quantityUnit": "Pallets",
-  "weight": 14000,
-  "weightUnit": "lbs"
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@gmail.com"
 }
 ```
-*Notice: No `_id`, `createdBy`, or `timestamps` are transmitted here. The backend safely generates/manages these on insertion using the Edge JWT.*
+*Notice: Dispatched to `/api/driver-requests`. This triggers an Admin notification to invite the candidate.*
 
-### LoadResponse DTO (What the Backend Returns via Mongoose `.lean()`)
+### Driver Activation DTO (Onboarding Completion)
 ```json
 {
-  "id": "64b1f9...",
-  "loadNumber": "LD-2410",
-  "pickups": [ ... ],
-  "deliveries": [ ... ],
-  "quantity": 10,
-  "quantityUnit": "Pallets",
-  "weight": 14000,
-  "weightUnit": "lbs",
-  "status": "PENDING",
-  "createdAt": "2026-03-01T11:00:00Z",
-  "assignedDriverId": {
-     "_id": "64b1f8...",
-     "name": "Jane Driver",
-     "email": "jane@loadflow.com"
-  }
+  "password": "NewStrongPassword!",
+  "phone": "416-555-0199",
+  "licenseNumber": "A1234-56789-01234",
+  "dob": "1990-01-01",
+  "city": "Toronto",
+  "province": "ON",
+  "postalCode": "M5V 2H1",
+  "address": "123 Fleet St"
 }
 ```
-*Notice: Database relations (`assignedDriverId`) are automatically populated by Mongoose into readable objects before transmission to the frontend.*
+*Notice: The frontend sends this to `/api/auth/register` to transition a user from `isPending: true` to `isPending: false`.*
 
 ---
 
 ## Step 3: Frontend View Models
 
-This defines how the application structurally renders the raw API payload into the UI Components. 
-
-### DispatchTable / LoadCard ViewModel
+### Audit Log Row ViewModel
 ```json
 {
-  "id": "64b1f9...",
-  "loadNumber": "LD-2410",
-  "routeSummary": "Toronto Hub → Montreal Drop",
-  "stopCount": "1 Pickup, 1 Drop",
-  "cargoDetails": "10 Pallets (14000 lbs)",
-  "statusLabel": "PENDING",
-  "statusBadgeClass": "bg-warning text-dark",
-  "formattedDate": "Apr 1, 2026",
-  "assignedTo": "Jane Driver"
+  "id": "86d...",
+  "actor": "Admin (admin@loadflow.ca)",
+  "actionLabel": "INVITED USER",
+  "target": "jane.driver@gmail.com",
+  "context": "IP: 192.168.1.1 | Role: Driver",
+  "timestamp": "2 mins ago"
 }
 ```
-*Notice: The frontend intelligently maps the raw `pickups` and `deliveries` arrays into a human-readable `routeSummary`. It parses UTC dates into localized `formattedDate` strings, and extracts Bootstrap 5 utility mappings (`statusBadgeClass`) before passing data to React components.*
+*Notice: The frontend dashboard aggregates raw `AuditLog` fields and resolves `userId` references into readable Actor names before displaying in the table.*
 
 ---
 
-## Step 4: Map the Flow (Architecture Pipeline)
+## Step 4: Map the Flow (Onboarding Pipeline)
 
-Here is a full breakdown of the data transition as a load is retrieved by the dashboard:
+**1. Dispatcher Request:**
+Dispatcher submits a candidate via `/api/driver-requests`.
+⬇ *(Admin receives system notification)*
 
-**1. DB Load Entity:**
-```json
-{
-  "_id": "ObjectId('64b...'",
-  "loadNumber": "LD-2410",
-  "pickups": [{ "locationName": "Toronto" }],
-  "deliveries": [{ "locationName": "Montreal" }],
-  "weight": 45000,
-  "status": "IN_TRANSIT",
-  "assignedDriverId": "ObjectId('64b...'",
-  "__v": 0
-}
-```
-⬇ *(Backend API strips `__v`, populates relations, and structures Next.js JSON)*
+**2. Admin Invitation:**
+Admin invites account via `/api/auth/register` (RBAC mode).
+⬇ *(Nodemailer sends invitation email with signed link)*
 
-**2. Backend LoadResponse DTO:**
-```json
-{
-  "id": "64b...",
-  "loadNumber": "LD-2410",
-  "routeOrigin": "Toronto",
-  "routeDest": "Montreal",
-  "weight": 45000,
-  "status": "IN_TRANSIT"
-}
-```
-⬇ *(Zustand filters the payload and maps Bootstrap CSS / Date locales)*
+**3. Driver Registration:**
+Driver clicks link, lands on `/register?email=...`, and completes setup.
+⬇ *(Audit log records USER_ACTIVATED)*
 
-**3. Frontend Dashboard Dispatch Table ViewModel:**
-```json
-{
-  "id": "64b...",
-  "displayTitle": "LD-2410: Toronto → Montreal",
-  "cargoSummary": "45000 lbs",
-  "badgeUI": "<span class='badge bg-primary rounded-pill'>In Transit</span>"
-}
-```
+**4. Ecosystem Ready:**
+Admins and Dispatchers receive "Registration Complete" Notifications.
+The Driver is now available for Assignment in the Fleet dashboard.
