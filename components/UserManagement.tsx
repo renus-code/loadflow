@@ -193,6 +193,8 @@ export default function UserManagement() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [actionStatus, setActionStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(8);
   const searchTerm = useSearch((state) => state.searchTerm);
   const setSearchTerm = useSearch((state) => state.setSearchTerm);
 
@@ -396,6 +398,22 @@ export default function UserManagement() {
             u.role?.toLowerCase().includes(s));
   });
 
+  // PAGINATION LOGIC
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const paginate = (pageNumber: number) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
+  };
+
+  // Reset to page 1 on search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   return (
     <>
 
@@ -452,11 +470,11 @@ export default function UserManagement() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">Loading users...</td></tr>
-                ) : filteredUsers.length === 0 ? (
+                ) : currentUsers.length === 0 ? (
                   <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">
                     {isDispatcher ? 'No requested drivers found.' : 'No users found.'}
                   </td></tr>
-                ) : filteredUsers.map(u => (
+                ) : currentUsers.map(u => (
                   <tr key={u._id} className="glass-row transition-all">
                     <td className="px-4 py-4 text-center">
                       <span className="fw-black text-white fs-6">{u.name}</span>
@@ -525,6 +543,58 @@ export default function UserManagement() {
             </table>
           </div>
         </div>
+
+        {/* TRULY FLOATING PAGINATION CONTROLS (NO BOX BACKGROUND) */}
+        {totalPages > 1 && (
+          <div className="d-flex flex-column align-items-center gap-3 py-5 animate-slide-up" style={{ pointerEvents: 'none' }}>
+            <div className="d-flex align-items-center gap-3" style={{ pointerEvents: 'auto' }}>
+              {/* FIRST PAGE « */}
+              <button 
+                onClick={() => paginate(1)} 
+                disabled={currentPage === 1}
+                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
+                title="First Page"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>
+              </button>
+
+              {/* PREV PAGE < */}
+              <button 
+                onClick={() => paginate(currentPage - 1)} 
+                disabled={currentPage === 1}
+                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
+                title="Previous"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              
+              {/* ACTIVE PAGE INDICATOR (EMERALD GLOW) */}
+              <div className="active-page-circle d-flex align-items-center justify-content-center shadow-emerald" style={{ cursor: 'default' }}>
+                 <span className="fw-black text-dark">{currentPage}</span>
+              </div>
+
+              {/* NEXT PAGE > */}
+              <button 
+                onClick={() => paginate(currentPage + 1)} 
+                disabled={currentPage === totalPages}
+                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
+                title="Next"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+
+              {/* LAST PAGE » */}
+              <button 
+                onClick={() => paginate(totalPages)} 
+                disabled={currentPage === totalPages}
+                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
+                title="Last Page"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showModal && (
@@ -568,7 +638,12 @@ export default function UserManagement() {
                     <><span className="text-gradient-emerald">Invite</span> New User</>
                   )}
                 </h3>
-                <button className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" onClick={() => setShowModal(false)}></button>
+                <button 
+                  className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" 
+                  onClick={() => setShowModal(false)}
+                  aria-label="Close"
+                  title="Close"
+                ></button>
               </div>
 
               <p className="small text-white opacity-50 mb-4 fw-medium">
@@ -737,6 +812,47 @@ export default function UserManagement() {
         .modal-input-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #2bdd66; opacity: 0.7; z-index: 5; }
         .btn-emerald-solid { background: #2bdd66; color: #000 !important; cursor: pointer; }
         .btn-glass-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* IMAGE-MATCHED CIRCULAR PAGINATION (IDENTICAL TO AUDIT LOGS) */
+        .btn-circle-nav {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.15); /* Lighter grey for visibility */
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.9); /* Brighter icon */
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          backdrop-filter: blur(10px);
+        }
+        .btn-circle-nav:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.2);
+          color: white;
+          transform: translateY(-1px);
+        }
+        .btn-circle-nav:disabled {
+          opacity: 0.25; /* More visible even when disabled */
+          cursor: not-allowed;
+          background: rgba(255, 255, 255, 0.05);
+        }
+        .active-page-circle {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: #10b981; /* Standard Dashboard Emerald */
+          color: #000;
+          box-shadow: 0 0 20px -2px rgba(16, 185, 129, 0.4);
+          transition: all 0.3s ease;
+          z-index: 10;
+          font-size: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          font-weight: 900;
+        }
+        .active-page-circle:hover {
+          transform: scale(1.02);
+          box-shadow: 0 0 25px -2px rgba(16, 185, 129, 0.6);
+        }
+        .letter-spacing-2 { letter-spacing: 0.15em; font-size: 0.65rem; }
       `}</style>
     </>
   );

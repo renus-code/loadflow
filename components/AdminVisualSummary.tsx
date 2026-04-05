@@ -143,36 +143,36 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
               const efficiency = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
               const efficiencyColor = efficiency >= 80 ? '#2bdd66' : efficiency >= 40 ? '#f59e0b' : '#ef4444';
               return (
-                <div key={driver._id} className="premium-inner-card p-2 px-3 rounded-pill mb-2 position-relative overflow-hidden border border-white border-opacity-5 transition-all hover-float hover-bg-white-10 group" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                  <div className="d-flex align-items-center justify-content-between h-100 pb-1">
+                <div key={driver._id} className="premium-inner-card p-3 px-4 rounded-4 mb-3 position-relative overflow-hidden border border-white border-opacity-5 transition-all hover-float hover-bg-white-10 group flex-shrink-0" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                  <div className="d-flex align-items-center justify-content-between position-relative z-index-2">
                     <div className="d-flex align-items-center gap-3">
                       {/* AVATAR - COMPACT */}
-                      <div className="rounded-circle bg-dark bg-opacity-80 border border-white border-opacity-20 d-flex align-items-center justify-content-center fw-black text-emerald shadow-lg avatar-initial" style={{ width: '44px', height: '44px', fontSize: '18px', flexShrink: 0 }}>
+                      <div className="rounded-circle bg-dark bg-opacity-80 border border-white border-opacity-20 d-flex align-items-center justify-content-center fw-black text-emerald shadow-lg avatar-initial" style={{ width: '48px', height: '48px', fontSize: '20px', flexShrink: 0 }}>
                         {driver.name ? driver.name.charAt(0).toUpperCase() : '?'}
                       </div>
                       
                       <div className="d-flex flex-column justify-content-center">
-                        <div className="fw-black text-white mb-0 tracking-tighter" style={{ fontSize: '0.95rem' }}>{driver.name}</div>
+                        <div className="fw-black text-white mb-1" style={{ fontSize: '1rem', letterSpacing: '-0.02em' }}>{driver.name}</div>
                         <div className="d-flex align-items-center gap-3">
-                           <div className="text-white opacity-40 fw-black text-uppercase" style={{ fontSize: '9px', letterSpacing: '0.08em' }}>
+                           <div className="text-white opacity-40 fw-black text-uppercase" style={{ fontSize: '10px', letterSpacing: '0.1em' }}>
                               {stats.active} ACTIVE • {stats.completed} DONE
                            </div>
-                           <div className="fw-black text-uppercase" style={{ fontSize: '9px', color: efficiencyColor, letterSpacing: '0.08em' }}>
+                           <div className="fw-black text-uppercase px-2 py-0.5 rounded-pill bg-dark bg-opacity-30" style={{ fontSize: '9px', color: efficiencyColor, letterSpacing: '0.05em', border: `1px solid ${efficiencyColor}33` }}>
                               {efficiency}% EFFICIENCY
                            </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-end d-flex flex-column justify-content-center align-items-end pe-2">
-                      <div className="fw-black text-white lh-1 total-loads-count group-hover-scale">{stats.total}</div>
-                      <div className="text-uppercase tracking-widest total-loads-label">Total Loads</div>
+                    <div className="text-end d-flex flex-column justify-content-center align-items-end pe-1">
+                      <div className="fw-black text-white total-loads-count group-hover-scale" style={{ lineHeight: '1', marginBottom: '2px' }}>{stats.total}</div>
+                      <div className="text-uppercase tracking-widest total-loads-label" style={{ fontSize: '9px', opacity: 0.4 }}>Total Loads</div>
                     </div>
                   </div>
                   
                   {/* FULL WIDTH EFFICIENCY BAR */}
-                  <div className="position-absolute bottom-0 start-0 w-100 bg-white bg-opacity-5" style={{ height: '3px' }}>
-                     <div className="h-100 transition-all duration-1000" style={{ width: `${efficiency}%`, backgroundColor: efficiencyColor, boxShadow: `0 0 10px ${efficiencyColor}66` }}></div>
+                  <div className="position-absolute bottom-0 start-0 w-100 bg-white bg-opacity-5" style={{ height: '4px' }}>
+                     <div className="h-100 transition-all duration-1000" style={{ width: `${efficiency}%`, backgroundColor: efficiencyColor, boxShadow: `0 0 15px ${efficiencyColor}88` }}></div>
                   </div>
                 </div>
               );
