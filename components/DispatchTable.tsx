@@ -160,7 +160,7 @@ export default function DispatchTable({
         
         <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}>
            {onEdit && (
-             <button onClick={() => onEdit(load)} className="btn btn-sm btn-glass-emerald p-2 rounded-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+             <button onClick={() => onEdit(load)} className="btn btn-sm btn-glass-emerald p-2 rounded-3" title="Edit Load" aria-label="Edit Load"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
            )}
            <button onClick={() => onDetails(load)} className="btn btn-sm btn-glass-indigo px-3 rounded-pill fw-black x-small text-uppercase">Details</button>
         </div>

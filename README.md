@@ -15,50 +15,41 @@
 ---
 
 ## 2. Tech Stack
-- **Framework:** Next.js App Router
-- **UI:** React, Bootstrap 5, custom CSS
+- **Framework:** Next.js App Router (13+)
+- **UI:** React, Bootstrap 5, premium custom CSS (Glassmorphism & Dark Mode)
 - **State:** Zustand + React Context
-- **Backend:** Next.js Route Handlers
+- **Backend:** Next.js Route Handlers (Serverless Edge compatible)
 - **Database:** MongoDB via Mongoose
-- **Auth:** JWT in HttpOnly cookie
-- **Storage:** Cloudinary for Proof of Delivery uploads
+- **Auth:** Zero-Trust JWT in HttpOnly cookies
+- **Email:** **Nodemailer (Gmail SMTP)** for driver invitations and system alerts
+- **Storage:** Cloudinary for Proof of Delivery (POD) uploads
 - **API Docs:** OpenAPI (`openapi.yaml`) + Swagger UI + Postman collection
 
 ---
 
 ## 3. Product Overview
-LoadFlow centralizes trucking operations that are often split across texts, spreadsheets, and manual follow-ups.
+LoadFlow is a premium, real-time dispatch and fleet operations platform designed to eliminate logistical friction.
 
 ### Core Roles
-- **Admin:** Manages users, approvals, fleet assets, audit visibility, and system-level actions
-- **Dispatcher:** Creates loads, assigns drivers and equipment, manages active operations
-- **Driver:** Updates pickup/delivery progress, uploads PODs, manages personal profile
+- **Admin:** System architecture control, user recruitment/invitations, 2FA management, and full audit visibility.
+- **Dispatcher:** Multi-stop load creation, fleet optimization (truck/trailer/driver assignment), and real-time monitoring.
+- **Driver:** Zero-friction mobile dashboard for stop updates, GPS-linked profile management, and POD automation.
 
-### Main Functional Areas
-- Invitation-based registration
-- Login/logout with protected dashboard routes
-- Multi-stop load creation and editing
-- Driver assignment with truck and trailer selection
-- Stop-level status updates
-- Proof of Delivery upload and verification
-- User administration
-- Fleet management for trucks and trailers
-- Notifications and driver request workflow
-- Audit logs and optional 2FA endpoints
+### Key Workflows
+- **Automated Driver Onboarding:** Dispatchers request drivers -> Admins approve & invite -> Drivers activate via secure email link.
+- **Real-Time Notification Chain:** Multi-role alerts (SUCCESS/INFO/DANGER) triggered by registration, load updates, and system events.
+- **Security & Auditing:** Comprehensive audit logs tracking Actor, Action, Target, and Context (IP/Metadata).
 
 ---
 
 ## 4. Frontend Routes
 - **`/`**: Landing page
-- **`/login`**: Login page
-- **`/register`**: Invitation-based account activation
-- **`/forgot-password`**: Password reset request
-- **`/reset-password`**: Password reset after admin approval
-- **`/contact`**: Contact page
-- **`/api-docs`**: Swagger UI
-- **`/dashboard`**: Main operations dashboard
-- **`/dashboard/profile`**: User profile page
-- **`/dashboard/users`**: Admin-only user management
+- **`/login`**: Secure authentication
+- **`/register`**: Invitation-based profile activation (Auto-fills via email query)
+- **`/dashboard`**: Operational Command Center
+- **`/dashboard/users`**: Admin user factory & recruiter dashboard
+- **`/dashboard/audit`**: High-fidelity system activity logs
+- **`/api-docs`**: Interactive Swagger documentation
 
 ---
 
@@ -151,11 +142,17 @@ npm install
 ```
 
 ### Required Environment Variables
-Create a local `.env` file with at least:
+Create a local `.env` file with these keys:
 
 ```env
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
+
+# Email (Nodemailer/Gmail)
+GMAIL_USER=your_email@gmail.com
+GMAIL_APP_PASSWORD=xxxx_xxxx_xxxx_xxxx
+
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret

@@ -506,7 +506,8 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"loadNumber\": \"LD-2410\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 12,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 38000,\n  \"weightUnit\": \"lbs\"\n}"
+              "raw": "{\n  \"loadNumber\": \"LD-2410\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 12,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 38000,\n  \"weightUnit\": \"lbs\",\n  \"totalDistance\": 335,\n  \"estimatedDuration\": 5.5\n}"
+
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads",

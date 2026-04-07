@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: LoadFlow API
-  version: 1.1.0
+  version: 1.2.0
   description: |
     OpenAPI contract for the currently implemented LoadFlow backend.
 
@@ -1556,6 +1556,8 @@ components:
           type: string
         type:
           type: string
+          enum: [INFO, WARNING, DANGER, SUCCESS]
+
         link:
           type: string
           nullable: true
@@ -1576,6 +1578,7 @@ components:
         userId:
           oneOf:
             - type: string
+              description: User ID as a string
             - type: object
               properties:
                 _id:
@@ -1601,7 +1604,10 @@ components:
           type: object
           additionalProperties: true
           nullable: true
-        timestamp:
+        ipAddress:
+          type: string
+          nullable: true
+        createdAt:
           type: string
           format: date-time
 
@@ -1656,6 +1662,16 @@ components:
           type: string
           format: date-time
           nullable: true
+        tokenVersion:
+          type: integer
+          description: Session revocation index
+        isTwoFactorEnabled:
+          type: boolean
+          description: Whether the user has setup 2FA
+        requestedBy:
+          type: string
+          nullable: true
+          description: Dispatcher ID for recruitment flow reference
         createdAt:
           type: string
           format: date-time
@@ -1857,6 +1873,12 @@ components:
         status:
           type: string
           enum: [PENDING, PICKED_UP, DELIVERED]
+        lat:
+          type: number
+          nullable: true
+        lng:
+          type: number
+          nullable: true
 
     CreateLoadRequest:
       type: object
@@ -1891,6 +1913,15 @@ components:
         weightUnit:
           type: string
           enum: [lbs, kg]
+        totalDistance:
+          type: number
+          nullable: true
+          description: In miles (mock feature)
+        estimatedDuration:
+          type: number
+          nullable: true
+          description: In hours (mock feature)
+
 
     AssignLoadRequest:
       type: object
@@ -2021,6 +2052,15 @@ components:
         updatedAt:
           type: string
           format: date-time
+        totalDistance:
+          type: number
+          nullable: true
+          description: In miles (mock feature)
+        estimatedDuration:
+          type: number
+          nullable: true
+          description: In hours (mock feature)
+
         __v:
           type: integer
 
