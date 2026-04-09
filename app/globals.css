@@ -27,6 +27,10 @@ body {
   overflow-x: hidden;
 }
 
+.fw-black {
+  font-weight: 900 !important;
+}
+
 .hover-zoom {
   transition: transform 0.3s ease;
 }

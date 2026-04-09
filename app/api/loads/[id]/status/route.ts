@@ -3,6 +3,7 @@ import dbConnect from "@/lib/mongodb";
 import Load from "@/models/Load";
 import { getUserFromRequest } from "@/lib/auth";
 import ProofOfDelivery from "@/models/ProofOfDelivery";
+import Notification from "@/models/Notification";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -38,25 +39,39 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const allPickupsDone = loadCheck.pickups.every((p: { status: string }) => p.status === 'PICKED_UP');
       const allDeliveriesDone = loadCheck.deliveries.every((d: { status: string }) => d.status === 'DELIVERED');
 
+      const oldStatus = loadCheck.status;
       if (allPickupsDone && !allDeliveriesDone) {
         loadCheck.status = 'IN_TRANSIT';
       } else if (allPickupsDone && allDeliveriesDone) {
         if (pod) {
           loadCheck.status = 'DELIVERED';
         } else {
-          // If all delivered but no POD, stay IN_TRANSIT (or maybe a custom "AWAITING POD")
-          // The user said "upload pod as well to chnage to delivered status"
           loadCheck.status = 'IN_TRANSIT'; 
         }
       }
 
       await loadCheck.save();
+
+      // Notify dispatcher if status changed to DELIVERED
+      if (oldStatus !== 'DELIVERED' && loadCheck.status === 'DELIVERED') {
+        try {
+          await Notification.create({
+            message: `Load #${loadCheck.loadNumber} has been DELIVERED.`,
+            type: 'SUCCESS',
+            userId: loadCheck.createdBy,
+            link: `/dashboard?loadId=${id}`
+          });
+        } catch (notifError) {
+          console.error("Failed to notify dispatcher of delivery:", notifError);
+        }
+      }
+
       return NextResponse.json({ ...loadCheck.toObject(), podUrl: pod?.imageUrl });
     }
 
     // Handle overall status update OR driver/truck/trailer assignment
     if (status) {
-      const allStatuses = ['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'];
+      const allStatuses = ['PENDING', 'ASSIGNED', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'];
       if (!allStatuses.includes(status)) {
         return NextResponse.json({ error: "Invalid status" }, { status: 400 });
       }
@@ -71,7 +86,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       loadCheck.status = status;
     }
 
-    if (assignedDriverId !== undefined) loadCheck.assignedDriverId = assignedDriverId || null;
+    if (assignedDriverId !== undefined) {
+      loadCheck.assignedDriverId = assignedDriverId || null;
+      // If unassigning, revert status to PENDING if it was ASSIGNED
+      if (!assignedDriverId && loadCheck.status === 'ASSIGNED') {
+        loadCheck.status = 'PENDING';
+      }
+    }
     if (truckNumber !== undefined) loadCheck.truckNumber = truckNumber;
     if (trailerNumber !== undefined) loadCheck.trailerNumber = trailerNumber;
     if (truckType !== undefined) loadCheck.truckType = truckType || null;

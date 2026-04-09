@@ -5,7 +5,7 @@
 import { useState } from "react";
 
 interface LoadFormProps {
-  onSubmit: (newLoad: { origin: string; destination: string; weight: string; status: string }) => void;
+  onSubmit: (newLoad: { origin: string; destination: string; weight: string; appointmentNumber: string; status: string }) => void;
 }
 
 export default function LoadForm({ onSubmit }: LoadFormProps) {
@@ -13,6 +13,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
     origin: "",
     destination: "",
     weight: "",
+    appointmentNumber: "",
     status: "Pending",
   });
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
     e.preventDefault();
     setError("");
 
-    if (!formData.origin || !formData.destination || !formData.weight) {
+    if (!formData.origin || !formData.destination || !formData.weight || !formData.appointmentNumber) {
       setError("All fields are required to create a load.");
       return;
     }
@@ -33,6 +34,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
       origin: "",
       destination: "",
       weight: "",
+      appointmentNumber: "",
       status: "Pending",
     });
   };
@@ -47,8 +49,8 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
   return (
     <div className="card shadow-sm border-0 rounded-4 overflow-hidden" style={{ maxWidth: '600px', margin: '0 auto' }}>
       <div className="card-header bg-white border-bottom px-4 px-md-5 py-4">
-        <h2 className="fs-4 fw-bold text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Create New Load</h2>
-        <p className="text-secondary mt-1 small fw-medium mb-0">Enter the details for your new shipment.</p>
+        <h2 className="fs-4 fw-black text-dark m-0" style={{ fontFamily: 'var(--font-syne)' }}>Create New Load</h2>
+        <p className="text-secondary mt-1 small fw-black mb-0">Enter the details for your new shipment.</p>
       </div>
       <div className="card-body p-4 p-md-5">
         <form onSubmit={handleSubmit} className="d-flex flex-column gap-4">
@@ -59,7 +61,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
           )}
 
           <div className="d-flex flex-column gap-2">
-            <label htmlFor="origin" className="form-label fw-bold text-dark small mb-0">Origin</label>
+            <label htmlFor="origin" className="form-label fw-black text-dark small mb-0">Origin</label>
             <input
               type="text"
               name="origin"
@@ -73,7 +75,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
           </div>
 
           <div className="d-flex flex-column gap-2">
-            <label htmlFor="destination" className="form-label fw-bold text-dark small mb-0">Destination</label>
+            <label htmlFor="destination" className="form-label fw-black text-dark small mb-0">Destination</label>
             <input
               type="text"
               name="destination"
@@ -87,7 +89,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
           </div>
 
           <div className="d-flex flex-column gap-2">
-            <label htmlFor="weight" className="form-label fw-bold text-dark small mb-0">Weight</label>
+            <label htmlFor="weight" className="form-label fw-black text-dark small mb-0">Weight</label>
             <input
               type="text"
               name="weight"
@@ -101,7 +103,21 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
           </div>
 
           <div className="d-flex flex-column gap-2">
-            <label htmlFor="status" className="form-label fw-bold text-dark small mb-0">Status</label>
+            <label htmlFor="appointmentNumber" className="form-label fw-black text-dark small mb-0">Appointment Number</label>
+            <input
+              type="text"
+              name="appointmentNumber"
+              id="appointmentNumber"
+              required
+              placeholder="e.g. A-998811"
+              className="form-control form-control-lg bg-light border-secondary border-opacity-25 rounded-3 fs-6 p-3 shadow-none focus-ring focus-ring-dark"
+              value={formData.appointmentNumber}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="d-flex flex-column gap-2">
+            <label htmlFor="status" className="form-label fw-black text-dark small mb-0">Status</label>
             <select
               name="status"
               id="status"
@@ -118,7 +134,7 @@ export default function LoadForm({ onSubmit }: LoadFormProps) {
           <div className="d-flex justify-content-end mt-4">
             <button
               type="submit"
-              className="btn btn-dark w-100 rounded-3 py-3 fw-semibold shadow-sm"
+              className="btn btn-dark w-100 rounded-3 py-3 fw-black shadow-sm"
             >
               Submit Load
             </button>

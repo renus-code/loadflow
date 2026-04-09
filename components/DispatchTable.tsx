@@ -57,6 +57,7 @@ export default function DispatchTable({
   const StatusBadge = ({ status }: { status: ILoad['status'] }) => {
     const config: Record<ILoad['status'], { className: string; label: string }> = {
       'PENDING': { className: 'glow-yellow text-white border-warning border-opacity-20', label: 'PENDING' },
+      'ASSIGNED': { className: 'glow-blue text-white border-primary border-opacity-40', label: 'ASSIGNED' },
       'IN_TRANSIT': { className: 'glow-indigo-pill text-white border-primary border-opacity-20', label: 'IN TRANSIT' },
       'PICKED_UP': { className: 'glow-cyan text-white border-info border-opacity-20', label: 'PICKED UP' },
       'DELIVERED': { className: 'glow-emerald-pill text-white border-success border-opacity-20', label: 'DELIVERED' },
@@ -159,9 +160,17 @@ export default function DispatchTable({
         </div>
         
         <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}>
-           {onEdit && (
-             <button onClick={() => onEdit(load)} className="btn btn-sm btn-glass-emerald p-2 rounded-3" title="Edit Load" aria-label="Edit Load"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-           )}
+            {onEdit && (
+              <button 
+                onClick={() => onEdit(load)} 
+                className={`btn btn-sm btn-glass-emerald p-2 rounded-3 ${['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? 'opacity-25 cursor-not-allowed' : ''}`}
+                title={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? "Finalized or cancelled loads cannot be edited" : "Edit Load"} 
+                disabled={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status)}
+                aria-label="Edit Load"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+            )}
            <button onClick={() => onDetails(load)} className="btn btn-sm btn-glass-indigo px-3 rounded-pill fw-black x-small text-uppercase">Details</button>
         </div>
       </div>
@@ -271,8 +280,9 @@ export default function DispatchTable({
                          {onEdit && (
                           <button 
                             onClick={() => onEdit(load)}
-                            className="btn btn-sm btn-glass-emerald px-3 rounded-3 fw-bold border-0 shadow-sm"
-                            title="Edit Load"
+                            className={`btn btn-sm btn-glass-emerald px-3 rounded-3 fw-bold border-0 shadow-sm ${['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? 'opacity-25 cursor-not-allowed' : ''}`}
+                            title={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? "Finalized or cancelled loads cannot be edited" : "Edit Load"}
+                            disabled={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status)}
                           >
                             Edit
                           </button>
@@ -280,8 +290,18 @@ export default function DispatchTable({
                          {onDelete && (user?.role === 'Admin' || user?.role === 'Dispatcher') && (
                           <button 
                             onClick={() => onDelete(load)}
-                            className={`btn btn-sm ${user.role === 'Admin' ? 'btn-glass-danger' : 'btn-glass-warning'} px-3 rounded-3 fw-bold border-0 shadow-sm`}
-                            title={user.role === 'Admin' ? 'Delete Permanently' : 'Cancel Load'}
+                            className={`btn btn-sm ${user.role === 'Admin' ? 'btn-glass-danger' : 'btn-glass-warning'} px-3 rounded-3 fw-bold border-0 shadow-sm ${
+                              (['DELIVERED', 'COMPLETED'].includes(load.status) || (load.status === 'CANCELLED' && user.role !== 'Admin')) 
+                                ? 'opacity-25 cursor-not-allowed' : ''
+                            }`}
+                            title={
+                              (['DELIVERED', 'COMPLETED'].includes(load.status)) 
+                                ? "Finalized loads cannot be modified" 
+                                : (load.status === 'CANCELLED' && user.role !== 'Admin')
+                                  ? "Cancelled loads require Admin for deletion"
+                                  : user.role === 'Admin' ? 'Delete Permanently' : 'Cancel Load'
+                            }
+                            disabled={['DELIVERED', 'COMPLETED'].includes(load.status) || (load.status === 'CANCELLED' && user.role !== 'Admin')}
                           >
                             {user.role === 'Admin' ? 'Delete' : 'Cancel'}
                           </button>
@@ -366,6 +386,7 @@ export default function DispatchTable({
         .glow-yellow { background: rgba(245, 158, 11, 0.1) !important; box-shadow: 0 0 15px rgba(245, 158, 11, 0.15); }
         .glow-cyan { background: rgba(6, 182, 212, 0.1) !important; box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); }
         .glow-red { background: rgba(239, 68, 68, 0.1) !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+        .glow-blue { background: rgba(59, 130, 246, 0.2) !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.25); border-color: rgba(59, 130, 246, 0.5) !important; }
         .glow-green { background: rgba(16, 185, 129, 0.2) !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
         .fw-black { font-weight: 900; }
         .x-small { font-size: 0.8rem; }

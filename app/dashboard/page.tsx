@@ -194,6 +194,9 @@ export default function Dashboard() {
     if (statusFilter === "COMPLETED") {
       return l.status === "COMPLETED";
     }
+    if (statusFilter === "CANCELLED") {
+      return l.status === "CANCELLED";
+    }
 
     return true;
   });
@@ -207,6 +210,7 @@ export default function Dashboard() {
   ).length;
   const deliveredCount = loads.filter((l) => l.status === "DELIVERED").length;
   const completedCount = loads.filter((l) => l.status === "COMPLETED").length;
+  const cancelledCount = loads.filter((l) => l.status === "CANCELLED").length;
 
   return (
     <div
@@ -313,6 +317,14 @@ export default function Dashboard() {
                 icon: "task_alt",
                 bg: "rgba(255, 255, 255, 0.03)",
               },
+              {
+                label: "Cancelled",
+                value: cancelledCount,
+                color: "#ef4444",
+                glow: "nebula-glow-red",
+                icon: "cancel",
+                bg: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%)",
+              },
             ].map((stat, i) => {
               const statusValue =
                 stat.label === "All Loads"
@@ -325,7 +337,9 @@ export default function Dashboard() {
                         ? "AWAITING_VERIFY"
                         : stat.label === "Completed"
                           ? "COMPLETED"
-                          : null;
+                          : stat.label === "Cancelled"
+                            ? "CANCELLED"
+                            : null;
 
               const isActive =
                 statusFilter === statusValue ||
@@ -661,6 +675,13 @@ export default function Dashboard() {
           box-shadow: 0 0 30px rgba(43, 221, 102, 0.15) !important;
           transform: translateY(-5px);
           background: rgba(255, 255, 255, 0.05) !important;
+        }
+        .nebula-glow-red:hover {
+          box-shadow: 0 0 40px rgba(239, 68, 68, 0.25) !important;
+        }
+        .nebula-glow-red.active-filter-card {
+          box-shadow: 0 0 30px rgba(239, 68, 68, 0.25) !important;
+          border-color: #ef4444 !important;
         }
         .active-filter-card::after {
           content: "";

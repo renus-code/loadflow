@@ -560,7 +560,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleApproveLoad = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (user.role !== "Dispatcher") {
+    if (user.role !== "Dispatcher" && user.role !== "Admin") {
       alert("Only dispatchers can finalize load status.");
       return;
     }
@@ -645,33 +645,34 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                 style={{ marginTop: "5rem", marginBottom: "0.5rem" }}
               >
                 <div
-                  className="d-flex justify-content-between align-items-center px-4 mb-2 position-relative"
+                  className="d-flex justify-content-between align-items-center mb-2 position-relative"
                   style={{ minHeight: "60px" }}
                 >
                   {/* Progress Line Background */}
                   <div
-                    className="position-absolute w-100"
+                    className="position-absolute"
                     style={{
                       top: "16px",
-                      left: 0,
+                      left: "50px",
+                      right: "50px",
                       height: "1px",
                       background: "rgba(255,255,255,0.05)",
                       zIndex: 0,
                     }}
-                  ></div>
-                  {/* Progress Line Active */}
-                  <div
-                    className="position-absolute transition-all duration-1000 ease-out"
-                    style={{
-                      top: "16px",
-                      left: 0,
-                      height: "2px",
-                      width: `${(currentStatusIndex / (statusWorkflow.length - 1)) * 100}%`,
-                      background: "linear-gradient(90deg, #2bdd66, #00ffa3)",
-                      boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)",
-                      zIndex: 0,
-                    }}
-                  ></div>
+                  >
+                    {/* Progress Line Active */}
+                    <div
+                      className="h-100 transition-all duration-1000 ease-out"
+                      style={{
+                        width: `${(currentStatusIndex / (statusWorkflow.length - 1)) * 100}%`,
+                        background: "linear-gradient(90deg, #2bdd66, #00ffa3)",
+                        boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)",
+                        position: "relative",
+                        height: "2px",
+                        top: "-0.5px"
+                      }}
+                    ></div>
+                  </div>
 
                   {statusWorkflow.map((node, i) => {
                     const isActive = load.status === node;
@@ -763,7 +764,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                       </div>
                       <div className="row">
                         <div className="col-6">
-                          <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-1 d-block">
+                          <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
                             Quantity
                           </label>
                           <div className="fw-black fs-2 text-white">
@@ -774,7 +775,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           </div>
                         </div>
                         <div className="col-6 text-end">
-                          <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest mb-1 d-block">
+                          <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
                             Displacement
                           </label>
                           <div className="fw-black fs-2 text-white">
@@ -797,7 +798,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                   <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
                                 </svg>
                               </div>
-                              <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
+                              <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
                                 Route Distance
                               </label>
                             </div>
@@ -808,7 +809,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           </div>
                           <div className="col-6 text-end">
                             <div className="d-flex align-items-center justify-content-end gap-2 mb-1">
-                              <label className="text-white opacity-70 fw-bold text-uppercase x-small tracking-widest m-0">
+                              <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
                                 Est. Transit Time
                               </label>
                               <div className="p-1 px-2 rounded-2 bg-indigo bg-opacity-10 border border-indigo border-opacity-10 d-flex align-items-center justify-content-center">
@@ -818,9 +819,21 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               </div>
                             </div>
                             <div className="fw-black fs-3 text-white">
-                              {load.estimatedDuration ? load.estimatedDuration.toLocaleString() : "—"}{" "}
-                              <span className="opacity-40 fs-6 fw-medium">hrs</span>
-                            </div>
+                                {(() => {
+                                  if (load.pickups.length > 0 && load.deliveries.length > 0) {
+                                    const first = load.pickups[0];
+                                    const last = load.deliveries[load.deliveries.length - 1];
+                                    if (first.date && first.time && last.date && last.time) {
+                                      const start = new Date(`${new Date(first.date).toISOString().split("T")[0]}T${first.time}`);
+                                      const end = new Date(`${new Date(last.date).toISOString().split("T")[0]}T${last.time}`);
+                                      const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                                      if (diffHours > 0) return diffHours.toFixed(1);
+                                    }
+                                  }
+                                  return load.estimatedDuration || "—";
+                                })()}{" "}
+                                <span className="opacity-40 fs-6 fw-medium">hrs</span>
+                              </div>
                           </div>
                         </div>
                       )}
@@ -849,22 +862,24 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             Fleet Assignment
                           </h6>
                         </div>
-                        {user.role === "Dispatcher" &&
+                        {(user.role === "Dispatcher" || user.role === "Admin") &&
                           load.assignedDriverId &&
                           !showEditAssignment && (
                             <button
                               type="button"
                               className={`btn ${
                                 load.status === "DELIVERED" ||
-                                load.status === "COMPLETED"
+                                load.status === "COMPLETED" ||
+                                load.status === "CANCELLED"
                                   ? "btn-secondary opacity-50 cursor-not-allowed"
                                   : "btn-indigo"
-                              } btn-sm px-4 rounded-pill fw-bold`}
+                              } btn-sm px-4 rounded-pill fw-black`}
                               style={{
                                 fontSize: "10px",
                                 border:
                                   load.status === "DELIVERED" ||
-                                  load.status === "COMPLETED"
+                                  load.status === "COMPLETED" ||
+                                  load.status === "CANCELLED"
                                     ? "1px solid rgba(255, 255, 255, 0.1)"
                                     : "none",
                               }}
@@ -874,7 +889,8 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               }}
                               disabled={
                                 load.status === "DELIVERED" ||
-                                load.status === "COMPLETED"
+                                load.status === "COMPLETED" ||
+                                load.status === "CANCELLED"
                               }
                             >
                               Modify
@@ -898,7 +914,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                 <circle cx="12" cy="7" r="4" />
                               </svg>
-                              <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                              <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                 Assigned Operator
                               </label>
                             </div>
@@ -927,7 +943,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                       <circle cx="7" cy="18" r="2" />
                                       <circle cx="17" cy="18" r="2" />
                                     </svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Truck Type
                                     </label>
                                   </div>
@@ -949,7 +965,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                       <rect x="3" y="11" width="18" height="10" rx="2" />
                                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                     </svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Vector Unit
                                     </label>
                                   </div>
@@ -976,7 +992,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                       <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" />
                                       <path d="M2 15h20" />
                                     </svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Trailer Type
                                     </label>
                                   </div>
@@ -997,7 +1013,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                     >
                                       <path d="m15 7 1 1h5l1 1v10l-1 1h-6l-1-1v-5l-1-1h-4l-1-1v-5l1-1h5z" />
                                     </svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Relay Unit
                                     </label>
                                   </div>
@@ -1040,7 +1056,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           <div className="mb-4">
                             <div className="d-flex align-items-center gap-2 mb-2">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                              <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                              <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                 Assigned Operator
                               </label>
                             </div>
@@ -1060,7 +1076,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Truck Type
                                     </label>
                                   </div>
@@ -1094,7 +1110,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Vector Unit (Truck)
                                     </label>
                                   </div>
@@ -1134,7 +1150,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><path d="M16 8h5l2 3v5h-7V8z"></path><circle cx="5.5" cy="18.5" r="2.5"></circle></svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Trailer Type
                                     </label>
                                   </div>
@@ -1167,7 +1183,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 <div className="col-6">
                                   <div className="d-flex align-items-center gap-2 mb-2">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line></svg>
-                                    <label className="text-white fw-bold text-uppercase x-small tracking-widest d-block m-0">
+                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
                                       Relay Unit (Trailer)
                                     </label>
                                   </div>
@@ -1205,7 +1221,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           <div className="d-flex gap-3 pt-4 mt-2">
                             {load.assignedDriverId && (
                               <button
-                                className="btn btn-outline-light btn-sm flex-grow-1 rounded-pill fw-bold"
+                                className="btn btn-outline-light btn-sm flex-grow-1 rounded-pill fw-black"
                                 onClick={() => setShowEditAssignment(false)}
                               >
                                 Cancel
@@ -1323,15 +1339,26 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               >
                                 PICKUP 0{i + 1}
                               </div>
-                              <span className="x-small text-white opacity-80 fw-bold">
-                                {new Date(p.date).toLocaleDateString()}
+                              <span className="x-small text-white fw-black">
+                                {new Date(p.date).toLocaleDateString()} @ {(() => {
+                                  if (!p.time) return "—";
+                                  const [hours, minutes] = p.time.split(':');
+                                  let h = parseInt(hours);
+                                  const ampm = h >= 12 ? 'PM' : 'AM';
+                                  h = h % 12 || 12;
+                                  return `${h}:${minutes} ${ampm}`;
+                                })()}
                               </span>
                             </div>
                             <div className="fw-black text-white small mb-1">
                               {p.address}
                             </div>
-                            <div className="x-small text-white opacity-80 fw-bold text-uppercase">
+                            <div className="x-small text-white opacity-90 fw-black text-uppercase">
                               {p.city}, {p.state}
+                            </div>
+                            <div className="mt-2 pt-2 border-top border-white border-opacity-5">
+                              <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">Appointment Number</span>
+                              <span className="small fw-black text-white" style={{ letterSpacing: '0.05em' }}>{p.appointmentNumber || "—"}</span>
                             </div>
                             {p.status !== "PENDING" ? (
                               <div className="mt-3 py-2 px-3 rounded-pill bg-emerald bg-opacity-20 border border-emerald border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-emerald">
@@ -1452,15 +1479,26 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               >
                                 DELIVERY 0{i + 1}
                               </div>
-                              <span className="x-small text-white opacity-80 fw-bold">
-                                {new Date(p.date).toLocaleDateString()}
+                              <span className="x-small text-white fw-black">
+                                {new Date(p.date).toLocaleDateString()} @ {(() => {
+                                  if (!p.time) return "—";
+                                  const [hours, minutes] = p.time.split(':');
+                                  let h = parseInt(hours);
+                                  const ampm = h >= 12 ? 'PM' : 'AM';
+                                  h = h % 12 || 12;
+                                  return `${h}:${minutes} ${ampm}`;
+                                })()}
                               </span>
                             </div>
                             <div className="fw-black text-white small mb-1">
                               {p.address}
                             </div>
-                            <div className="x-small text-white opacity-80 fw-bold text-uppercase">
+                            <div className="x-small text-white opacity-90 fw-black text-uppercase">
                               {p.city}, {p.state}
+                            </div>
+                            <div className="mt-2 pt-2 border-top border-white border-opacity-5">
+                              <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">Appointment Number</span>
+                              <span className="small fw-black text-white" style={{ letterSpacing: '0.05em' }}>{p.appointmentNumber || "—"}</span>
                             </div>
                             {p.status !== "PENDING" ? (
                               <div className="mt-3 py-2 px-3 rounded-pill bg-indigo bg-opacity-20 border border-indigo border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-indigo">
@@ -1565,12 +1603,12 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                       </button>
                     )}
 
-                    {user.role === "Dispatcher" &&
+                    {(user.role === "Dispatcher" || user.role === "Admin") &&
                       load.status !== "COMPLETED" && (
                         <button
                           type="button"
                           className={`btn ${
-                            load.status === "DELIVERED" && hasViewedPod
+                            (load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) && hasViewedPod
                               ? "btn-emerald shadow-glow-emerald animate-pulse-slow"
                               : "btn-secondary opacity-50 cursor-not-allowed"
                           } px-5 py-3 rounded-pill fw-black text-uppercase`}
@@ -1578,18 +1616,18 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                             fontSize: "11px",
                             letterSpacing: "2px",
                             border:
-                              load.status === "DELIVERED" && hasViewedPod
+                              (load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) && hasViewedPod
                                 ? "none"
                                 : "1px solid rgba(255, 255, 255, 0.1)",
                           }}
                           onClick={handleApproveLoad}
                           title={
-                            load.status === "DELIVERED" && !hasViewedPod
+                            !hasViewedPod
                               ? "You must view the POD document first"
                               : ""
                           }
                           disabled={
-                            load.status !== "DELIVERED" || !hasViewedPod
+                            !(load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) || !hasViewedPod
                           }
                         >
                           Mark as Completed
@@ -1643,6 +1681,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
         <div
           className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center animate-fade-in"
           style={{ zIndex: 2500 }}
+          onClick={(e) => e.stopPropagation()}
         >
           <div
             className="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-90 backdrop-blur-xl"

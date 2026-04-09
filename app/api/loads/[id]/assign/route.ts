@@ -39,6 +39,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (truckType) load.truckType = truckType;
     if (trailerType) load.trailerType = trailerType;
 
+    // Automatically transition from PENDING to ASSIGNED
+    if (load.status === 'PENDING') {
+      load.status = 'ASSIGNED';
+    }
+
     try {
       await load.save();
       

@@ -16,9 +16,8 @@ export async function GET(req: NextRequest) {
     const filter: any = {};
     if (user.role === 'Driver') {
       filter.assignedDriverId = user.id;
-      filter.status = { $ne: "CANCELLED" };
     } else if (user.role === 'Dispatcher') {
-      filter.status = { $ne: "CANCELLED" };
+      // Dispatchers see all relevant active/cancelled loads
     }
     // Admins see all loads including CANCELLED for permanent deletion approval
 

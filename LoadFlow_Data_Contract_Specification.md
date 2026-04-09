@@ -35,23 +35,40 @@ These represent the structures exactly as stored in our NoSQL database. They con
 ```
 *Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup.*
 
-### 2. Load Entity (Multi-Stop Routing)
+### 2. Load Entity (Multi-Stop Unified Routing)
 ```json
 {
   "_id": "ObjectId('64b1f9...')",
   "loadNumber": "string",
   "pickups": [
-    { "locationName": "string", "date": "timestamp" }
+    { 
+      "address": "string", 
+      "city": "string", 
+      "state": "string", 
+      "date": "timestamp", 
+      "appointmentNumber": "string", 
+      "status": "string (PENDING | PICKED_UP)" 
+    }
   ],
   "deliveries": [
-    { "locationName": "string", "date": "timestamp" }
+    { 
+      "address": "string", 
+      "city": "string", 
+      "state": "string", 
+      "date": "timestamp", 
+      "appointmentNumber": "string", 
+      "status": "string (PENDING | DELIVERED)" 
+    }
   ],
   "quantity": "number",
-  "quantityUnit": "string",
   "weight": "number",
-  "weightUnit": "string",
-  "status": "string (PENDING | IN_TRANSIT | DELIVERED | CANCELLED)",
+  "status": "string (PENDING | ASSIGNED | IN_TRANSIT | DELIVERED | COMPLETED | CANCELLED)",
   "assignedDriverId": "ObjectId | null",
+  "truckNumber": "string | null",
+  "trailerNumber": "string | null",
+  "truckType": "string | null",
+  "trailerType": "string | null",
+  "podUrl": "string | null (Cloudinary link)",
   "createdBy": "ObjectId",
   "createdAt": "timestamp",
   "updatedAt": "timestamp"

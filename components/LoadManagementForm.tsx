@@ -263,7 +263,7 @@ function LocationBlock({
                     </div>
                     <div className="col-md-7">
                         <label className="small fw-black text-white mb-1 text-uppercase tracking-wider" style={{ fontSize: "10px" }}>
-                            Appt / PO # <span className="text-danger">*</span>
+                            Appointment Number <span className="text-danger">*</span>
                         </label>
                         <input
                             required
@@ -394,10 +394,26 @@ export default function LoadManagementForm({
             const url = isEdit ? `/api/loads/${initialData._id}` : "/api/loads";
             const method = isEdit ? "PUT" : "POST";
 
+            // Calculate Transit Time based on first pickup and last delivery
+            let estimatedDuration = 0;
+            if (data.pickups.length > 0 && data.deliveries.length > 0) {
+                const first = data.pickups[0];
+                const last = data.deliveries[data.deliveries.length - 1];
+                if (first.date && first.time && last.date && last.time) {
+                    const start = new Date(`${first.date}T${first.time}`);
+                    const end = new Date(`${last.date}T${last.time}`);
+                    const diff = end.getTime() - start.getTime();
+                    if (diff > 0) {
+                        estimatedDuration = Number((diff / (1000 * 60 * 60)).toFixed(1));
+                    }
+                }
+            }
+
             const payload = {
                 ...data,
                 quantity: Number(data.quantity),
                 weight: Number(data.weight),
+                estimatedDuration,
                 pickups: data.pickups.map((p) => ({
                     ...p,
                     date: new Date(p.date),
@@ -583,7 +599,7 @@ export default function LoadManagementForm({
                 <hr className="mt-1 mb-3 border-white opacity-10" />
                 <div className="row g-3 px-1">
                     <div className="col-md-3">
-                        <label className="small fw-bold text-white mb-2 text-uppercase tracking-wider">
+                        <label className="small fw-black text-white mb-2 text-uppercase tracking-wider">
                             Quantity <span className="text-danger">*</span>
                         </label>
                         <input
@@ -597,7 +613,7 @@ export default function LoadManagementForm({
                         />
                     </div>
                     <div className="col-md-3">
-                        <label className="small fw-bold text-white mb-2 text-uppercase tracking-wider">
+                        <label className="small fw-black text-white mb-2 text-uppercase tracking-wider">
                             Unit <span className="text-danger">*</span>
                         </label>
                         <Controller
@@ -621,7 +637,7 @@ export default function LoadManagementForm({
                         />
                     </div>
                     <div className="col-md-3">
-                        <label className="small fw-bold text-white mb-2 text-uppercase tracking-wider">
+                        <label className="small fw-black text-white mb-2 text-uppercase tracking-wider">
                             Weight <span className="text-danger">*</span>
                         </label>
                         <input
@@ -635,7 +651,7 @@ export default function LoadManagementForm({
                         />
                     </div>
                     <div className="col-md-3">
-                        <label className="small fw-bold text-white mb-2 text-uppercase tracking-wider">
+                        <label className="small fw-black text-white mb-2 text-uppercase tracking-wider">
                             Weight Unit <span className="text-danger">*</span>
                         </label>
                         <Controller

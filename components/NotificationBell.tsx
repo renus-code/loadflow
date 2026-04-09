@@ -250,7 +250,9 @@ export default function NotificationBell({
                             ? "bg-danger bg-opacity-20 text-danger"
                             : n.type === "WARNING"
                               ? "bg-warning bg-opacity-20 text-warning"
-                              : "bg-info bg-opacity-20 text-info"
+                              : n.type === "SUCCESS"
+                                ? "bg-emerald bg-opacity-20 text-emerald"
+                                : "bg-info bg-opacity-20 text-info"
                         }`}
                       >
                         {n.type === "DANGER" ? (
@@ -263,6 +265,17 @@ export default function NotificationBell({
                             strokeWidth="3"
                           >
                             <path d="M12 9v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                        ) : n.type === "SUCCESS" ? (
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
                           </svg>
                         ) : (
                           <svg

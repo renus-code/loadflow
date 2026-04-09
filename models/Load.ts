@@ -35,7 +35,7 @@ export interface ILoad extends Document {
   assignedDriverId?: mongoose.Types.ObjectId | null;
   createdBy: mongoose.Types.ObjectId;
   
-  status: 'PENDING' | 'IN_TRANSIT' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
+  status: 'PENDING' | 'ASSIGNED' | 'IN_TRANSIT' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
   podUrl?: string;
   createdAt: Date;
   __v: number;
@@ -88,7 +88,7 @@ const LoadSchema: Schema = new Schema({
   status: { 
     type: String, 
     required: true, 
-    enum: ['PENDING', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'],
+    enum: ['PENDING', 'ASSIGNED', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'],
     default: 'PENDING' 
   },
   podUrl: { type: String, default: null },
