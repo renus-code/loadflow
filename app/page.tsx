@@ -425,39 +425,7 @@ export default function Home() {
                       }}
                     />
 
-                    <div
-                      className="position-absolute bottom-0 start-0 w-100 p-4"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
-                      }}
-                    >
-                      <div
-                        className="d-flex align-items-center gap-3 p-3 rounded-4 border border-white border-opacity-10"
-                        style={{
-                          background: "rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(10px)",
-                        }}
-                      >
-                        <div
-                          className="shrink-0 bg-success rounded-circle p-2 d-flex align-items-center justify-content-center"
-                          style={{ width: "35px", height: "35px" }}
-                        >
-                          <i className="bi bi-graph-up-arrow text-white small"></i>
-                        </div>
-                        <div>
-                          <p
-                            className="text-white text-opacity-60 mb-0"
-                            style={{ fontSize: "0.65rem" }}
-                          >
-                            Border Efficiency
-                          </p>
-                          <h6 className="fw-bold text-white mb-0 small">
-                            +32% Faster Clearing
-                          </h6>
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
               </div>
