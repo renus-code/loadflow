@@ -290,12 +290,7 @@ export default function UserManagement() {
   const [revokeTarget, setRevokeTarget] = useState<User | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
-  const [actionStatus, setActionStatus] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(8);
+  const [actionStatus, setActionStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const searchTerm = useSearch((state) => state.searchTerm);
   const setSearchTerm = useSearch((state) => state.setSearchTerm);
 
@@ -693,245 +688,81 @@ export default function UserManagement() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="text-center py-5 text-white opacity-50 fw-bold"
-                    >
-                      Loading users...
+                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">Loading users...</td></tr>
+                ) : filteredUsers.length === 0 ? (
+                  <tr><td colSpan={4} className="text-center py-5 text-white opacity-50 fw-bold">
+                    {isDispatcher ? 'No requested drivers found.' : 'No users found.'}
+                  </td></tr>
+                ) : filteredUsers.map(u => (
+                  <tr key={u._id} className="glass-row transition-all">
+                    <td className="px-4 py-4 text-center">
+                      <span className="fw-black text-white fs-6">{u.name}</span>
                     </td>
-                  </tr>
-                ) : currentUsers.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="text-center py-5 text-white opacity-50 fw-bold"
-                    >
-                      {isDispatcher
-                        ? "No requested drivers found."
-                        : "No users found."}
-                    </td>
-                  </tr>
-                ) : (
-                  currentUsers.map((u) => (
-                    <tr key={u._id} className="glass-row transition-all">
-                      <td className="px-4 py-4 text-center">
-                        <span className="fw-black text-white fs-6">
-                          {u.name}
+                    <td className="px-4 py-4 text-white text-opacity-50 text-center fw-medium">{u.email}</td>
+                    <td className="px-4 py-4 text-center">
+                      <div className="d-flex flex-column align-items-center gap-1">
+                        <span className={`badge rounded-pill fw-black px-3 py-2 d-flex align-items-center gap-2 shadow-sm ${
+                          u.role === 'Admin' ? 'role-badge-admin' :
+                          u.role === 'Dispatcher' ? 'role-badge-dispatcher' : 'role-badge-driver'
+                        }`}>
+                          {u.role === 'Admin' ? (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                          ) : u.role === 'Dispatcher' ? (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                          ) : (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                          )}
+                          {u.role}
                         </span>
-                      </td>
-                      <td className="px-4 py-4 text-white text-opacity-50 text-center fw-medium">
-                        {u.email}
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="d-flex flex-column align-items-center gap-1">
-                          <span
-                            className={`badge rounded-pill fw-black px-3 py-2 d-flex align-items-center gap-2 shadow-sm ${
-                              u.role === "Admin"
-                                ? "role-badge-admin"
-                                : u.role === "Dispatcher"
-                                  ? "role-badge-dispatcher"
-                                  : "role-badge-driver"
-                            }`}
-                          >
-                            {u.role === "Admin" ? (
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                              </svg>
-                            ) : u.role === "Dispatcher" ? (
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <rect x="1" y="3" width="15" height="13"></rect>
-                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                              </svg>
-                            ) : (
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                              </svg>
-                            )}
-                            {u.role}
+                        {u.isPending && (
+                          <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-bold mt-1">Pending</span>
+                        )}
+                        {u.isLocked && (
+                          <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger px-2 py-1 x-small fw-bold mt-1">
+                            <i className="bi bi-lock-fill me-1"></i>Locked
                           </span>
-                          {u.isPending && (
-                            <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-bold mt-1">
-                              Pending
-                            </span>
-                          )}
-                          {u.isLocked && (
-                            <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger px-2 py-1 x-small fw-bold mt-1">
-                              <i className="bi bi-lock-fill me-1"></i>Locked
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="d-flex align-items-center justify-content-center gap-2">
-                          {u.isLocked &&
-                            isAdmin &&
-                            (u.role !== "Admin" ||
-                              u._id === currentUser?.id) && (
-                              <button
-                                onClick={() => handleUnlock(u._id)}
-                                className="btn btn-sm fw-bold rounded-pill px-3 shadow-sm transition-all hover-float"
-                                style={{
-                                  background:
-                                    "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                                  border: "none",
-                                  color: "white",
-                                  fontSize: "0.75rem",
-                                }}
-                              >
-                                Unlock
-                              </button>
-                            )}
-                          {u.resetPasswordRequested && isAdmin && (
-                            <button
-                              onClick={() => handleApproveReset(u._id)}
-                              className="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, #2bdd66 0%, #059669 100%)",
-                                border: "none",
-                                fontSize: "0.75rem",
-                              }}
-                            >
-                              Approve Reset
-                            </button>
-                          )}
-                          {u.resetPasswordApproved && (
-                            <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">
-                              Reset Approved
-                            </span>
-                          )}
-                          {isAdmin && (
-                            <button
-                              onClick={() => handleRevokeSession(u)}
-                              className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all"
-                              style={{ fontSize: "0.75rem" }}
-                              title="Instantly log out this user everywhere"
-                            >
-                              Revoke
-                            </button>
-                          )}
-                          {isAdmin &&
-                            (u.role !== "Admin" ||
-                              u._id === currentUser?.id) && (
-                              <button
-                                onClick={() => openEditModal(u)}
-                                className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all"
-                                style={{ fontSize: "0.75rem" }}
-                              >
-                                Edit
-                              </button>
-                            )}
-                          {isAdmin && u.role !== "Admin" && (
-                            <button
-                              onClick={() => handleDelete(u)}
-                              className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all"
-                              style={{ fontSize: "0.75rem" }}
-                            >
-                              Delete
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <div className="d-flex align-items-center justify-content-center gap-2">
+                        {u.isLocked && isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
+                          <button
+                            onClick={() => handleUnlock(u._id)}
+                            className="btn btn-sm fw-bold rounded-pill px-3 shadow-sm transition-all hover-float"
+                            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', border: 'none', color: 'white', fontSize: '0.75rem' }}
+                          >
+                            Unlock
+                          </button>
+                        )}
+                        {u.resetPasswordRequested && isAdmin && (
+                          <button
+                            onClick={() => handleApproveReset(u._id)}
+                            className="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm transition-all hover-float"
+                            style={{ background: 'linear-gradient(135deg, #2bdd66 0%, #059669 100%)', border: 'none', fontSize: '0.75rem' }}
+                          >Approve Reset</button>
+                        )}
+                        {u.resetPasswordApproved && (
+                          <span className="badge rounded-pill bg-success bg-opacity-10 text-success px-2 py-1 small fw-bold">Reset Approved</span>
+                        )}
+                        {isAdmin && (
+                          <button onClick={() => handleRevokeSession(u)} className="btn btn-sm btn-outline-warning-20 rounded-pill px-3 fw-bold hover-bg-warning-opacity transition-all" style={{ fontSize: '0.75rem' }} title="Instantly log out this user everywhere">Revoke</button>
+                        )}
+                        {isAdmin && (u.role !== 'Admin' || u._id === currentUser?.id) && (
+                          <button onClick={() => openEditModal(u)} className="btn btn-sm btn-outline-white-20 rounded-pill px-3 fw-bold hover-bg-white-10 transition-all" style={{ fontSize: '0.75rem' }}>Edit</button>
+                        )}
+                        {isAdmin && u.role !== 'Admin' && (
+                          <button onClick={() => handleDelete(u)} className="btn btn-sm btn-outline-danger-20 rounded-pill px-3 fw-bold hover-bg-danger-opacity transition-all" style={{ fontSize: '0.75rem' }}>Delete</button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
-
-        {/* TRULY FLOATING PAGINATION CONTROLS (NO BOX BACKGROUND) */}
-        {totalPages > 1 && (
-          <div
-            className="d-flex flex-column align-items-center gap-3 py-5 animate-slide-up"
-            style={{ pointerEvents: "none" }}
-          >
-            <div
-              className="d-flex align-items-center gap-3"
-              style={{ pointerEvents: "auto" }}
-            >
-              {/* FIRST PAGE « */}
-              <button
-                onClick={() => paginate(1)}
-                disabled={currentPage === 1}
-                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
-                title="First Page"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="11 17 6 12 11 7"></polyline>
-                  <polyline points="18 17 13 12 18 7"></polyline>
-                </svg>
-              </button>
-
-              {/* PREV PAGE < */}
-              <button
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="btn-circle-nav d-flex align-items-center justify-content-center shadow-lg"
-                title="Previous"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-
-              {/* ACTIVE PAGE INDICATOR (EMERALD GLOW) */}
-              <div
-                className="active-page-circle d-flex align-items-center justify-content-center shadow-emerald"
-                style={{ cursor: "default" }}
-              >
-                <span className="fw-black text-dark">{currentPage}</span>
-              </div>
+      </div>
 
               {/* NEXT PAGE > */}
               <button
@@ -1037,12 +868,7 @@ export default function UserManagement() {
                     </>
                   )}
                 </h3>
-                <button
-                  className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100"
-                  onClick={() => setShowModal(false)}
-                  aria-label="Close"
-                  title="Close"
-                ></button>
+                <button className="btn-close btn-close-white shadow-none opacity-50 hover-opacity-100" onClick={() => setShowModal(false)}></button>
               </div>
 
               <p className="small text-white opacity-50 mb-4 fw-medium">
@@ -1551,74 +1377,9 @@ export default function UserManagement() {
           border-color: #2bdd66 !important;
           box-shadow: 0 0 15px rgba(43, 221, 102, 0.15) !important;
         }
-        .modal-input-icon {
-          position: absolute;
-          left: 1.25rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #2bdd66;
-          opacity: 0.7;
-          z-index: 5;
-        }
-        .btn-emerald-solid {
-          background: #2bdd66;
-          color: #000 !important;
-          cursor: pointer;
-        }
-        .btn-glass-secondary {
-          background: rgba(255, 255, 255, 0.05);
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* IMAGE-MATCHED CIRCULAR PAGINATION (IDENTICAL TO AUDIT LOGS) */
-        .btn-circle-nav {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(
-            255,
-            255,
-            255,
-            0.15
-          ); /* Lighter grey for visibility */
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: rgba(255, 255, 255, 0.9); /* Brighter icon */
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-          backdrop-filter: blur(10px);
-        }
-        .btn-circle-nav:hover:not(:disabled) {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: rgba(255, 255, 255, 0.2);
-          color: white;
-          transform: translateY(-1px);
-        }
-        .btn-circle-nav:disabled {
-          opacity: 0.25; /* More visible even when disabled */
-          cursor: not-allowed;
-          background: rgba(255, 255, 255, 0.05);
-        }
-        .active-page-circle {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: #10b981; /* Standard Dashboard Emerald */
-          color: #000;
-          box-shadow: 0 0 20px -2px rgba(16, 185, 129, 0.4);
-          transition: all 0.3s ease;
-          z-index: 10;
-          font-size: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          font-weight: 900;
-        }
-        .active-page-circle:hover {
-          transform: scale(1.02);
-          box-shadow: 0 0 25px -2px rgba(16, 185, 129, 0.6);
-        }
-        .letter-spacing-2 {
-          letter-spacing: 0.15em;
-          font-size: 0.65rem;
-        }
+        .modal-input-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #2bdd66; opacity: 0.7; z-index: 5; }
+        .btn-emerald-solid { background: #2bdd66; color: #000 !important; cursor: pointer; }
+        .btn-glass-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
       `}</style>
     </>
   );

@@ -3,6 +3,7 @@
 This document maps the structure and transformation of the data throughout the system, ensuring consistency between the MongoDB Database Entities, the Backend DTOs, and the Frontend View Models. This prevents frontend/backend mismatches and clarifies data structures.
 
 > **Email Integration:** The system uses **Nodemailer (Gmail)** for all transactional communications, including driver invitations and registration confirmations.
+> **Email Integration:** The system uses **Nodemailer (Gmail)** for all transactional communications, including driver invitations and registration confirmations.
 
 ---
 
@@ -11,11 +12,13 @@ This document maps the structure and transformation of the data throughout the s
 These represent the structures exactly as stored in our NoSQL database. They contain internal-only fields and relational ObjectIds.
 
 ### 1. User Entity (Logistics Personnel)
+### 1. User Entity (Logistics Personnel)
 ```json
 {
   "_id": "ObjectId('64b1f8...')",
   "name": "string",
   "email": "string",
+  "passwordHash": "string | null",
   "passwordHash": "string | null",
   "role": "string (Admin | Dispatcher | Driver)",
   "isPending": "boolean (true for invited, false for activated)",
@@ -29,10 +32,23 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "requestedBy": "ObjectId (Dispatcher ID for recruitment flow)",
   "tokenVersion": "number (Session revocation index)",
   "isTwoFactorEnabled": "boolean",
+  "isPending": "boolean (true for invited, false for activated)",
+  "phone": "string | null",
+  "licenseNumber": "string | null (Ontario/Quebec format)",
+  "dob": "date | null",
+  "city": "string | null",
+  "province": "string | null",
+  "postalCode": "string | null",
+  "address": "string | null",
+  "requestedBy": "ObjectId (Dispatcher ID for recruitment flow)",
+  "tokenVersion": "number (Session revocation index)",
+  "isTwoFactorEnabled": "boolean",
   "createdAt": "timestamp",
+  "updatedAt": "timestamp"
   "updatedAt": "timestamp"
 }
 ```
+*Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup.*
 *Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup.*
 
 ### 2. Load Entity (Multi-Stop Routing)
@@ -42,8 +58,10 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "loadNumber": "string",
   "pickups": [
     { "locationName": "string", "date": "timestamp" }
+    { "locationName": "string", "date": "timestamp" }
   ],
   "deliveries": [
+    { "locationName": "string", "date": "timestamp" }
     { "locationName": "string", "date": "timestamp" }
   ],
   "quantity": "number",
@@ -86,6 +104,34 @@ These represent the structures exactly as stored in our NoSQL database. They con
 }
 ```
 
+### 3. Notification Entity (System Alerts)
+```json
+{
+  "_id": "ObjectId('75c...)",
+  "message": "string",
+  "type": "string (INFO | WARNING | DANGER | SUCCESS)",
+  "targetRole": "string (Admin | Dispatcher | Driver)",
+  "userId": "ObjectId | null (Optional direct targeting)",
+  "link": "string (Dashboard deep link)",
+  "isRead": "boolean",
+  "createdAt": "timestamp"
+}
+```
+
+### 4. Audit Log Entity (Security Monitoring)
+```json
+{
+  "_id": "ObjectId('86d...)",
+  "userId": "ObjectId (Acting user)",
+  "action": "string (USER_INVITED | LOAD_CREATED | USER_ACTIVATED)",
+  "entityType": "string (User | Load | Auth)",
+  "entityId": "ObjectId | null",
+  "details": "JSON Object (Metadata / Diff snapshot)",
+  "ipAddress": "string",
+  "createdAt": "timestamp"
+}
+```
+
 ---
 
 ## Step 2: Backend DTO Models (Data Transfer Objects)
@@ -93,18 +139,32 @@ These represent the structures exactly as stored in our NoSQL database. They con
 These structures define what the frontend sends and exactly what the Next.js API returns via HTTP routes.
 
 ### Driver Recruitment Request DTO (Dispatcher)
+### Driver Recruitment Request DTO (Dispatcher)
 ```json
 {
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@gmail.com"
   "firstName": "John",
   "lastName": "Doe",
   "email": "john.doe@gmail.com"
 }
 ```
 *Notice: Dispatched to `/api/driver-requests`. This triggers an Admin notification to invite the candidate.*
+*Notice: Dispatched to `/api/driver-requests`. This triggers an Admin notification to invite the candidate.*
 
+### Driver Activation DTO (Onboarding Completion)
 ### Driver Activation DTO (Onboarding Completion)
 ```json
 {
+  "password": "NewStrongPassword!",
+  "phone": "416-555-0199",
+  "licenseNumber": "A1234-56789-01234",
+  "dob": "1990-01-01",
+  "city": "Toronto",
+  "province": "ON",
+  "postalCode": "M5V 2H1",
+  "address": "123 Fleet St"
   "password": "NewStrongPassword!",
   "phone": "416-555-0199",
   "licenseNumber": "A1234-56789-01234",
@@ -134,6 +194,7 @@ These structures define what the frontend sends and exactly what the Next.js API
 ## Step 3: Frontend View Models
 
 ### Audit Log Row ViewModel
+### Audit Log Row ViewModel
 ```json
 {
   "id": "86d...",
@@ -142,8 +203,15 @@ These structures define what the frontend sends and exactly what the Next.js API
   "target": "jane.driver@gmail.com",
   "context": "IP: 192.168.1.1 | Role: Driver",
   "timestamp": "2 mins ago"
+  "id": "86d...",
+  "actor": "Admin (admin@loadflow.ca)",
+  "actionLabel": "INVITED USER",
+  "target": "jane.driver@gmail.com",
+  "context": "IP: 192.168.1.1 | Role: Driver",
+  "timestamp": "2 mins ago"
 }
 ```
+*Notice: The frontend dashboard aggregates raw `AuditLog` fields and resolves `userId` references into readable Actor names before displaying in the table.*
 *Notice: The frontend dashboard aggregates raw `AuditLog` fields and resolves `userId` references into readable Actor names before displaying in the table.*
 
 ---
@@ -157,11 +225,26 @@ Dispatcher submits a candidate via `/api/driver-requests`.
 **2. Admin Invitation:**
 Admin invites account via `/api/auth/register` (RBAC mode).
 ⬇ *(Nodemailer sends invitation email with signed link)*
+## Step 4: Map the Flow (Onboarding Pipeline)
+
+**1. Dispatcher Request:**
+Dispatcher submits a candidate via `/api/driver-requests`.
+⬇ *(Admin receives system notification)*
+
+**2. Admin Invitation:**
+Admin invites account via `/api/auth/register` (RBAC mode).
+⬇ *(Nodemailer sends invitation email with signed link)*
 
 **3. Driver Registration:**
 Driver clicks link, lands on `/register?email=...`, and completes setup.
 ⬇ *(Audit log records USER_ACTIVATED)*
+**3. Driver Registration:**
+Driver clicks link, lands on `/register?email=...`, and completes setup.
+⬇ *(Audit log records USER_ACTIVATED)*
 
+**4. Ecosystem Ready:**
+Admins and Dispatchers receive "Registration Complete" Notifications.
+The Driver is now available for Assignment in the Fleet dashboard.
 **4. Ecosystem Ready:**
 Admins and Dispatchers receive "Registration Complete" Notifications.
 The Driver is now available for Assignment in the Fleet dashboard.
