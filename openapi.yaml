@@ -2,13 +2,6 @@ openapi: 3.0.3
 info:
   title: LoadFlow API
   version: 1.2.0
-  contact:
-    name: CargoConnect Support
-    email: support@loadflow.ca
-    url: https://loadflow.ca
-  license:
-    name: Proprietary / Enterprise
-    url: https://loadflow.ca/terms
   description: |
     Welcome to the LoadFlow API!
     
