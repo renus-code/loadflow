@@ -117,6 +117,18 @@ These structures define what the frontend sends and exactly what the Next.js API
 ```
 *Notice: The frontend sends this to `/api/auth/register` to transition a user from `isPending: true` to `isPending: false`.*
 
+### Public Request DTOs (Demo & Pricing Estimate)
+```json
+{
+  "fullName": "string",
+  "companyName": "string",
+  "email": "string",
+  "phone": "string",
+  "assetTier": "string (e.g., '1 - 5', '500 - 4,999')"
+}
+```
+*Notice: Dispatched via Next.js Server Actions (`submitDemoRequest` & `submitPricingRequest`) from the unauthenticated landing page. Exists transiently in memory, dispatched directly to Nodemailer.*
+
 ---
 
 ## Step 3: Frontend View Models

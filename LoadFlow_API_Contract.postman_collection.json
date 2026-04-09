@@ -46,8 +46,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/check-email?email=driver@example.com",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "check-email"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "check-email"
+              ],
               "query": [
                 {
                   "key": "email",
@@ -73,8 +79,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -94,8 +106,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -128,8 +146,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -140,8 +164,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             }
           }
         },
@@ -152,8 +182,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             }
           }
         },
@@ -173,8 +209,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             }
           }
         },
@@ -194,8 +236,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "reset-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
             }
           }
         },
@@ -215,8 +263,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/profile/check-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "profile", "check-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile",
+                "check-password"
+              ]
             }
           }
         },
@@ -236,8 +291,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/profile/update",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "profile", "update"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile",
+                "update"
+              ]
             }
           }
         },
@@ -248,8 +310,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/2fa/generate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "2fa", "generate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "2fa",
+                "generate"
+              ]
             }
           }
         },
@@ -269,8 +338,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/2fa/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "2fa", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "2fa",
+                "verify"
+              ]
             }
           }
         }
@@ -286,8 +362,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
             }
           }
         },
@@ -298,8 +379,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -319,8 +406,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -331,8 +424,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -343,8 +442,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/approve-reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "approve-reset"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "approve-reset"
+              ]
             }
           }
         },
@@ -355,8 +461,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/unlock",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "unlock"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "unlock"
+              ]
             }
           }
         },
@@ -367,8 +480,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/revoke",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "revoke"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "revoke"
+              ]
             }
           }
         }
@@ -384,12 +504,26 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications?page=1&limit=10&all=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "all", "value": "false" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "all",
+                  "value": "false"
+                }
               ]
             }
           }
@@ -401,8 +535,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
             }
           }
         },
@@ -413,8 +552,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications", "{{notificationId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}"
+              ]
             }
           }
         },
@@ -425,8 +570,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications", "{{notificationId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}"
+              ]
             }
           }
         }
@@ -451,8 +602,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/driver-requests",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "driver-requests"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "driver-requests"
+              ]
             }
           }
         }
@@ -468,11 +624,22 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/audit?page=1&limit=100",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "audit"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "audit"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "100" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
               ]
             }
           }
@@ -489,8 +656,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/loads",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads"
+              ]
             }
           }
         },
@@ -506,13 +678,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"loadNumber\": \"LD-2410\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 12,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 38000,\n  \"weightUnit\": \"lbs\",\n  \"totalDistance\": 335,\n  \"estimatedDuration\": 5.5\n}"
-
+              "raw": "{\n  \"loadNumber\": \"LD-2410\",\n  \"pickups\": [\n    {\n      \"address\": \"123 Pickup Rd\",\n      \"city\": \"Toronto\",\n      \"state\": \"ON\",\n      \"postalCode\": \"M5V 2L7\",\n      \"appointmentNumber\": \"PU-1001\",\n      \"date\": \"2026-04-05T12:00:00.000Z\",\n      \"time\": \"08:00\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"deliveries\": [\n    {\n      \"address\": \"789 Delivery St\",\n      \"city\": \"Montreal\",\n      \"state\": \"QC\",\n      \"postalCode\": \"H2Y 1C6\",\n      \"appointmentNumber\": \"DL-2001\",\n      \"date\": \"2026-04-06T12:00:00.000Z\",\n      \"time\": \"15:30\",\n      \"status\": \"PENDING\"\n    }\n  ],\n  \"quantity\": 12,\n  \"quantityUnit\": \"pallets\",\n  \"weight\": 38000,\n  \"weightUnit\": \"lbs\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads"
+              ]
             }
           }
         },
@@ -523,8 +699,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}"
+              ]
             }
           }
         },
@@ -544,8 +726,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}"
+              ]
             }
           }
         },
@@ -556,8 +744,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}"
+              ]
             }
           }
         },
@@ -577,8 +771,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}/assign",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}", "assign"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}",
+                "assign"
+              ]
             }
           }
         },
@@ -598,8 +799,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}",
+                "status"
+              ]
             }
           }
         },
@@ -619,8 +827,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/loads/{{loadId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loads", "{{loadId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "loads",
+                "{{loadId}}",
+                "status"
+              ]
             }
           }
         }
@@ -651,8 +866,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/pods",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pods"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pods"
+              ]
             }
           }
         },
@@ -663,8 +883,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pods/{{podId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pods", "{{podId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pods",
+                "{{podId}}"
+              ]
             }
           }
         },
@@ -675,8 +901,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pods/{{podId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pods", "{{podId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pods",
+                "{{podId}}"
+              ]
             }
           }
         }
@@ -692,8 +924,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/trucks",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trucks"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trucks"
+              ]
             }
           }
         },
@@ -713,8 +950,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/trucks",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trucks"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trucks"
+              ]
             }
           }
         },
@@ -734,8 +976,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/trucks/{{truckId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trucks", "{{truckId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trucks",
+                "{{truckId}}"
+              ]
             }
           }
         },
@@ -746,8 +994,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/trucks/{{truckId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trucks", "{{truckId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trucks",
+                "{{truckId}}"
+              ]
             }
           }
         }
@@ -763,8 +1017,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/trailers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trailers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trailers"
+              ]
             }
           }
         },
@@ -784,8 +1043,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/trailers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trailers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trailers"
+              ]
             }
           }
         },
@@ -805,8 +1069,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/trailers/{{trailerId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trailers", "{{trailerId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trailers",
+                "{{trailerId}}"
+              ]
             }
           }
         },
@@ -817,8 +1087,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/trailers/{{trailerId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trailers", "{{trailerId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trailers",
+                "{{trailerId}}"
+              ]
             }
           }
         }
@@ -834,10 +1110,76 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/swagger",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "swagger"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "swagger"
+              ]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Marketing / Public Gateway",
+      "item": [
+        {
+          "name": "Submit Demo Request (Server Action)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"companyName\": \"Logistics Corp\",\n  \"email\": \"jane@logisticscorp.com\",\n  \"phone\": \"416-555-0199\",\n  \"assetTier\": \"30 - 499\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/server-action/demo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "server-action",
+                "demo"
+              ]
+            },
+            "description": "Next.js Server Action mimicking a POST request. Called from the frontend UI to dispatch Demo alert email."
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Pricing Estimate (Server Action)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Smith\",\n  \"companyName\": \"Fleet Solutions\",\n  \"email\": \"john@fleetsolutions.com\",\n  \"phone\": \"416-555-0100\",\n  \"assetTier\": \"500 - 4,999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/server-action/pricing",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "server-action",
+                "pricing"
+              ]
+            },
+            "description": "Next.js Server Action mimicking a POST request to dispatch custom pricing estimate alert email."
+          },
+          "response": []
         }
       ]
     }

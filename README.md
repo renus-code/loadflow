@@ -85,6 +85,10 @@ LoadFlow is a premium, real-time dispatch and fleet operations platform designed
 - `POST /api/driver-requests`
 - `GET /api/audit`
 
+### Public Gateway (Server Actions)
+- `POST /server-action/demo` (submitDemoRequest)
+- `POST /server-action/pricing` (submitPricingRequest)
+
 ### Loads
 - `GET /api/loads`
 - `POST /api/loads`
