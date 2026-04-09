@@ -2,26 +2,39 @@ openapi: 3.0.3
 info:
   title: LoadFlow API
   version: 1.2.0
+  contact:
+    name: CargoConnect Support
+    email: support@loadflow.ca
+    url: https://loadflow.ca
+  license:
+    name: Proprietary / Enterprise
+    url: https://loadflow.ca/terms
   description: |
-    OpenAPI contract for the currently implemented LoadFlow backend.
+    Welcome to the LoadFlow API!
+    
+    This API provides a complete backend for the LoadFlow Dispatch Application, allowing dispatchers, drivers, and administrators to orchestrate logistics seamlessly.
 
-    Notes:
-    - Authentication is cookie-based using the `token` cookie.
-    - Public registration is invitation-based. Admins can also use the same register endpoint to create invitations.
-    - Password reset is approval-based: users request reset, admins approve, then users reset.
-    - POD uploads use `multipart/form-data`.
+    ### 🔑 Authentication
 
-    Static frontend-only routes:
-    - `/`
-    - `/login`
-    - `/register`
-    - `/forgot-password`
-    - `/reset-password`
-    - `/dashboard`
-    - `/dashboard/profile`
-    - `/dashboard/users`
-    - `/contact`
-    - `/api-docs`
+    The system uses **Cookie-based JWT Authentication**.
+
+    1. **Login** or **Register** (if invited) to receive a secure HTTP-only cookie.
+    2. This cookie is automatically sent with subsequent requests.
+    3. **Note for API Tools (Postman/Swagger):** Ensure cookies are enabled/stored after login so protected endpoints can be tested.
+
+    ### 📦 Primary Features
+    
+    This API is built explicitly to handle fleet operations.
+    
+    - **Logistics Data:** Access resources in JSON format.
+    - **Proof of Delivery:** Secure `multipart/form-data` uploads handled and routed towards Cloudinary.
+    - **Server Actions:** Public gateways directly dispatch SMTP NodeMailer notifications without persistence overhead.
+
+    ### 👥 User Roles
+
+    - **Driver:** Can view assigned configurations, update transit statuses, and submit Proof of Delivery.
+    - **Dispatcher:** Can build loads, manage tractors/trailers, assign resources, and recruit candidates.
+    - **Admin:** Has overarching control to invite accounts, reset passwords, clear sessions, and parse global audit logs.
 servers:
   - url: http://localhost:3000
     description: Local development
@@ -33,8 +46,85 @@ tags:
   - name: PODs
   - name: Trucks
   - name: Trailers
+  - name: Marketing
 
 paths:
+  /server-action/demo:
+    post:
+      tags: [Marketing]
+      summary: Submit a demonstration request
+      description: This is a Next.js Server Action called by the landing page to dispatch a Nodemailer email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, companyName, email, phone, assetTier]
+              properties:
+                fullName:
+                  type: string
+                companyName:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                assetTier:
+                  type: string
+      responses:
+        '200':
+          description: Action fully successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Validation error
+        '500':
+          description: Email failed to send
+
+  /server-action/pricing:
+    post:
+      tags: [Marketing]
+      summary: Submit a custom pricing estimate request
+      description: This is a Next.js Server Action called by the landing page to dispatch an estimate-focused Nodemailer email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, companyName, email, phone, assetTier]
+              properties:
+                fullName:
+                  type: string
+                companyName:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                assetTier:
+                  type: string
+      responses:
+        '200':
+          description: Action fully successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Validation error
+        '500':
+          description: Email failed to send
+
   /api/auth/check-email:
     get:
       tags: [Auth]

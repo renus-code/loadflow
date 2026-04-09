@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import RequestDemoModal from "@/components/RequestDemoModal";
+import CheckPricesModal from "@/components/CheckPricesModal";
 
 export default function Home() {
   return (
@@ -12,7 +14,7 @@ export default function Home() {
           className="position-relative d-flex align-items-center overflow-hidden bg-dark"
           style={{
             minHeight: "90vh",
-            backgroundImage: "url('/truck%20&%20trailer.png')",
+            backgroundImage: "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('/truck%20&%20trailer.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -54,13 +56,11 @@ export default function Home() {
                 </h1>
 
                 <p
-                  className="lead text-light mb-5 fw-medium animate-slide-in-left delay-100"
+                  className="lead text-white mb-5 fw-bold animate-slide-in-left delay-100"
                   style={{
-                    opacity: 0.9,
-                    textShadow: "0 2px 5px rgba(0,0,0,0.6)",
-                    fontSize: "1.25rem",
+                    textShadow: "0 4px 12px rgba(0,0,0,0.9)",
+                    fontSize: "1.35rem",
                     maxWidth: "600px",
-                    margin: "0 auto",
                   }}
                 >
                   Canada – U.S. Cross Border Trucking,
@@ -99,7 +99,10 @@ export default function Home() {
         </section>
 
         {/* HYPER-PREMIUM STATISTICS SECTION */}
-        <section className="py-5 bg-white position-relative overflow-hidden border-bottom border-secondary border-opacity-10">
+        <section className="py-5 bg-white position-relative overflow-hidden">
+          {/* Glowing Top & Bottom Gradient Borders */}
+          <div className="position-absolute top-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
           <div className="container py-4 position-relative z-1">
             <div className="row text-center g-4">
               {/* Stat 1: Multi-Stop Loads */}
@@ -163,8 +166,10 @@ export default function Home() {
         </section>
 
         {/* HYPER-PREMIUM FEATURES SECTION */}
-        <section id="features" className="py-5 bg-white">
-          <div className="container py-5">
+        <section id="features" className="py-5 bg-white position-relative overflow-hidden">
+          {/* Glowing Bottom Gradient Border */}
+          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div className="container py-5 position-relative z-1">
             <div className="text-center mb-5 max-w-700 mx-auto">
               <h6
                 className="text-success fw-bold text-uppercase tracking-widest mb-3"
@@ -274,6 +279,8 @@ export default function Home() {
             background: "linear-gradient(135deg, #0a0f1e 0%, #050814 100%)",
           }}
         >
+          {/* Glowing Bottom Gradient Border */}
+          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
           {/* Animated Nebula Glows */}
           <div className="position-absolute top-0 start-0 w-100 h-100 z-0 opacity-50">
             <div
@@ -458,175 +465,97 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HYPER-PREMIUM PRICING SECTION */}
+        {/* DISPATCHER PRO HORIZONTAL BANNER */}
         <section
           id="pricing"
-          className="py-5 bg-dashboard-soft position-relative overflow-hidden"
+          className="py-5 position-relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #02180e 0%, #000000 100%)",
+          }}
         >
-          {/* Subtle background texture */}
-          <div
-            className="position-absolute top-0 start-0 w-100 h-100 opacity-05 pointer-events-none"
-            style={{
-              backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }}
-          ></div>
+          {/* Glowing Bottom Gradient Border */}
+          <div className="position-absolute bottom-0 start-0 w-100" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
 
-          <div className="container py-5 position-relative z-1">
-            <div className="text-center mb-5 max-w-700 mx-auto">
-              <h2
-                className="display-5 fw-bold text-dark mb-3"
-                style={{ fontFamily: "var(--font-syne)" }}
-              >
-                Simple, Transparent Pricing
-              </h2>
-              <p className="lead text-secondary">
-                No hidden fees. Just direct, high-octane logistics power.
-              </p>
-            </div>
+          {/* Subtle background texture & glows */}
+          <div className="position-absolute top-50 start-50 translate-middle rounded-circle" style={{ width: "800px", height: "500px", background: "radial-gradient(ellipse, rgba(43,221,102,0.12) 0%, transparent 70%)", filter: "blur(60px)", zIndex: 0 }}></div>
+          <div className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
 
-            <div className="row g-4 justify-content-center pt-4">
-              {/* Carrier Basic */}
-              <div className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg rounded-5 overflow-hidden glass-card transition-all hover-float">
-                  <div className="p-5 bg-white bg-opacity-50 border-bottom text-center">
-                    <h5 className="fw-bold text-secondary text-uppercase tracking-widest small mb-3">
-                      Starter
-                    </h5>
-                    <h3 className="fw-bold text-dark">Carrier Basic</h3>
-                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
-                      <span className="display-5 fw-bold text-dark">$0</span>
-                      <span className="text-secondary fw-semibold">/mo</span>
+          <div className="container position-relative z-1 py-5">
+            <div className="row align-items-center justify-content-between g-5">
+
+              {/* Left Column: Title & Subtitle */}
+              <div className="col-lg-4 text-center text-lg-start pe-lg-3 position-relative z-1">
+                <span className="badge bg-success bg-opacity-25 text-success fw-bold px-3 py-2 rounded-pill border border-success border-opacity-50 mb-4 d-inline-flex align-items-center gap-2" style={{ letterSpacing: "1px", fontSize: "0.75rem", boxShadow: "0 0 20px rgba(43, 221, 102, 0.2)" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#2bdd66", display: "inline-block" }}></span>
+                  INDUSTRY STANDARD
+                </span>
+                <h2 className="fw-bold text-white mb-3" style={{ fontFamily: "var(--font-syne)", fontSize: "3rem", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>Dispatcher Pro</h2>
+                <p className="text-white text-opacity-50 mb-0" style={{ fontSize: "1.1rem" }}>No hidden fees. Direct, high-octane logistics power.</p>
+              </div>
+
+              {/* Middle Column: Features */}
+              <div className="col-lg-5 p-lg-5 border-start border-end border-white border-opacity-10 my-4 my-lg-0 position-relative z-1">
+                <div className="row g-4">
+                  <div className="col-sm-6 d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                      <i className="bi bi-check-lg text-success fs-5"></i>
                     </div>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Unlimited Dispatch Board</span>
                   </div>
-                  <div className="card-body p-5 d-flex flex-column">
-                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5">
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        10 Active Dispatch Loads
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Standard Route Tracking
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Email Support
-                      </li>
-                    </ul>
-                    <Link
-                      href="/register"
-                      className="btn btn-outline-dark w-100 fw-bold py-3 mt-auto rounded-3"
-                    >
-                      Get Started
-                    </Link>
+                  <div className="col-sm-6 d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                      <i className="bi bi-check-lg text-success fs-5"></i>
+                    </div>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Real-Time Board Sync</span>
+                  </div>
+                  <div className="col-sm-6 d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                      <i className="bi bi-check-lg text-success fs-5"></i>
+                    </div>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Digital POD Management</span>
+                  </div>
+                  <div className="col-sm-6 d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                      <i className="bi bi-check-lg text-success fs-5"></i>
+                    </div>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Priority Fleet Support</span>
                   </div>
                 </div>
               </div>
 
-              {/* Dispatcher Pro */}
-              <div className="col-md-4">
-                <div
-                  className="card h-100 border-0 shadow-2xl rounded-5 overflow-hidden z-1 position-relative transition-all hover-float"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #111827 0%, #050814 100%)",
-                    transform: "scale(1.08)",
-                  }}
+              {/* Right Column: CTA */}
+              <div className="col-lg-3 text-center text-lg-end ps-lg-4 d-flex flex-column gap-3 justify-content-center position-relative z-1">
+                <button 
+                  className="btn w-100 fw-bold py-3 rounded-pill shadow-success-glow border-0 d-flex justify-content-center align-items-center gap-2 hover-zoom"
+                  style={{ backgroundColor: "#2bdd66", color: "#000", fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.5px" }}
+                  data-bs-toggle="modal" 
+                  data-bs-target="#requestDemoModal"
                 >
-                  <div className="position-absolute top-0 end-0 p-3">
-                    <span
-                      className="badge bg-success text-dark fw-bold px-3 py-2 rounded-3"
-                      style={{ boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)" }}
-                    >
-                      RECOMMENDED
-                    </span>
-                  </div>
-                  <div className="p-5 border-bottom border-white border-opacity-10 text-center mt-3">
-                    <h5 className="fw-bold text-success text-uppercase tracking-widest small mb-3">
-                      Scale
-                    </h5>
-                    <h3 className="fw-bold text-white">Dispatcher Pro</h3>
-                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
-                      <span className="display-5 fw-bold text-white">$49</span>
-                      <span className="text-white text-opacity-50 fw-semibold">
-                        /mo
-                      </span>
-                    </div>
-                  </div>
-                  <div className="card-body p-5 d-flex flex-column">
-                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5 text-white">
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Unlimited Dispatch Board
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Real-Time Board Sync
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Digital POD Management
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Priority Fleet Support
-                      </li>
-                    </ul>
-                    <Link
-                      href="/register"
-                      className="btn btn-primary w-100 fw-bold py-3 mt-auto rounded-3 shadow-success-glow border-0"
-                      style={{ backgroundColor: "#2bdd66", color: "#000" }}
-                    >
-                      Go Pro Now
-                    </Link>
-                  </div>
-                </div>
+                  Request Demo 
+                  <span className="d-flex align-items-center justify-content-center rounded-circle" style={{ width: "26px", height: "26px", backgroundColor: "rgba(0, 0, 0, 0.15)", marginLeft: "4px" }}>
+                    <i className="bi bi-arrow-right" style={{ fontSize: "1rem" }}></i>
+                  </span>
+                </button>
+                <button 
+                  className="btn w-100 fw-bold py-2 rounded-pill ghost-btn text-white"
+                  style={{ fontSize: "0.9rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  data-bs-toggle="modal"
+                  data-bs-target="#checkPricesModal"
+                >
+                  Check Prices
+                </button>
               </div>
 
-              {/* Enterprise */}
-              <div className="col-md-4">
-                <div className="card h-100 border-0 shadow-lg rounded-5 overflow-hidden glass-card transition-all hover-float">
-                  <div className="p-5 bg-white bg-opacity-50 border-bottom text-center">
-                    <h5 className="fw-bold text-secondary text-uppercase tracking-widest small mb-3">
-                      Custom
-                    </h5>
-                    <h3 className="fw-bold text-dark">Enterprise</h3>
-                    <div className="d-flex align-items-baseline justify-content-center gap-1 mt-4">
-                      <span className="display-5 fw-bold text-dark">
-                        Custom
-                      </span>
-                    </div>
-                  </div>
-                  <div className="card-body p-5 d-flex flex-column">
-                    <ul className="list-unstyled d-flex flex-column gap-3 mb-5">
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Fleet Systems API
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Dedicated Success Team
-                      </li>
-                      <li className="d-flex align-items-center gap-3">
-                        <i className="bi bi-check2-circle text-success fs-5"></i>{" "}
-                        Advanced Region Mapping
-                      </li>
-                    </ul>
-                    <button className="btn btn-outline-dark w-100 fw-bold py-3 mt-auto rounded-3">
-                      Request Demo
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
+        {/* MODALS */}
+        <RequestDemoModal />
+        <CheckPricesModal />
       </main>
 
       {/* FOOTER */}
-      <footer style={{ background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 100%)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #10b981, transparent)" }} />
+      <footer className="position-relative" style={{ background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 100%)" }}>
         <div className="container px-4 py-5">
           <div className="row g-5">
             {/* Brand */}

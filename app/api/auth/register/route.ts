@@ -155,7 +155,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'This account is already registered. Please sign in.' }, { status: 400 });
       }
 
-      // License Validation Logic
+      // Mandatory License Validation for Drivers
+      if (existingUser.role === 'Driver' && !licenseNumber) {
+        return NextResponse.json({ error: "License number is strictly required for Driver accounts." }, { status: 400 });
+      }
+
+      // License format & DOB Validation Logic
       if (licenseNumber) {
         const ontarioRegex = /^[A-Z][0-9]{4}-[0-9]{5}-[0-9]{5}$/;
         const quebecRegex = /^[A-Z][0-9]{12}$/;

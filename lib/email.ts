@@ -29,36 +29,236 @@ export async function sendInvitationEmail({ to, name, role }: InvitationEmailPro
       to: to,
       subject: `Invitation to join LoadFlow as a ${role}`,
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #060e20; color: #ffffff; padding: 40px; border-radius: 16px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #020617 100%); color: #f8fafc; padding: 40px 20px; border-radius: 16px; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+          <!-- Header Banner -->
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2bdd66; margin: 0; font-size: 28px; letter-spacing: -1px; font-weight: 800;">Load<span style="color: #ffffff;">Flow</span></h1>
-            <p style="opacity: 0.6; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px;">Premium Logistics Management</p>
+            <div style="display: inline-block; background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); padding: 12px 24px; border-radius: 50px; box-shadow: 0 0 25px rgba(43, 221, 102, 0.4);">
+              <h1 style="color: #000000; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+                Official Platform Invitation
+              </h1>
+            </div>
           </div>
-          
-          <div style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-            <h2 style="margin-top: 0; font-size: 22px; font-weight: 700;">Hello, ${name}!</h2>
-            <p style="font-size: 16px; line-height: 1.6; opacity: 0.8;">
-              You have been officially invited to join the <strong>LoadFlow</strong> platform as a <strong>${role}</strong>.
-            </p>
-            <p style="font-size: 16px; line-height: 1.6; opacity: 0.8;">
-              To complete your registration and set up your secure account, please click the button below:
+
+          <!-- Main Content Card -->
+          <div style="background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(10px); padding: 35px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="text-align: center; margin-bottom: 25px;">
+              <h1 style="color: #2bdd66; margin: 0; font-size: 32px; letter-spacing: -1px; font-weight: 900;">Load<span style="color: #ffffff;">Flow</span></h1>
+              <p style="color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px; font-weight: 600;">Enterprise Operations</p>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;" />
+
+            <h2 style="color: #ffffff; margin-top: 0; font-size: 20px; font-weight: 500;">Dear ${name},</h2>
+            <p style="font-size: 16px; line-height: 1.7; color: #cbd5e1; font-weight: 400;">
+              You have been formally authorized to access the LoadFlow logistics system by the administrative team. Your administrative clearance assigns you the role of <strong>${role}</strong>.
             </p>
             
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="${registerUrl}" style="background-color: #2bdd66; color: #000000; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 20px rgba(43, 221, 102, 0.2);">
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 16px 20px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #2bdd66;">
+              <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Action Required</p>
+              <p style="margin: 6px 0 0 0; font-size: 15px; color: #e2e8f0; line-height: 1.5;">
+                In order to finalize your system credentials and activate your profile, you are required to complete the registration process using the secure link provided below.
+              </p>
+            </div>
+            
+            <!-- Call to Action -->
+            <div style="margin-top: 35px; text-align: center;">
+              <a href="${registerUrl}" style="display: inline-block; background: linear-gradient(135deg, #2bdd66 0%, #059669 100%); color: #000000; padding: 18px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; font-size: 16px; box-shadow: 0 10px 30px rgba(43, 221, 102, 0.3); text-transform: uppercase; letter-spacing: 1px;">
                 Complete Registration
               </a>
             </div>
             
-            <p style="font-size: 14px; opacity: 0.5; font-style: italic;">
-              If the button doesn't work, copy and paste this link into your browser:<br/>
-              <span style="color: #2bdd66;">${registerUrl}</span>
-            </p>
+            <div style="margin-top: 35px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;">
+              <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 500;">
+                If the primary access button is unresponsive, proceed to:<br/>
+                <a href="${registerUrl}" style="color: #2bdd66; text-decoration: none; word-break: break-all; margin-top: 5px; display: inline-block;">${registerUrl}</a>
+              </p>
+            </div>
           </div>
           
-          <div style="margin-top: 30px; text-align: center; font-size: 12px; opacity: 0.4;">
-            <p>© 2026 LoadFlow Logistics. All rights reserved.</p>
-            <p>This is an automated system email. Please do not reply.</p>
+          <!-- Footer -->
+          <div style="margin-top: 35px; text-align: center; font-size: 12px; color: #64748b; font-weight: 500;">
+            <p>This document is an automated authorization notice generated by the LoadFlow Security System.</p>
+            <p>Do not forward this email. This registration link is securely bound to your designated email address.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    return { data: info };
+  } catch (error) {
+    console.error('Nodemailer Error:', error);
+    return { error };
+  }
+}
+
+interface DemoEmailProps {
+  email: string;
+  name: string;
+  companyName: string;
+  phone: string;
+  assetTier: string;
+}
+
+export async function sendAdminDemoAlertEmail({ email, name, companyName, phone, assetTier }: DemoEmailProps) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.error('GMAIL_USER or GMAIL_APP_PASSWORD is not defined in environment variables.');
+    return { error: 'Email service not configured' };
+  }
+
+  const adminEmail = process.env.GMAIL_USER;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"LoadFlow Automations" <${adminEmail}>`,
+      replyTo: email,
+      to: adminEmail,
+      subject: `Action Required: New Demonstration Request - ${companyName}`,
+      html: `
+        <div style="font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #020617 100%); color: #f8fafc; padding: 40px 20px; border-radius: 16px; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+          <!-- Header Banner -->
+          <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-block; background: linear-gradient(135deg, #2bdd66 0%, #10b981 100%); padding: 12px 24px; border-radius: 50px; box-shadow: 0 0 25px rgba(43, 221, 102, 0.4);">
+              <h1 style="color: #000000; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+                Demonstration Request
+              </h1>
+            </div>
+          </div>
+
+          <!-- Main Content Card -->
+          <div style="background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(10px); padding: 35px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <h2 style="color: #ffffff; margin-top: 0; margin-bottom: 30px; font-size: 20px; font-weight: 500; text-align: center;">
+              A formal request has been submitted by <br/><strong><span style="color: #2bdd66;">${companyName}</span></strong>
+            </h2>
+            
+            <div>
+              <!-- Stat Block 1 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #3b82f6;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Primary Contact</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">${name}</p>
+              </div>
+
+              <!-- Stat Block 2 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #a855f7;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Corporate Email</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">
+                  <a href="mailto:${email}" style="color: #e2e8f0; text-decoration: none;">${email}</a>
+                </p>
+              </div>
+
+              <!-- Stat Block 3 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #f59e0b;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Contact Number</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">${phone}</p>
+              </div>
+
+              <!-- Stat Block 4 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; border-left: 5px solid #ef4444;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Declared Assets</p>
+                <p style="margin: 6px 0 0 0; font-size: 20px; color: #2bdd66; font-weight: 900;">${assetTier} Units</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Call to Action -->
+          <div style="margin-top: 40px; text-align: center;">
+            <a href="mailto:${email}?subject=LoadFlow Platform Operation Overview - ${companyName}" style="display: inline-block; background: linear-gradient(135deg, #2bdd66 0%, #059669 100%); color: #000000; padding: 18px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; font-size: 16px; box-shadow: 0 10px 30px rgba(43, 221, 102, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+              Initiate Correspondence
+            </a>
+          </div>
+          
+          <!-- Footer -->
+          <div style="margin-top: 35px; text-align: center; font-size: 12px; color: #64748b; font-weight: 500;">
+            <p>This document is an automated notification generated by the LoadFlow Operations System.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    return { data: info };
+  } catch (error) {
+    console.error('Nodemailer Error:', error);
+    return { error };
+  }
+}
+
+interface EstimationEmailProps {
+  email: string;
+  name: string;
+  companyName: string;
+  phone: string;
+  assetTier: string;
+}
+
+export async function sendAdminEstimationAlertEmail({ email, name, companyName, phone, assetTier }: EstimationEmailProps) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.error('GMAIL_USER or GMAIL_APP_PASSWORD is not defined in environment variables.');
+    return { error: 'Email service not configured' };
+  }
+
+  const adminEmail = process.env.GMAIL_USER;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"LoadFlow Automations" <${adminEmail}>`,
+      replyTo: email,
+      to: adminEmail,
+      subject: `Action Required: New Custom Pricing Request - ${companyName}`,
+      html: `
+        <div style="font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #020617 100%); color: #f8fafc; padding: 40px 20px; border-radius: 16px; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+          <!-- Header Banner -->
+          <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 12px 24px; border-radius: 50px; box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);">
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+                Pricing Estimate Request
+              </h1>
+            </div>
+          </div>
+
+          <!-- Main Content Card -->
+          <div style="background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(10px); padding: 35px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <h2 style="color: #ffffff; margin-top: 0; margin-bottom: 30px; font-size: 20px; font-weight: 500; text-align: center;">
+              A formal pricing request has been submitted by <br/><strong><span style="color: #3b82f6;">${companyName}</span></strong>
+            </h2>
+            
+            <div>
+              <!-- Stat Block 1 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #2bdd66;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Primary Contact</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">${name}</p>
+              </div>
+
+              <!-- Stat Block 2 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #a855f7;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Corporate Email</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">
+                  <a href="mailto:${email}" style="color: #e2e8f0; text-decoration: none;">${email}</a>
+                </p>
+              </div>
+
+              <!-- Stat Block 3 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 5px solid #f59e0b;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Contact Number</p>
+                <p style="margin: 6px 0 0 0; font-size: 18px; color: #ffffff; font-weight: 700;">${phone}</p>
+              </div>
+
+              <!-- Stat Block 4 -->
+              <div style="background: rgba(0, 0, 0, 0.4); padding: 16px 20px; border-radius: 12px; border-left: 5px solid #3b82f6;">
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Asset Requirements</p>
+                <p style="margin: 6px 0 0 0; font-size: 20px; color: #3b82f6; font-weight: 900;">${assetTier} Units</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Call to Action -->
+          <div style="margin-top: 40px; text-align: center;">
+            <a href="mailto:${email}?subject=LoadFlow Custom Pricing Proposal - ${companyName}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; padding: 18px 40px; border-radius: 50px; text-decoration: none; font-weight: 900; font-size: 16px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+              Provide Custom Quote
+            </a>
+          </div>
+          
+          <!-- Footer -->
+          <div style="margin-top: 35px; text-align: center; font-size: 12px; color: #64748b; font-weight: 500;">
+            <p>This document is an automated notification generated by the LoadFlow Operations System.</p>
           </div>
         </div>
       `,

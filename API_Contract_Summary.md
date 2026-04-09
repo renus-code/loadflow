@@ -88,3 +88,37 @@ The Next.js backend utilizes standard HTTP codes to natively trigger Edge firewa
 - **401 Unauthorized:** Missing, tampered, or expired `token` cookie.
 - **403 Forbidden:** Valid user, but lacks RBAC Clearance or "Invite-Only" restriction bypass attempt.
 - **500 Internal Server Error:** Unhandled Mongoose exception.
+
+---
+
+## 5. Public Gateway (Server Actions)
+
+These endpoints are implemented as Next.js Server Actions on the Landing Page rather than standard REST APIs, directly dispatching Nodemailer actions without database persistence constraints.
+
+### 5.1 Request Demonstration
+- **Logical Path:** `submitDemoRequest` (Server Action)
+- **Request JSON / Form Payload:**
+  ```json
+  {
+    "fullName": "Jane Doe",
+    "companyName": "Logistics Corp",
+    "email": "jane@logisticscorp.com",
+    "phone": "416-555-0199",
+    "assetTier": "30 - 499"
+  }
+  ```
+- **Purpose:** Triggers a formatted "Action Required: New Demonstration Request" alert to the administrative team.
+
+### 5.2 Pricing Estimate
+- **Logical Path:** `submitPricingRequest` (Server Action)
+- **Request JSON / Form Payload:**
+  ```json
+  {
+    "fullName": "John Smith",
+    "companyName": "Fleet Solutions",
+    "email": "john@fleetsolutions.com",
+    "phone": "416-555-0100",
+    "assetTier": "500 - 4,999"
+  }
+  ```
+- **Purpose:** Triggers a distinct "Action Required: New Custom Pricing Request" alert directing the admin to provide an enterprise quote.
