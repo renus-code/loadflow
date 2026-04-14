@@ -54,13 +54,23 @@ const createAuthStore = () =>
     },
     logout: async (router) => {
       try {
-        const res = await fetch('/api/auth/logout', { method: 'POST' });
-        if (res.ok) {
-          set({ user: null });
-          router.push('/');
-        }
+        await fetch('/api/auth/logout', { method: 'POST' });
       } catch (err) {
-        console.error('Logout failed:', err);
+        console.error('Logout API failed:', err);
+      } finally {
+        // ─── CLEAR BROWSER STORAGE ──────────────────────────────────────────────
+        if (typeof window !== 'undefined') {
+          localStorage.clear();
+          sessionStorage.clear();
+        }
+        
+        set({ user: null });
+        if (router) {
+          router.replace('/');
+          router.refresh();
+        } else {
+          window.location.href = '/';
+        }
       }
     }
   }));

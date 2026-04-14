@@ -32,10 +32,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // ─── SESSION REVOCATION CHECK (Token Versioning) ───────────────────────────
+    // If the version in the JWT doesn't match the database, the session is revoked.
+    // This allows force-logout-all-devices by incrementing the version.
+    if (payload.tokenVersion !== undefined && payload.tokenVersion !== (userDoc.tokenVersion || 0)) {
+      console.warn(`Revoked session detected for user ${payload.id}. Version mismatch.`);
+      
+      // Clear the invalid cookie
+      const response = NextResponse.json({ error: 'Session revoked' }, { status: 401 });
+      response.cookies.set('token', '', { maxAge: 0, path: '/' });
+      return response;
+    }
+
     const { _id, ...rest } = userDoc;
     const user = { id: _id.toString(), ...rest };
-
-    return NextResponse.json({ user }, { status: 200 });
+    
+    const response = NextResponse.json({ user }, { status: 200 });
+    
+    // ─── DISABLE CACHING FOR AUTH STATE ───────────────────────────────────────
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
   } catch (error: unknown) {
     console.error('Auth verification error:', error);
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });

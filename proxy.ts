@@ -51,6 +51,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // ─── DASHBOARD PROTECTION & CACHE CONTROL ──────────────────────────────────
+  if (pathname.startsWith('/dashboard')) {
+    const response = isValidToken 
+      ? NextResponse.next() 
+      : NextResponse.redirect(new URL('/login', request.url));
+
+    // Set headers to prevent caching of dashboard content
+    // This ensures that "Back" button navigation after logout doesn't show sensitive data
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
+  }
+
   // If the user is trying to access login/register while already authenticated
   if (isAuthPath && isValidToken) {
     const dashboardUrl = new URL('/dashboard', request.url);

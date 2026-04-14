@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 type LoginFormData = {
   email: string;
@@ -23,6 +24,8 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
+
+  const fetchUser = useAuth((state) => state.fetchUser);
 
   const onSubmit = async (data: LoginFormData) => {
     setServerError("");
@@ -44,6 +47,8 @@ export default function Login() {
       } else if (json.requires2FA) {
         setRequires2FA(true);
       } else {
+        await fetchUser(); // Ensure global state is updated before navigation
+        router.refresh(); // Clear previous cache for '/'
         router.push("/dashboard");
       }
     } catch {
