@@ -21,6 +21,18 @@ const formatNotification = (message: string) => {
     return { title: "New Message", subtitle: parts[1]?.trim() || "" };
   }
 
+  // Pattern: "Load #XXX is now IN TRANSIT (Operator: Name)"
+  if (message.includes("is now IN TRANSIT (Operator:")) {
+    const parts = message.split("is now IN TRANSIT (Operator:");
+    return { title: "Load In Transit", subtitle: `${parts[0]?.trim()} • Operator: ${parts[1]?.replace(")", "").trim()}` };
+  }
+
+  // Pattern: "Load #XXX: Pickup/Delivery..."
+  if (message.startsWith("Load #") && message.includes(":")) {
+    const parts = message.split(":");
+    return { title: parts[0]?.trim(), subtitle: parts.slice(1).join(":").trim() };
+  }
+
   // Generic split by first colon
   if (message.includes(":")) {
     const [title, ...rest] = message.split(":");
@@ -36,13 +48,14 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "UNREAD">("ALL");
+  const [category, setCategory] = useState<"ALL" | "LOADS" | "USERS">("ALL");
   const user = useAuth((state) => state.user);
 
   const fetchNotifications = async (targetPage = page) => {
     if (!user) return;
     try {
       setLoading(true);
-      const res = await fetch(`/api/notifications?all=${filter === "ALL"}&page=${targetPage}&limit=10`);
+      const res = await fetch(`/api/notifications?all=${filter === "ALL"}&page=${targetPage}&limit=10${category !== 'ALL' ? `&category=${category}` : ''}`);
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications);
@@ -58,7 +71,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     setPage(1);
     fetchNotifications(1);
-  }, [user, filter]);
+  }, [user, filter, category]);
 
   useEffect(() => {
     fetchNotifications(page);
@@ -139,23 +152,86 @@ export default function NotificationsPage() {
                 <span className="text-gradient-emerald">Manage</span> Alerts
               </h2>
               
-              <div className="d-flex align-items-center gap-3 ms-auto">
-                <div className="bg-black bg-opacity-40 rounded-pill p-1 d-flex border border-white border-opacity-10 shadow-lg">
+              <div className="d-flex flex-wrap align-items-center gap-3 ms-auto">
+                {/* Category Dropdown Filter */}
+                <div className="dropdown position-relative">
+                  <button
+                    className="btn btn-dark rounded-pill px-3 py-1 border border-white border-opacity-10 shadow-lg d-flex align-items-center gap-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style={{ 
+                      background: "rgba(0,0,0,0.6)", 
+                      fontSize: "10px", 
+                      fontWeight: 900,
+                      letterSpacing: "0.08em",
+                      fontFamily: "var(--font-syne)",
+                      height: "30px",
+                      transition: "none" // Prevent layout shifts during state changes
+                    }}
+                  >
+                    <span className={category !== "ALL" ? "text-emerald" : "text-white opacity-40"}>
+                      {category === "ALL" ? "ALL" : category === "LOADS" ? "LOADS" : "USERS"}
+                    </span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
+                      <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <ul 
+                    className="dropdown-menu dropdown-menu-end border border-white border-opacity-10 rounded-4 shadow-2xl p-1 glass-card" 
+                    style={{ 
+                      background: "rgba(10,12,20,0.98)", 
+                      backdropFilter: "blur(20px)", 
+                      zIndex: 1060,
+                      minWidth: "100px"
+                    }}
+                  >
+                    <li>
+                      <button 
+                        className={`dropdown-item rounded-3 mb-1 fw-bold text-center ${category === 'ALL' ? 'bg-emerald text-dark' : 'text-white'}`}
+                        style={{ fontSize: "10px", padding: "4px 8px" }}
+                        onClick={() => setCategory("ALL")}
+                      >
+                        ALL
+                      </button>
+                    </li>
+                    <li>
+                      <button 
+                        className={`dropdown-item rounded-3 mb-1 fw-bold text-center ${category === 'LOADS' ? 'bg-indigo text-white' : 'text-white'}`}
+                        style={{ fontSize: "10px", padding: "4px 8px" }}
+                        onClick={() => setCategory("LOADS")}
+                      >
+                        LOADS
+                      </button>
+                    </li>
+                    <li>
+                      <button 
+                        className={`dropdown-item rounded-3 fw-bold text-center ${category === 'USERS' ? 'bg-emerald text-dark' : 'text-white'}`}
+                        style={{ fontSize: "10px", padding: "4px 8px" }}
+                        onClick={() => setCategory("USERS")}
+                      >
+                        USERS
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-black bg-opacity-40 rounded-pill p-1 d-flex border border-white border-opacity-10 shadow-lg" style={{ height: "30px" }}>
                   <button
                     onClick={() => setFilter("ALL")}
-                    className={`btn rounded-pill px-4 py-1 small fw-black text-uppercase tracking-wider transition-all border-0 shadow-none ${
+                    className={`btn rounded-pill px-3 py-0 fw-black text-uppercase tracking-wider transition-all border-0 shadow-none active-scale ${
                       filter === "ALL" ? "bg-emerald text-dark" : "text-white opacity-40 hover-opacity-100"
                     }`}
-                    style={{ fontSize: '0.7rem' }}
+                    style={{ fontSize: '9px' }}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setFilter("UNREAD")}
-                    className={`btn rounded-pill px-4 py-1 small fw-black text-uppercase tracking-wider transition-all border-0 shadow-none ${
+                    className={`btn rounded-pill px-3 py-0 fw-black text-uppercase tracking-wider transition-all border-0 shadow-none active-scale ${
                       filter === "UNREAD" ? "bg-emerald text-dark" : "text-white opacity-40 hover-opacity-100"
                     }`}
-                    style={{ fontSize: '0.7rem' }}
+                    style={{ fontSize: '9px' }}
                   >
                     Unread
                   </button>
@@ -173,7 +249,7 @@ export default function NotificationsPage() {
               </div>
             </div>
 
-            <div className="card-body p-0">
+            <div className="card-body p-0" style={{ minHeight: "600px" }}> 
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0 custom-table">
                   <thead className="glass-thead">
@@ -208,19 +284,19 @@ export default function NotificationsPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="d-flex align-items-center justify-content-center text-center">
-                              <div style={{ maxWidth: '450px' }}>
+                              <div style={{ maxWidth: 'none', width: '100%' }}>
                                 {(() => {
                                   const { title, subtitle } = formatNotification(n.message);
                                   return (
                                     <>
                                       <h4 
-                                        className={`fs-6 fw-black text-white mb-0 text-truncate ${!n.isRead ? "text-glow-emerald" : "opacity-80"}`}
+                                        className={`fs-6 fw-black text-white mb-0 ${!n.isRead ? "text-glow-emerald" : "opacity-80"}`}
                                         title={n.message}
                                       >
                                         {title}
                                       </h4>
                                       {subtitle && (
-                                        <div className="xx-small text-white opacity-40 mt-1 fw-medium text-truncate">
+                                        <div className="xx-small text-white opacity-40 mt-1 fw-medium">
                                           {subtitle}
                                         </div>
                                       )}
@@ -345,15 +421,34 @@ export default function NotificationsPage() {
       <style jsx>{`
         .glass-card { background: rgba(13, 18, 38, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08) !important; }
         .glass-thead { background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-row { transition: all 0.2s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
-        .glass-row:hover { background: rgba(255, 255, 255, 0.04) !important; }
-        
+        .glass-row {
+          background: rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-row:hover {
+          transform: translateY(-1px);
+          box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.04);
+        }
+        .active-scale:active {
+          transform: scale(0.96);
+        }
+        .dropdown-item {
+          transition: all 0.2s ease;
+        }
+        .dropdown-item:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          color: #fff !important;
+        }
         .border-start-4 { border-left: 4px solid transparent; }
         
         .unread-row { 
           background: rgba(45, 221, 102, 0.05) !important; 
           border-left-color: #2bdd66 !important;
           box-shadow: inset 10px 0 30px -15px rgba(45, 221, 102, 0.2);
+        }
+        .unread-row:hover {
+          background: rgba(45, 221, 102, 0.1) !important;
         }
         .read-row { 
           opacity: 0.6; 

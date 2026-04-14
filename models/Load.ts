@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IStop {
+  companyName: string;
   address: string;
   city: string;
   state: string;
@@ -15,6 +16,7 @@ export interface IStop {
 
 export interface ILoad extends Document {
   loadNumber: string;
+  commodity: string; // Description of the load
   
   pickups: IStop[];
   deliveries: IStop[];
@@ -42,6 +44,7 @@ export interface ILoad extends Document {
 }
 
 const StopSchema = new Schema({
+  companyName: { type: String, required: true },
   address: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
@@ -55,7 +58,8 @@ const StopSchema = new Schema({
 }, { _id: false });
 
 const LoadSchema: Schema = new Schema({
-  loadNumber: { type: String, required: true },
+  loadNumber: { type: String, required: true, unique: true },
+  commodity: { type: String, required: true },
   
   pickups: { type: [StopSchema], required: true, validate: [(v: IStop[]) => v.length > 0, 'At least one pickup is required'] },
   deliveries: { type: [StopSchema], required: true, validate: [(v: IStop[]) => v.length > 0, 'At least one delivery is required'] },

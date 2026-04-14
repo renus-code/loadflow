@@ -753,16 +753,47 @@ iframe {
 
 /* ─── NAVBAR PREMIUM HOVER EFFECTS ──────────────────────────────────────── */
 .nav-pill-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 50rem;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+}
+
+/* Premium Animated Underline */
+.nav-pill-hover::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent-emerald);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(43, 221, 102, 0.4);
 }
 
 .nav-pill-hover:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
-.nav-pill-hover.scrolled-hover:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+/* Custom hover colors based on scroll state */
+.nav-link-light:hover {
+  color: #00ffa3 !important; /* Brighter Neon for Hero */
+  text-shadow: 0 0 15px rgba(0, 255, 163, 0.6);
+}
+
+.nav-link-dark:hover {
+  color: var(--accent-emerald) !important; /* Brand Emerald for White Nav */
+}
+
+.nav-pill-hover:hover::after {
+  width: 40%;
+}
+
+.nav-pill-hover:hover {
+  background-color: transparent !important;
 }
 
 .ghost-btn {

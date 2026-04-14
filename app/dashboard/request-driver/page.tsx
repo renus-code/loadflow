@@ -185,7 +185,7 @@ export default function RequestDriverPage() {
                   <div className="row g-4">
                     {/* FIRST NAME */}
                     <div className="col-md-6 form-group">
-                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">First Name</label>
+                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-80 tracking-widest text-uppercase">First Name</label>
                       <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.firstName ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="text"
@@ -200,7 +200,7 @@ export default function RequestDriverPage() {
 
                     {/* LAST NAME */}
                     <div className="col-md-6 form-group">
-                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">Last Name</label>
+                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-80 tracking-widest text-uppercase">Last Name</label>
                       <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.lastName ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="text"
@@ -215,7 +215,7 @@ export default function RequestDriverPage() {
 
                     {/* EMAIL */}
                     <div className="col-12 form-group">
-                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-50 tracking-widest text-uppercase">Direct Email Address</label>
+                      <label className="form-label text-white fw-bold mb-2 xx-small opacity-80 tracking-widest text-uppercase">Direct Email Address</label>
                       <div className={`input-icon-wrapper rounded-4 overflow-hidden border border-opacity-10 shadow-sm transition-all focus-ring-emerald ${errors.email ? 'border-danger' : 'border-white'}`}>
                         <input
                           type="email"
@@ -295,7 +295,8 @@ export default function RequestDriverPage() {
         .btn-outline-white-20:hover { background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.5); }
         
         .input-icon-wrapper { 
-          background: rgba(255,255,255,0.02); 
+          background: rgba(0, 0, 0, 0.3) !important; 
+          border: 1px solid rgba(255, 255, 255, 0.05) !important;
           transition: all 0.3s ease;
         }
         .input-icon-wrapper:hover {

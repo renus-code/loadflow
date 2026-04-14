@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         if (isDispatcher) {
           try {
             await Notification.create({
-              message: `New driver request: ${name || email} submitted by Dispatcher`,
+              message: `Driver Request: ${name || email} has been submitted by Dispatcher for review.`,
               type: 'INFO',
               targetRole: 'Admin',
               link: '/dashboard/users'
@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
       // Notify Admins of new registration
       try {
         await Notification.create({
-          message: `Registration Complete: ${existingUser.name} (${email}) has activated their driver account.`,
+          message: `User Registration: ${existingUser.name} (${email}) has successfully activated their account.`,
           type: 'SUCCESS',
           targetRole: 'Admin',
           link: '/dashboard/users'

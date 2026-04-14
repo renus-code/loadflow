@@ -39,6 +39,9 @@ tags:
   - name: PODs
   - name: Trucks
   - name: Trailers
+  - name: Audit
+  - name: Notifications
+  - name: Fleet Requests
   - name: Marketing
 
 paths:
@@ -752,6 +755,13 @@ paths:
             type: boolean
             default: false
           description: Include read notifications when true
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [ALL, LOADS, USERS]
+            default: ALL
+          description: Filter notifications by category
       responses:
         '200':
           description: Notification list
@@ -934,6 +944,7 @@ paths:
           schema:
             type: integer
             default: 100
+          description: Number of logs to return (UI usually requests 25)
       responses:
         '200':
           description: Audit log list
@@ -1581,6 +1592,178 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/audit:
+    get:
+      tags: [Audit]
+      summary: Fetch audit logs
+      description: Admin only
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: List of audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/driver-requests:
+    post:
+      tags: [Fleet Requests]
+      summary: Submit a driver request
+      description: Dispatcher only. Notifies Admins of a new driver candidate.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, email]
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Request sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden
+
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: Fetch user notifications
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [ALL, LOADS, USERS]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: all
+          in: query
+          description: Include read notifications if true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    patch:
+      tags: [Notifications]
+      summary: Mark all unread notifications as read
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: All marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/notifications/{id}:
+    patch:
+      tags: [Notifications]
+      summary: Mark a single notification as read
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    delete:
+      tags: [Notifications]
+      summary: Delete a notification
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Notification deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
 components:
   securitySchemes:
     cookieAuth:
@@ -1967,6 +2150,7 @@ components:
       type: object
       required:
         - loadNumber
+        - commodity
         - pickups
         - deliveries
         - quantity
@@ -1975,6 +2159,8 @@ components:
         - weightUnit
       properties:
         loadNumber:
+          type: string
+        commodity:
           type: string
         pickups:
           type: array
@@ -2030,7 +2216,7 @@ components:
       properties:
         status:
           type: string
-          enum: [PENDING, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
+          enum: [PENDING, ASSIGNED, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
         stopType:
           type: string
           enum: [pickups, deliveries]
@@ -2065,6 +2251,8 @@ components:
         _id:
           type: string
         loadNumber:
+          type: string
+        commodity:
           type: string
         pickups:
           type: array
@@ -2125,7 +2313,7 @@ components:
                   format: email
         status:
           type: string
-          enum: [PENDING, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
+          enum: [PENDING, ASSIGNED, IN_TRANSIT, PICKED_UP, DELIVERED, CANCELLED, COMPLETED]
         podUrl:
           type: string
           nullable: true
@@ -2265,3 +2453,16 @@ components:
           format: date-time
         __v:
           type: integer
+
+    DriverRequest:
+      type: object
+      required: [firstName, lastName, email]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+
