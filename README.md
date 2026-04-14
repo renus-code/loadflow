@@ -48,7 +48,7 @@ LoadFlow is a premium, real-time dispatch and fleet operations platform designed
 - **`/register`**: Invitation-based profile activation (Auto-fills via email query)
 - **`/dashboard`**: Operational Command Center
 - **`/dashboard/users`**: Admin user factory & recruiter dashboard
-- **`/dashboard/audit`**: High-fidelity system activity logs
+- **`/dashboard/audit`**: High-fidelity system audit logs
 - **`/api-docs`**: Interactive Swagger documentation
 
 ---
@@ -78,7 +78,7 @@ LoadFlow is a premium, real-time dispatch and fleet operations platform designed
 - `POST /api/users/{id}/revoke`
 
 ### Notifications and Requests
-- `GET /api/notifications`
+- `GET /api/notifications?category=[ALL|LOADS|USERS]`
 - `PATCH /api/notifications`
 - `PATCH /api/notifications/{id}`
 - `DELETE /api/notifications/{id}`
@@ -221,11 +221,12 @@ If `MONGODB_URI` is missing in the deployment environment, the build can fail wh
 
 ### Load
 - Load number
+- Commodity
 - Pickups and deliveries
 - Quantity and weight
 - Assigned driver
 - Assigned truck and trailer
-- Status lifecycle
+- Status lifecycle (`PENDING`, `ASSIGNED`, `PICKED_UP`, `IN_TRANSIT`, `DELIVERED`, `COMPLETED`, `CANCELLED`)
 - POD URL
 
 ### Truck
@@ -244,8 +245,8 @@ If `MONGODB_URI` is missing in the deployment environment, the build can fail wh
 
 ### Supporting Records
 - Proof of Delivery
-- Notifications
-- Audit logs
+- Notifications (with category filtering)
+- Audit logs (Actor, Action, Target, Context)
 
 ---
 

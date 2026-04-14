@@ -181,9 +181,34 @@ function LocationBlock({
                 <div className="row g-3">
                     <div className="col-12">
                         <label
+                            htmlFor={`${prefix}.companyName`}
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest"
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
+                        >
+                            Company Name <span className="text-danger">*</span>
+                        </label>
+                        <input
+                            id={`${prefix}.companyName`}
+                            required
+                            className={FIELD}
+                            style={{ background: "#0d1117", color: "white" }}
+                            placeholder="e.g. Walmart DC, Global Logistics"
+                            {...register(`${prefix}.companyName`, { required: true })}
+                        />
+                    </div>
+                    <div className="col-12">
+                        <label
                             htmlFor={`${prefix}.address`}
-                            className="small fw-black text-white mb-1 px-1 text-uppercase tracking-wider"
-                            style={{ fontSize: "10px" }}
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest"
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
                         >
                             Address <span className="text-danger">*</span>
                         </label>
@@ -199,8 +224,12 @@ function LocationBlock({
                     <div className="col-md-6">
                         <label
                             htmlFor={`${prefix}.state`}
-                            className="small fw-black text-white mb-1 px-1 text-uppercase tracking-wider"
-                            style={{ fontSize: "10px" }}
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest"
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
                         >
                             State / Province <span className="text-danger">*</span>
                         </label>
@@ -224,8 +253,12 @@ function LocationBlock({
                     <div className="col-md-6">
                         <label
                             htmlFor={`${prefix}.city`}
-                            className="small fw-black text-white mb-1 px-1 text-uppercase tracking-wider"
-                            style={{ fontSize: "10px" }}
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest"
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
                         >
                             City <span className="text-danger">*</span>
                         </label>
@@ -250,7 +283,14 @@ function LocationBlock({
                 </div>
                 <div className="row g-3">
                     <div className="col-md-5">
-                        <label className="small fw-black text-white mb-1 text-uppercase tracking-wider" style={{ fontSize: "10px" }}>
+                        <label 
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest" 
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
+                        >
                             Postal Code <span className="text-danger">*</span>
                         </label>
                         <input
@@ -262,7 +302,14 @@ function LocationBlock({
                         />
                     </div>
                     <div className="col-md-7">
-                        <label className="small fw-black text-white mb-1 text-uppercase tracking-wider" style={{ fontSize: "10px" }}>
+                        <label 
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest" 
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
+                        >
                             Appointment Number <span className="text-danger">*</span>
                         </label>
                         <input
@@ -276,7 +323,14 @@ function LocationBlock({
                 </div>
                 <div className="row g-3">
                     <div className="col-md-7">
-                        <label className="small fw-black text-white mb-1 text-uppercase tracking-wider" style={{ fontSize: "10px" }}>
+                        <label 
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest" 
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
+                        >
                             Date <span className="text-danger">*</span>
                         </label>
                         <input
@@ -288,7 +342,14 @@ function LocationBlock({
                         />
                     </div>
                     <div className="col-md-5">
-                        <label className="small fw-black text-white mb-1 text-uppercase tracking-wider" style={{ fontSize: "10px" }}>
+                        <label 
+                            className="fw-black mb-1 px-1 text-uppercase tracking-widest" 
+                            style={{ 
+                                fontSize: "10.5px", 
+                                color: isPickup ? "#818cf8" : "#2bdd66",
+                                letterSpacing: "1px"
+                            }}
+                        >
                             Time <span className="text-danger">*</span>
                         </label>
                         <input
@@ -312,6 +373,7 @@ type FormStop = Omit<IStop, "date" | "status"> & {
 
 type LoadFormData = {
     loadNumber: string;
+    commodity: string;
     pickups: FormStop[];
     deliveries: FormStop[];
     quantity: string;
@@ -334,6 +396,7 @@ export default function LoadManagementForm({
     const isEdit = !!initialData;
     const initialStop = useMemo<FormStop>(
         () => ({
+            companyName: "",
             address: "",
             city: "",
             state: "",
@@ -349,6 +412,7 @@ export default function LoadManagementForm({
     const { register, handleSubmit, control, reset } = useForm<LoadFormData>({
         defaultValues: {
             loadNumber: "",
+            commodity: "",
             pickups: [{ ...initialStop }],
             deliveries: [{ ...initialStop }],
             quantity: "",
@@ -362,6 +426,7 @@ export default function LoadManagementForm({
         if (initialData) {
             reset({
                 loadNumber: initialData.loadNumber,
+                commodity: initialData.commodity || "",
                 pickups: initialData.pickups.map((p) => ({
                     ...p,
                     date: new Date(p.date).toISOString().split("T")[0],
@@ -486,10 +551,10 @@ export default function LoadManagementForm({
                 </div>
                 <hr className="mt-2 mb-4 border-white opacity-10" />
                 <div className="px-1">
-                    <label
-                        htmlFor="loadNumberField"
-                        className="small fw-bold text-white mb-2 px-1 text-uppercase tracking-wider"
-                    >
+                        <label
+                            htmlFor="loadNumberField"
+                            className="small fw-bold text-white mb-2 px-1 text-uppercase tracking-widest opacity-80"
+                        >
                         Load Reference Number <span className="text-danger">*</span>
                     </label>
                     <input
@@ -597,9 +662,27 @@ export default function LoadManagementForm({
                     </h5>
                 </div>
                 <hr className="mt-1 mb-3 border-white opacity-10" />
+                <div className="row g-3 px-1 mb-3">
+                    <div className="col-12">
+                        <label
+                            htmlFor="commodityField"
+                            className="small fw-bold text-white mb-2 px-1 text-uppercase tracking-wider"
+                        >
+                            Commodity / Load Type <span className="text-danger">*</span>
+                        </label>
+                        <input
+                            id="commodityField"
+                            required
+                            className="form-control form-control-lg glass-input-premium text-white px-4 py-3 border-white border-opacity-10 shadow-none"
+                            style={{ background: "#0d1117", color: "white" }}
+                            placeholder="e.g. Fresh Produce, Steel"
+                            {...register("commodity", { required: true })}
+                        />
+                    </div>
+                </div>
                 <div className="row g-3 px-1">
                     <div className="col-md-3">
-                        <label className="small fw-black text-white mb-2 text-uppercase tracking-wider">
+                        <label className="small fw-black text-white mb-2 text-uppercase tracking-widest opacity-80">
                             Quantity <span className="text-danger">*</span>
                         </label>
                         <input
@@ -673,21 +756,20 @@ export default function LoadManagementForm({
                 </div>
             </div>
 
-            <div className="col-12 mt-4 pb-2 px-1 d-flex flex-column flex-md-row gap-3">
+            <div className="col-12 mt-4 pb-2 px-1 d-flex flex-column flex-md-row justify-content-center gap-4">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="btn btn-outline-secondary w-100 rounded-pill py-3 fw-black fs-5 transition-all hover-float hover-scale active-scale-95 border-white border-opacity-20 text-white"
+                    className="btn btn-outline-secondary rounded-pill py-2 px-5 fw-bold fs-5 transition-all hover-float hover-scale active-scale-95 border-white border-opacity-20 text-white shadow-sm"
+                    style={{ minWidth: "180px" }}
                 >
                     CANCEL
                 </button>
                 <button
                     type="submit"
-                    className="btn btn-emerald w-100 rounded-pill py-3 fw-black fs-5 shadow-glow-emerald transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-3 border-0"
+                    className="btn btn-emerald rounded-pill py-2 px-5 fw-bold fs-5 shadow-glow-emerald transition-all hover-float hover-scale active-scale-95 d-flex align-items-center justify-content-center gap-2 border-0"
+                    style={{ minWidth: "220px" }}
                 >
-                    <div className="bg-dark bg-opacity-10 p-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                    </div>
                     {isEdit ? "UPDATE LOAD" : "DISPATCH LOAD"}
                 </button>
             </div>
@@ -716,9 +798,15 @@ export default function LoadManagementForm({
                     background: linear-gradient(135deg, #2bdd66, #10b981) !important;
                     color: white !important;
                     border: none;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 }
                 .btn-emerald:hover {
-                    box-shadow: 0 0 20px rgba(43, 221, 102, 0.4);
+                    box-shadow: 0 0 30px rgba(43, 221, 102, 0.5) !important;
+                    transform: translateY(-3px) scale(1.02) !important;
+                    filter: brightness(1.1);
+                }
+                .btn-emerald:active {
+                    transform: scale(0.98) !important;
                 }
             `}</style>
         </form>

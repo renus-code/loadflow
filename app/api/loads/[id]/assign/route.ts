@@ -23,9 +23,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const load = await Load.findById(id);
     if (!load) return NextResponse.json({ error: "Load not found" }, { status: 404 });
     
-    if (user.role === 'Dispatcher' && load.createdBy?.toString() !== user.id) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    // Any Admin or Dispatcher can assign any load.
+    // Removed the createdBy check that was incorrectly returning 403 for dispatchers on loads they didn't create.
 
     // Explicitly check for version mismatch if __v is provided
     if (body.__v !== undefined && load.__v !== body.__v) {
@@ -50,7 +49,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       // Create notification for driver
       try {
         await Notification.create({
-          message: `You have been assigned a new load: ${load.loadNumber || id}`,
+          message: `You have been assigned a new load #${load.loadNumber} by ${user.name}.`,
           type: 'INFO',
           userId: assignedDriverId,
           link: `/dashboard?loadId=${id}`

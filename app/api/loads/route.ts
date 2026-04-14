@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { 
       loadNumber,
+      commodity,
       pickups,
       deliveries,
       quantity,
@@ -51,10 +52,16 @@ export async function POST(req: NextRequest) {
       weightUnit
     } = body;
 
-    if (!loadNumber || !pickups || !Array.isArray(pickups) || pickups.length === 0 || 
+    if (!loadNumber || !commodity || !pickups || !Array.isArray(pickups) || pickups.length === 0 || 
         !deliveries || !Array.isArray(deliveries) || deliveries.length === 0 || 
         !quantity || !quantityUnit || !weight || !weightUnit) {
       return NextResponse.json({ error: "Missing or invalid required fields (loadNumber, pickups, deliveries, quantity, weight)" }, { status: 400 });
+    }
+
+    // Check for duplicate load number
+    const existingLoad = await Load.findOne({ loadNumber });
+    if (existingLoad) {
+      return NextResponse.json({ error: `Load Reference Number '${loadNumber}' is already in use.` }, { status: 400 });
     }
 
     const { getMockCoordinates, calculateMockRouteStats } = await import('@/lib/maps');
@@ -73,6 +80,7 @@ export async function POST(req: NextRequest) {
 
     const newLoad = await Load.create({
       loadNumber,
+      commodity,
       pickups: enrichedPickups,
       deliveries: enrichedDeliveries,
       totalDistance: routeStats.distance,

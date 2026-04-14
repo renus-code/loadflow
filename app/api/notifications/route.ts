@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     const includeRead = searchParams.get('all') === 'true';
+    const categoryFilter = searchParams.get('category');
 
     // Build query based on user/role and optional read status
     const query: any = {
@@ -29,6 +30,12 @@ export async function GET(req: NextRequest) {
 
     if (!includeRead) {
       query.isRead = false;
+    }
+
+    if (categoryFilter === 'LOADS') {
+      query.message = { $regex: /Load #/i };
+    } else if (categoryFilter === 'USERS') {
+      query.message = { $regex: /User|Password|Login|Account|Driver Request|Registration|New Driver/i };
     }
 
     const [notifications, totalCount] = await Promise.all([

@@ -111,7 +111,12 @@ export default function DispatchTable({
           <div className="rounded-3 bg-dark bg-opacity-50 p-2 border border-white border-opacity-10">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           </div>
-          <span className="fw-black text-white fs-5">#{load.loadNumber}</span>
+          <div className="d-flex flex-column">
+            <span className="fw-black text-white fs-5">#{load.loadNumber}</span>
+            <span className="text-white opacity-40 text-uppercase fw-bold" style={{ fontSize: '10px' }}>
+              {load.commodity || "General"}
+            </span>
+          </div>
         </div>
         <StatusBadge status={load.status} />
       </div>
@@ -226,7 +231,12 @@ export default function DispatchTable({
                        <div className="rounded-3 bg-dark bg-opacity-70 d-flex align-items-center justify-content-center border border-white border-opacity-10 shadow-lg" style={{ width: '36px', height: '36px' }}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-100"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                        </div>
-                       <span className="fw-black fs-6">#{load.loadNumber}</span>
+                       <div className="d-flex flex-column">
+                         <span className="fw-black fs-6">#{load.loadNumber}</span>
+                         <span className="text-white opacity-40 text-uppercase fw-bold" style={{ fontSize: '10px' }}>
+                           {load.commodity || "General"}
+                         </span>
+                       </div>
                     </div>
                   </td>
                   <td className="py-3 px-4">

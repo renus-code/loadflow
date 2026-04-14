@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { ILoad } from "@/models/Load";
 import ProofOfDeliveryUpload from "./ProofOfDeliveryUpload";
 
@@ -383,6 +383,27 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
     load.pickups.every((p) => p.status === "PICKED_UP") &&
     load.deliveries.every((d) => d.status === "DELIVERED");
 
+  const googleMapsUrl = useMemo(() => {
+    if (!load.pickups?.length || !load.deliveries?.length) return "";
+    
+    const origin = encodeURIComponent(`${load.pickups[0].address}, ${load.pickups[0].city}, ${load.pickups[0].state}`);
+    const destination = encodeURIComponent(`${load.deliveries[load.deliveries.length - 1].address}, ${load.deliveries[load.deliveries.length - 1].city}, ${load.deliveries[load.deliveries.length - 1].state}`);
+    
+    const waypointsList = [];
+    for (let i = 1; i < load.pickups.length; i++) {
+      waypointsList.push(`${load.pickups[i].address}, ${load.pickups[i].city}, ${load.pickups[i].state}`);
+    }
+    for (let i = 0; i < load.deliveries.length - 1; i++) {
+      waypointsList.push(`${load.deliveries[i].address}, ${load.deliveries[i].city}, ${load.deliveries[i].state}`);
+    }
+    
+    const waypoints = waypointsList.length > 0 
+      ? `&waypoints=${waypointsList.map(w => encodeURIComponent(w)).join('|')}` 
+      : "";
+
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}`;
+  }, [load.pickups, load.deliveries]);
+
   const handleUpdateStopStatus = async (
     e: React.MouseEvent,
     type: "pickups" | "deliveries",
@@ -449,8 +470,8 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleAssign = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (user.role !== "Dispatcher") {
-      alert("Only dispatchers can modify load assignments.");
+    if (user.role !== "Dispatcher" && user.role !== "Admin") {
+      alert("Permission denied: only Dispatchers or Admins can modify load assignments.");
       return;
     }
     try {
@@ -492,8 +513,8 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const handleUnassign = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (user.role !== "Dispatcher") {
-      alert("Only dispatchers can modify load assignments.");
+    if (user.role !== "Dispatcher" && user.role !== "Admin") {
+      alert("Permission denied: only Dispatchers or Admins can modify load assignments.");
       return;
     }
     try {
@@ -634,6 +655,8 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
               className="btn-close btn-close-white opacity-50 transition-all hover-rotate-90"
               onClick={onClose}
               style={{ zIndex: 1 }}
+              aria-label="Close"
+              title="Close"
             ></button>
           </div>
 
@@ -762,6 +785,17 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           Cargo Profile
                         </h6>
                       </div>
+                      
+                      {/* Commodity / Description */}
+                      <div className="mb-4">
+                        <label className="text-white opacity-40 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
+                          Primary Commodity
+                        </label>
+                        <div className="fw-black fs-4 text-white text-uppercase tracking-tight">
+                          {load.commodity || "General Freight"}
+                        </div>
+                      </div>
+
                       <div className="row">
                         <div className="col-6">
                           <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
@@ -832,13 +866,15 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                   }
                                   return load.estimatedDuration || "—";
                                 })()}{" "}
-                                <span className="opacity-40 fs-6 fw-medium">hrs</span>
-                              </div>
+                            <span className="opacity-40 fs-6 fw-medium">hrs</span>
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
+
+
+                </div>
 
                   <div className="col-12">
                     <div className="ether-card p-4 rounded-5">
@@ -1244,26 +1280,45 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
               {/* RIGHT COLUMN: TIMELINE */}
               <div className="col-lg-6">
                 <div className="ether-card p-4 rounded-5 h-100">
-                  <div className="d-flex align-items-center gap-3 mb-5">
-                    <div
-                      className="p-2 rounded-3 border-ether"
-                      style={{ background: "rgba(168, 85, 247, 0.15)" }}
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#a855f7"
-                        strokeWidth="2.5"
+                  <div className="d-flex align-items-center justify-content-between mb-5">
+                    <div className="d-flex align-items-center gap-3">
+                      <div
+                        className="p-2 rounded-3 border-ether"
+                        style={{ background: "rgba(168, 85, 247, 0.15)" }}
                       >
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#a855f7"
+                          strokeWidth="2.5"
+                        >
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </div>
+                      <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
+                        Logistics Timeline
+                      </h6>
+                    </div>
+                    
+                    <button
+                      onClick={() => window.open(googleMapsUrl, "_blank")}
+                      className="btn btn-indigo btn-sm px-4 rounded-pill fw-black d-flex align-items-center gap-2 border-0 shadow-lg"
+                      style={{ 
+                        fontSize: '10px', 
+                        letterSpacing: '1px',
+                        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                        boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>
-                    </div>
-                    <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
-                      Logistics Timeline
-                    </h6>
+                      MAPS
+                    </button>
                   </div>
 
                   <div className="timeline-container ps-4 border-start border-white border-opacity-10 position-relative">
@@ -1329,12 +1384,13 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           >
                             <div className="d-flex justify-content-between align-items-center mb-2">
                               <div
-                                className="px-2 py-1 rounded-pill fw-black text-white"
+                                className="px-2 py-1 rounded-pill fw-black"
                                 style={{
-                                  background: "rgba(255, 255, 255, 0.1)",
-                                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                                  background: "rgba(45, 221, 102, 0.15)",
+                                  border: "1px solid rgba(45, 221, 102, 0.4)",
                                   fontSize: "9px",
                                   letterSpacing: "0.5px",
+                                  color: "#2bdd66"
                                 }}
                               >
                                 PICKUP 0{i + 1}
@@ -1350,10 +1406,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 })()}
                               </span>
                             </div>
-                            <div className="fw-black text-white small mb-1">
+                            <div 
+                              className="fw-black small mb-1 text-uppercase tracking-wider"
+                              style={{ color: "#ffffff" }}
+                            >
+                              {p.companyName || "Unknown Company"}
+                            </div>
+                            <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
                               {p.address}
                             </div>
-                            <div className="x-small text-white opacity-90 fw-black text-uppercase">
+                            <div className="fw-bold text-white x-small opacity-80 text-uppercase">
                               {p.city}, {p.state}
                             </div>
                             <div className="mt-2 pt-2 border-top border-white border-opacity-5">
@@ -1469,12 +1531,13 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                           >
                             <div className="d-flex justify-content-between align-items-center mb-2">
                               <div
-                                className="px-2 py-1 rounded-pill fw-black text-white"
+                                className="px-2 py-1 rounded-pill fw-black"
                                 style={{
-                                  background: "rgba(255, 255, 255, 0.1)",
-                                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                                  background: "rgba(99, 102, 241, 0.15)",
+                                  border: "1px solid rgba(99, 102, 241, 0.4)",
                                   fontSize: "9px",
                                   letterSpacing: "0.5px",
+                                  color: "#6366f1"
                                 }}
                               >
                                 DELIVERY 0{i + 1}
@@ -1490,10 +1553,16 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 })()}
                               </span>
                             </div>
-                            <div className="fw-black text-white small mb-1">
+                            <div 
+                              className="fw-black small mb-1 text-uppercase tracking-wider"
+                              style={{ color: "#ffffff" }}
+                            >
+                              {p.companyName || "Unknown Company"}
+                            </div>
+                            <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
                               {p.address}
                             </div>
-                            <div className="x-small text-white opacity-90 fw-black text-uppercase">
+                            <div className="fw-bold text-white x-small opacity-80 text-uppercase">
                               {p.city}, {p.state}
                             </div>
                             <div className="mt-2 pt-2 border-top border-white border-opacity-5">

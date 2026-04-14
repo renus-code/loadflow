@@ -16,12 +16,17 @@ export async function getUserFromRequest(req: NextRequest) {
     
     // Deep token verification against Database
     await dbConnect();
-    const dbUser = await User.findById(payload.id).select('tokenVersion');
+    const dbUser = await User.findById(payload.id).select('tokenVersion name role');
     if (!dbUser || dbUser.tokenVersion !== payload.tokenVersion) {
       return null;
     }
 
-    return payload as { id: string; role: 'Admin' | 'Dispatcher' | 'Driver'; tokenVersion: number };
+    return { 
+      id: payload.id as string, 
+      role: dbUser.role as 'Admin' | 'Dispatcher' | 'Driver', 
+      name: dbUser.name as string,
+      tokenVersion: dbUser.tokenVersion as number 
+    };
   } catch (error) {
     return null;
   }

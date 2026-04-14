@@ -16,8 +16,15 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`navbar navbar-expand-lg position-fixed w-100 z-3 transition-all ${isScrolled ? "bg-white shadow-sm py-2" : "bg-transparent py-4"}`}
-      style={{ top: 0, transition: "all 0.3s ease" }}
+      className={`navbar navbar-expand-lg position-fixed w-100 z-3 ${isScrolled ? "shadow-sm" : ""}`}
+      style={{ 
+        top: 0, 
+        transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "transparent",
+        backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
+        paddingTop: isScrolled ? "0.8rem" : "1.8rem",
+        paddingBottom: isScrolled ? "0.8rem" : "1.8rem",
+      }}
     >
       <div className="container-fluid px-3">
         {/* LOGO */}
@@ -36,11 +43,30 @@ export default function Navbar() {
             />
           </div>
           <span
-            className="fs-3 d-flex align-items-center"
-            style={{ fontFamily: "var(--font-syne)" }}
+            className="fs-3 d-flex align-items-center transition-all"
+            style={{ 
+              fontFamily: "var(--font-syne)",
+              transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+            }}
           >
-            <span className="brand-text-load">Load</span>
-            <span className="brand-text-flow">Flow</span>
+            <span 
+              className="brand-text-load"
+              style={{ 
+                filter: isScrolled ? "brightness(0.8) contrast(1.2)" : "none",
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+              }}
+            >
+              Load
+            </span>
+            <span 
+              className="brand-text-flow"
+              style={{ 
+                filter: isScrolled ? "saturate(1.4) drop-shadow(0 0 8px rgba(43,221,102,0.2))" : "none",
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+              }}
+            >
+              Flow
+            </span>
           </span>
         </Link>
 
@@ -66,10 +92,12 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#features"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "text-dark scrolled-hover" : "text-white"}`}
-                style={
-                  isScrolled ? {} : { textShadow: "0 2px 4px rgba(0,0,0,0.5)" }
-                }
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                style={{
+                  transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  color: isScrolled ? "#05070a" : "#ffffff",
+                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                }}
               >
                 Features
               </Link>
@@ -77,10 +105,12 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#solutions"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "text-dark scrolled-hover" : "text-white"}`}
-                style={
-                  isScrolled ? {} : { textShadow: "0 2px 4px rgba(0,0,0,0.5)" }
-                }
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                style={{
+                  transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  color: isScrolled ? "#05070a" : "#ffffff",
+                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                }}
               >
                 Solutions
               </Link>
@@ -88,10 +118,12 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#pricing"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "text-dark scrolled-hover" : "text-white"}`}
-                style={
-                  isScrolled ? {} : { textShadow: "0 2px 4px rgba(0,0,0,0.5)" }
-                }
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                style={{
+                  transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  color: isScrolled ? "#05070a" : "#ffffff",
+                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                }}
               >
                 Pricing
               </Link>
@@ -99,11 +131,17 @@ export default function Navbar() {
           </ul>
 
           <div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-4 mt-lg-0">
-            {/* ENHANCED GHOST SIGN IN BUTTON */}
+            {/* VIBRANT SIGN IN BUTTON WITH SCROLL TRANSITION */}
             <Link
               href="/login"
-              className={`btn ghost-btn fw-bold px-4 py-2 d-flex align-items-center justify-content-center gap-2 rounded-pill border transition-all ${isScrolled ? "text-dark border-dark border-opacity-50 bg-dark bg-opacity-10 scrolled-ghost" : "text-white border-white border-opacity-50 bg-white bg-opacity-10"}`}
-              style={isScrolled ? {} : { backdropFilter: "blur(8px)" }}
+              className="btn fw-black px-4 py-2 rounded-pill hover-zoom d-flex align-items-center justify-content-center gap-2 transition-all"
+              style={{ 
+                backgroundColor: isScrolled ? "#05070a" : "#2bdd66", 
+                color: isScrolled ? "#ffffff" : "#05070a",
+                boxShadow: isScrolled ? "0 4px 12px rgba(0,0,0,0.1)" : "0 0 20px rgba(43,221,102,0.3)",
+                border: isScrolled ? "1px solid rgba(255,255,255,0.1)" : "none",
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+              }}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -120,30 +158,6 @@ export default function Navbar() {
                 <line x1="15" y1="12" x2="3" y2="12" />
               </svg>
               <span>Sign in</span>
-            </Link>
-
-            {/* SIGNATURE EMERALD BUTTON */}
-            <Link
-              href="/register"
-              className={`btn fw-black px-4 py-2 rounded-pill shadow-success-glow border-0 hover-zoom d-flex align-items-center justify-content-center gap-2`}
-              style={{ backgroundColor: "#2bdd66", color: "#05070a" }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                width="18"
-                height="18"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="8.5" cy="7" r="4" />
-                <line x1="20" y1="8" x2="20" y2="14" />
-                <line x1="23" y1="11" x2="17" y2="11" />
-              </svg>
-              <span>Get started</span>
             </Link>
           </div>
         </div>

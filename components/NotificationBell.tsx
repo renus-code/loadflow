@@ -158,6 +158,7 @@ export default function NotificationBell({
         onClick={() => setShowDropdown(!showDropdown)}
         className="btn border-0 p-2 rounded-circle bg-white bg-opacity-05 hover-bg-white-10 transition-all position-relative active-scale-95 shadow-none"
         title="Notifications"
+        aria-label="Notifications"
       >
         <svg
           viewBox="0 0 24 24"
@@ -365,7 +366,7 @@ export default function NotificationBell({
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 18px;
-          width: 320px;
+          width: 420px;
           z-index: 1000;
         }
         .notification-list {

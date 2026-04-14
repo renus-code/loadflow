@@ -52,13 +52,63 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
       await loadCheck.save();
 
+      // Notify dispatcher if a pickup occurred
+      if (stopType === 'pickups' && stopStatus === 'PICKED_UP') {
+        try {
+          const driverName = user.role === 'Driver' ? user.name : 'A driver';
+          await Notification.create({
+            message: `Load #${loadCheck.loadNumber}: Pickup #${stopIndex + 1} at ${stops[stopIndex].city} has been completed by ${driverName}.`,
+            type: 'INFO',
+            userId: loadCheck.createdBy,
+            targetRole: 'Dispatcher',
+            link: `/dashboard?loadId=${id}`
+          });
+        } catch (notifError) {
+          console.error("Failed to notify dispatcher of pickup:", notifError);
+        }
+      }
+
+      // Notify dispatcher if a delivery occurred
+      if (stopType === 'deliveries' && stopStatus === 'DELIVERED') {
+        try {
+          const driverName = user.role === 'Driver' ? user.name : 'A driver';
+          await Notification.create({
+            message: `Load #${loadCheck.loadNumber}: Delivery #${stopIndex + 1} at ${stops[stopIndex].city} has been completed by ${driverName}.`,
+            type: 'INFO',
+            userId: loadCheck.createdBy,
+            targetRole: 'Dispatcher',
+            link: `/dashboard?loadId=${id}`
+          });
+        } catch (notifError) {
+          console.error("Failed to notify dispatcher of delivery stop:", notifError);
+        }
+      }
+
+      // Notify dispatcher if status changed to IN_TRANSIT
+      if (oldStatus !== 'IN_TRANSIT' && loadCheck.status === 'IN_TRANSIT') {
+        try {
+          const driverName = user.role === 'Driver' ? user.name : 'A driver';
+          await Notification.create({
+            message: `Load #${loadCheck.loadNumber} is now IN TRANSIT (Operator: ${driverName}).`,
+            type: 'INFO',
+            userId: loadCheck.createdBy,
+            targetRole: 'Dispatcher',
+            link: `/dashboard?loadId=${id}`
+          });
+        } catch (notifError) {
+          console.error("Failed to notify dispatcher of in-transit status:", notifError);
+        }
+      }
+
       // Notify dispatcher if status changed to DELIVERED
       if (oldStatus !== 'DELIVERED' && loadCheck.status === 'DELIVERED') {
         try {
+          const driverName = user.role === 'Driver' ? user.name : 'A driver';
           await Notification.create({
-            message: `Load #${loadCheck.loadNumber} has been DELIVERED.`,
+            message: `Load #${loadCheck.loadNumber} has been DELIVERED by ${driverName}.`,
             type: 'SUCCESS',
             userId: loadCheck.createdBy,
+            targetRole: 'Dispatcher',
             link: `/dashboard?loadId=${id}`
           });
         } catch (notifError) {

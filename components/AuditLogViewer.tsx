@@ -19,6 +19,7 @@ export default function AuditLogViewer() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalLogs, setTotalLogs] = useState(0);
 
   useEffect(() => {
     fetchLogs(page);
@@ -36,6 +37,7 @@ export default function AuditLogViewer() {
         const data = await res.json();
         setLogs(data.logs);
         setTotalPages(data.totalPages);
+        setTotalLogs(data.total);
       }
     } catch (e) {
       console.error(e);
@@ -68,18 +70,18 @@ export default function AuditLogViewer() {
     <div className="animate-fade-in">
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
         <div
-          className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex justify-content-center align-items-center"
+          className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex justify-content-start align-items-center"
           style={{ background: "rgba(0,0,0,0.2)" }}
         >
           <h2
-            className="fs-3 text-white m-0 tracking-tight text-center"
+            className="fs-3 text-white m-0 tracking-tight text-start"
             style={{
               fontFamily: "var(--font-syne)",
               letterSpacing: "-0.04em",
               fontWeight: 900,
             }}
           >
-            <span className="text-gradient-emerald">Audit</span> Trail
+            <span className="text-gradient-emerald">Audit</span> Logs
           </h2>
         </div>
 
@@ -259,8 +261,8 @@ export default function AuditLogViewer() {
                                 typeof v === "object"
                                   ? JSON.stringify(v)
                                   : String(v);
-                              if (val.length > 25 || val === "undefined")
-                                return null; // Skip non-useful or long technical values
+                              if (val.length > 100 || val === "undefined")
+                                return null; // Skip non-useful or extremely long technical values
 
                               return (
                                 <span
@@ -309,9 +311,10 @@ export default function AuditLogViewer() {
           )}
         </div>
       </div>
-      {/* ─── Pagination Controls ───────────────────────────────────────────── */}
-      {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center mt-5 px-4 mb-4">
+      {/* ─── Pagination Info & Controls ───────────────────────────────────────────── */}
+      <div className="d-flex flex-column align-items-center mt-5 px-4 mb-4">
+        
+        {totalPages > 1 && (
           <div className="d-flex w-100 justify-content-center align-items-center gap-2">
             {/* First Page */}
             <button
@@ -417,8 +420,8 @@ export default function AuditLogViewer() {
               </svg>
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <style jsx>{`
         .glass-card {
@@ -523,7 +526,7 @@ export default function AuditLogViewer() {
           color: #fff;
         }
         .btn-pagination-fleet:disabled {
-          opacity: 0.2;
+          opacity: 0.35;
           cursor: not-allowed;
         }
 

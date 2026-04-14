@@ -41,7 +41,7 @@ This document serves as the formal API contract between the Next.js Client and t
 - **Method & Path:** `GET /api/audit`
 - **Auth Required:** Yes
 - **RBAC Filter:** Restricted to `Admin`.
-- **Query Params:** `page`, `limit`.
+- **Query Params:** `page`, `limit` (Default 25 for UI).
 - **Success Response (200 OK):**
   ```json
   {
@@ -64,19 +64,36 @@ This document serves as the formal API contract between the Next.js Client and t
 - **RBAC Filter:** Restricted to `Dispatcher`.
 - **Purpose:** Allows dispatchers to flag new candidates for Admin invitation.
 
+### 2.3 Loads Management
+- **Method & Path:** `GET /api/loads`
+- **Purpose:** Fetch all loads (filtered by role: Drivers see assigned, Dispatchers/Admins see all).
+- **Method & Path:** `POST /api/loads`
+- **Auth Required:** Yes (Dispatcher/Admin)
+- **Request JSON:** Includes `loadNumber`, `commodity`, `pickups`, `deliveries`, `quantity`, `weight`.
+- **Method & Path:** `PUT /api/loads/:id/assign`
+- **Purpose:** Assign a driver and equipment (Truck/Trailer) to a load.
+- **Method & Path:** `PATCH /api/loads/:id/status`
+- **Purpose:** Update the overarching status of a load or individual stop statuses.
+
 ---
 
 ## 3. Notifications API
 
 ### 3.1 Fetch Notifications
 - **Method & Path:** `GET /api/notifications`
-- **Auth Required:** Yes
-- **Purpose:** Returns unread alerts based on user role or direct ID.
+- **Query Params:** `category` (ALL, LOADS, USERS), `page`, `limit`, `all` (boolean).
+- **Purpose:** Returns unread alerts filtered by system category or user role.
 
-### 3.2 Mark as Read
-- **Method & Path:** `PATCH /api/notifications/:id`
+### 3.2 Mark All as Read
+- **Method & Path:** `PATCH /api/notifications`
 - **Auth Required:** Yes
-- **Request:** `{ "isRead": true }`
+- **Purpose:** Marks all unread notifications for the current user/role as read.
+
+### 3.3 Manage Single Notification
+- **Method & Path:** `PATCH /api/notifications/:id`
+- **Method & Path:** `DELETE /api/notifications/:id`
+- **Auth Required:** Yes
+- **Purpose:** Update status (read/unread) or remove a specific notification.
 
 ---
 
@@ -97,28 +114,8 @@ These endpoints are implemented as Next.js Server Actions on the Landing Page ra
 
 ### 5.1 Request Demonstration
 - **Logical Path:** `submitDemoRequest` (Server Action)
-- **Request JSON / Form Payload:**
-  ```json
-  {
-    "fullName": "Jane Doe",
-    "companyName": "Logistics Corp",
-    "email": "jane@logisticscorp.com",
-    "phone": "416-555-0199",
-    "assetTier": "30 - 499"
-  }
-  ```
-- **Purpose:** Triggers a formatted "Action Required: New Demonstration Request" alert to the administrative team.
+- **Purpose:** Triggers a formatted alert to the administrative team.
 
 ### 5.2 Pricing Estimate
 - **Logical Path:** `submitPricingRequest` (Server Action)
-- **Request JSON / Form Payload:**
-  ```json
-  {
-    "fullName": "John Smith",
-    "companyName": "Fleet Solutions",
-    "email": "john@fleetsolutions.com",
-    "phone": "416-555-0100",
-    "assetTier": "500 - 4,999"
-  }
-  ```
-- **Purpose:** Triggers a distinct "Action Required: New Custom Pricing Request" alert directing the admin to provide an enterprise quote.
+- **Purpose:** Triggers a distinct alert directing the admin to provide an enterprise quote.

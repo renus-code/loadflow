@@ -79,7 +79,7 @@ export default function Home() {
                       fontSize: "1.15rem",
                     }}
                   >
-                    Start for free
+                    Get Started Now
                   </Link>
                   <Link
                     href="/dashboard"

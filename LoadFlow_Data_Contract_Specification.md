@@ -40,6 +40,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
 {
   "_id": "ObjectId('64b1f9...')",
   "loadNumber": "string",
+  "commodity": "string",
   "pickups": [
     { 
       "address": "string", 
@@ -62,12 +63,12 @@ These represent the structures exactly as stored in our NoSQL database. They con
   ],
   "quantity": "number",
   "weight": "number",
-  "status": "string (PENDING | ASSIGNED | IN_TRANSIT | DELIVERED | COMPLETED | CANCELLED)",
+  "status": "string (PENDING | ASSIGNED | PICKED_UP | IN_TRANSIT | DELIVERED | COMPLETED | CANCELLED)",
   "assignedDriverId": "ObjectId | null",
   "truckNumber": "string | null",
   "trailerNumber": "string | null",
-  "truckType": "string | null",
-  "trailerType": "string | null",
+  "truckType": "string | null (Sleeper Cab | Day Cab)",
+  "trailerType": "string | null (Dry Van | Reefer | Tri Axle | Flatbed)",
   "podUrl": "string | null (Cloudinary link)",
   "createdBy": "ObjectId",
   "createdAt": "timestamp",
@@ -81,6 +82,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "_id": "ObjectId('75c...)",
   "message": "string",
   "type": "string (INFO | WARNING | DANGER | SUCCESS)",
+  "category": "string (Derived from message: LOADS | USERS | ALL)",
   "targetRole": "string (Admin | Dispatcher | Driver)",
   "userId": "ObjectId | null (Optional direct targeting)",
   "link": "string (Dashboard deep link)",
@@ -88,18 +90,37 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "createdAt": "timestamp"
 }
 ```
+*Notice: Categories are classified on-the-fly via regex patterns: 'LOADS' matches load updates, 'USERS' matches registrations/driver requests.*
 
 ### 4. Audit Log Entity (Security Monitoring)
 ```json
 {
   "_id": "ObjectId('86d...)",
   "userId": "ObjectId (Acting user)",
-  "action": "string (USER_INVITED | LOAD_CREATED | USER_ACTIVATED)",
-  "entityType": "string (User | Load | Auth)",
+  "action": "string (USER_INVITED | LOAD_CREATED | USER_ACTIVATED | PASSWORD_RESET | ACCOUNT_LOCKED)",
+  "entityType": "string (User | Load | Auth | System)",
   "entityId": "ObjectId | null",
   "details": "JSON Object (Metadata / Diff snapshot)",
   "ipAddress": "string",
   "createdAt": "timestamp"
+}
+```
+
+### 5. Asset Entities (Trucks & Trailers)
+```json
+{
+  "truck": {
+    "truckNo": "string",
+    "vin": "string",
+    "plate": "string",
+    "truckType": "string (Sleeper Cab | Day Cab)"
+  },
+  "trailer": {
+    "trailerNo": "string",
+    "vin": "string",
+    "plate": "string",
+    "trailerType": "string (Dry Van | Reefer | Tri Axle | Flatbed)"
+  }
 }
 ```
 

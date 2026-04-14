@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
     const logs = await AuditLog.find({})
       .populate("userId", "name email role")
-      .sort({ timestamp: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
