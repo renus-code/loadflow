@@ -1,7 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import RequestDemoModal from "@/components/RequestDemoModal";
-import CheckPricesModal from "@/components/CheckPricesModal";
+import dynamic from "next/dynamic";
+
+// Dynamically load heavy Bootstrap Modals only when requested, saving ~40KB of unused initial JS
+const RequestDemoModal = dynamic(() => import("@/components/RequestDemoModal"));
+const CheckPricesModal = dynamic(() => import("@/components/CheckPricesModal"));
 
 export default function Home() {
   return (
@@ -12,34 +16,46 @@ export default function Home() {
         {/* HERO SECTION */}
         <section
           className="position-relative d-flex align-items-center overflow-hidden bg-dark"
-          style={{
-            minHeight: "90vh",
-            backgroundImage: "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('/truck%20&%20trailer.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
+          style={{ minHeight: "90vh" }}
         >
+          {/* LCP Optimized Background Image */}
+          <Image
+            src="/truck%20&%20trailer.png"
+            alt="Logistics Transport Truck"
+            fill
+            priority
+            style={{ objectFit: "cover", objectPosition: "center", zIndex: 0 }}
+          />
+
+          {/* Core Dark Gradient Overlay (Replaces the background-image linear-gradient) */}
+          <div 
+            className="position-absolute top-0 start-0 w-100 h-100" 
+            style={{ backgroundColor: "rgba(0,0,0,0.45)", zIndex: 1 }}
+          ></div>
+
+          {/* Left-Side Fading Gradient Overlay (Desktop) */}
           <div
-            className="position-absolute w-50 h-100 z-0 d-none d-lg-block"
+            className="position-absolute w-50 h-100 d-none d-lg-block"
             style={{
-              background:
-                "linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
+              background: "linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
               left: 0,
               top: 0,
+              zIndex: 1
             }}
           ></div>
+          
+          {/* Bottom Fading Gradient Overlay (Mobile) */}
           <div
-            className="position-absolute w-100 h-100 z-0 d-block d-lg-none"
+            className="position-absolute w-100 h-100 d-block d-lg-none"
             style={{
-              background:
-                "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)",
+              background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)",
               left: 0,
               bottom: 0,
+              zIndex: 1
             }}
           ></div>
 
-          <div className="container position-relative z-1 py-5 mt-5">
+          <div className="container position-relative py-5 mt-5" style={{ zIndex: 2 }}>
             <div className="row align-items-center">
               <div className="col-12 col-lg-7 text-center text-lg-start pt-5 mt-4">
                 <h1
@@ -111,9 +127,9 @@ export default function Home() {
                   <div className="icon-orb glow-primary mb-3">
                     <i className="bi bi-truck text-white fs-3"></i>
                   </div>
-                  <h3 className="stat-value-premium display-6 mb-1">
+                  <div className="stat-value-premium display-6 mb-1 fw-bold text-dark">
                     5000+
-                  </h3>
+                  </div>
                   <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
                     Multi-Stop Loads
                   </p>
@@ -125,9 +141,9 @@ export default function Home() {
                   <div className="icon-orb glow-success mb-3">
                     <i className="bi bi-arrow-repeat text-white fs-3"></i>
                   </div>
-                  <h3 className="stat-value-premium display-6 mb-1">
+                  <div className="stat-value-premium display-6 mb-1 fw-bold text-dark">
                     99.9%
-                  </h3>
+                  </div>
                   <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
                     Board Sync Rate
                   </p>
@@ -139,9 +155,9 @@ export default function Home() {
                   <div className="icon-orb glow-warning mb-3">
                     <i className="bi bi-person-check text-white fs-3"></i>
                   </div>
-                  <h3 className="stat-value-premium display-6 mb-1">
+                  <div className="stat-value-premium display-6 mb-1 fw-bold text-dark">
                     30
-                  </h3>
+                  </div>
                   <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
                     Certified Drivers
                   </p>
@@ -153,9 +169,9 @@ export default function Home() {
                   <div className="icon-orb glow-danger mb-3">
                     <i className="bi bi-file-earmark-check text-white fs-3"></i>
                   </div>
-                  <h3 className="stat-value-premium display-6 mb-1">
+                  <div className="stat-value-premium display-6 mb-1 fw-bold text-dark">
                     $1.2B
-                  </h3>
+                  </div>
                   <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
                     Digital POD Value
                   </p>
@@ -171,12 +187,12 @@ export default function Home() {
           <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
           <div className="container py-5 position-relative z-1">
             <div className="text-center mb-5 max-w-700 mx-auto">
-              <h6
+              <p
                 className="text-success fw-bold text-uppercase tracking-widest mb-3"
-                style={{ fontSize: "0.9rem" }}
+                style={{ fontSize: "0.9rem", margin: 0 }}
               >
                 Tailored Features
-              </h6>
+              </p>
               <h2
                 className="display-5 fw-bold text-dark mb-4"
                 style={{
@@ -200,12 +216,12 @@ export default function Home() {
                     <div className="icon-orb glow-primary mb-4 shadow-primary-glow">
                       <i className="bi bi-layers-half text-white fs-2"></i>
                     </div>
-                    <h4
-                      className="card-title fw-bold text-dark mb-3"
+                    <h3
+                      className="card-title fw-bold text-dark mb-3 h4"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       Multi-Stop Dispatching
-                    </h4>
+                    </h3>
                     <p
                       className="card-text text-secondary mb-0"
                       style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
@@ -225,12 +241,12 @@ export default function Home() {
                     <div className="icon-orb glow-success mb-4 shadow-success-glow">
                       <i className="bi bi-arrow-repeat text-white fs-2"></i>
                     </div>
-                    <h4
-                      className="card-title fw-bold text-dark mb-3"
+                    <h3
+                      className="card-title fw-bold text-dark mb-3 h4"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       Real-Time Board Sync
-                    </h4>
+                    </h3>
                     <p
                       className="card-text text-secondary mb-0"
                       style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
@@ -250,12 +266,12 @@ export default function Home() {
                     <div className="icon-orb glow-info mb-4 shadow-info-glow">
                       <i className="bi bi-file-earmark-check text-white fs-2"></i>
                     </div>
-                    <h4
-                      className="card-title fw-bold text-dark mb-3"
+                    <h3
+                      className="card-title fw-bold text-dark mb-3 h4"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       Digital POD Control
-                    </h4>
+                    </h3>
                     <p
                       className="card-text text-secondary mb-0"
                       style={{ fontSize: "1.05rem", lineHeight: "1.7" }}
@@ -352,9 +368,9 @@ export default function Home() {
                       <i className="bi bi-diagram-3 text-success fs-3"></i>
                     </div>
                     <div>
-                      <h5 className="fw-bold mb-2">
+                      <h3 className="fw-bold mb-2 h5">
                         Infinite Route Complexity
-                      </h5>
+                      </h3>
                       <p className="text-white text-opacity-60 mb-0 small">
                         Scale your operations with support for complex multi-leg
                         journeys and unlimited stop-off segments.
@@ -373,9 +389,9 @@ export default function Home() {
                       <i className="bi bi-map fs-3"></i>
                     </div>
                     <div>
-                      <h5 className="fw-bold mb-2 text-white">
+                      <h3 className="fw-bold mb-2 text-white h5">
                         Intelligent Region Mapping
-                      </h5>
+                      </h3>
                       <p className="text-white text-opacity-60 mb-0 small">
                         Precision targeting for North American freight with
                         dynamic city and province-specific database
@@ -395,9 +411,9 @@ export default function Home() {
                       <i className="bi bi-people fs-3"></i>
                     </div>
                     <div>
-                      <h5 className="fw-bold mb-2 text-white">
+                      <h3 className="fw-bold mb-2 text-white h5">
                         Role-Based Freight Control
-                      </h5>
+                      </h3>
                       <p className="text-white text-opacity-60 mb-0 small">
                         Unified command structure with dedicated Admin,
                         Dispatcher, and Driver permission hierarchies.
@@ -415,10 +431,12 @@ export default function Home() {
                   ></div>
 
                   <div className="rounded-5 overflow-hidden shadow-2xl border border-white border-opacity-20 z-1 position-relative hover-tilt ripple-effect">
-                    <img
+                    <Image
                       src="/truck%20&%20trailer.png"
                       alt="Logistics Solution"
-                      className="img-fluid"
+                      width={800}
+                      height={600}
+                      className="img-fluid w-100 h-auto"
                       style={{
                         transform: "scale(1.1)",
                         filter: "brightness(0.9) contrast(1.1)",
@@ -530,7 +548,7 @@ export default function Home() {
             <div className="col-lg-5">
               <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
                 <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm" style={{ width: 38, height: 38, flexShrink: 0 }}>
-                  <img src="/truck-logo.png" alt="LoadFlow Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                  <Image src="/truck-logo.png" alt="LoadFlow Logo" width={40} height={40} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
                 <span className="fs-4 fw-bold d-flex align-items-center" style={{ fontFamily: "var(--font-syne)" }}>
                   <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
@@ -549,7 +567,7 @@ export default function Home() {
             </div>
             {/* Platform */}
             <div className="col-6 col-md-3 col-lg-2">
-              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Platform</h6>
+              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Platform</p>
               <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
                 {[{ label: "Features", href: "#features" }, { label: "Solutions", href: "#solutions" }, { label: "Pricing", href: "#pricing" }, { label: "Dashboard", href: "/dashboard" }].map(({ label, href }) => (
                   <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
@@ -558,7 +576,7 @@ export default function Home() {
             </div>
             {/* Company */}
             <div className="col-6 col-md-3 col-lg-2">
-              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Company</h6>
+              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Company</p>
               <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
                 {[{ label: "Contact", href: "/contact" }, { label: "Register", href: "/register" }, { label: "Sign In", href: "/login" }].map(({ label, href }) => (
                   <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
@@ -567,7 +585,7 @@ export default function Home() {
             </div>
             {/* Contact */}
             <div className="col-lg-3">
-              <h6 className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em" }}>Get In Touch</h6>
+              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Get In Touch</p>
               <div className="d-flex flex-column gap-3">
                 {[{ icon: "bi-envelope", text: "support@loadflow.ca" }, { icon: "bi-telephone", text: "+1 (437) 383-1996" }, { icon: "bi-geo-alt", text: "Toronto, Ontario, Canada" }].map(({ icon, text }) => (
                   <div key={text} className="d-flex align-items-center gap-2">

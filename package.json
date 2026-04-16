@@ -10,6 +10,13 @@
     "lint": "eslint",
     "seed:trailers": "npx -y tsx scripts/seedTrailers.ts"
   },
+  "browserslist": [
+    "edge >= 100",
+    "firefox >= 100",
+    "chrome >= 100",
+    "safari >= 15",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
     "bcryptjs": "^3.0.3",
