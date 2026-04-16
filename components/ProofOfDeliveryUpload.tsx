@@ -104,6 +104,7 @@ export default function ProofOfDeliveryUpload({
                 id="pod-upload"
                 type="file"
                 accept="image/*"
+                aria-label="Upload Proof of Delivery document"
                 className="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
