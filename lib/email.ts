@@ -69,12 +69,6 @@ export async function sendInvitationEmail({ to, name, role }: InvitationEmailPro
               </a>
             </div>
             
-            <div style="margin-top: 35px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;">
-              <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 500;">
-                If the primary access button is unresponsive, proceed to:<br/>
-                <a href="${registerUrl}" style="color: #2bdd66; text-decoration: none; word-break: break-all; margin-top: 5px; display: inline-block;">${registerUrl}</a>
-              </p>
-            </div>
           </div>
           
           <!-- Footer -->
