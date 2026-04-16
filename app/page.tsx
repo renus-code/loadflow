@@ -541,7 +541,7 @@ export default function Home() {
               </p>
               <div className="d-flex gap-2">
                 {["bi-twitter-x", "bi-linkedin", "bi-github"].map((icon) => (
-                  <a key={icon} href="#" className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 38, height: 38, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
+                  <a key={icon} href="#" aria-label={`Follow us on ${icon}`} className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 38, height: 38, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
                     <i className={`bi ${icon}`} />
                   </a>
                 ))}
