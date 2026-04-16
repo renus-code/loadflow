@@ -20,7 +20,9 @@ export async function sendInvitationEmail({ to, name, role }: InvitationEmailPro
     return { error: 'Email service not configured' };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const isProd = process.env.NODE_ENV === "production";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL 
+    || (isProd ? "https://loadflow.vercel.app" : "http://localhost:3000");
   const registerUrl = `${appUrl}/register?email=${encodeURIComponent(to)}`;
 
   try {
