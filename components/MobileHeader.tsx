@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import NotificationBell from "./NotificationBell";
-
 export default function MobileHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -35,7 +33,6 @@ export default function MobileHeader() {
         </Link>
 
         <div className="d-flex align-items-center gap-2">
-          <NotificationBell />
           <button 
             onClick={toggleMobileSidebar}
             className="btn border-0 p-2 text-white bg-glass-white-10 rounded-3 hover-scale-110 active-scale-90"

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
@@ -36,9 +37,11 @@ export default function Navbar() {
             className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm"
             style={{ width: "40px", height: "40px" }}
           >
-            <img
+            <Image
               src="/truck-logo.png"
               alt="LoadFlow Logo"
+              width={40}
+              height={40}
               style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
           </div>

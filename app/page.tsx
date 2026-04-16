@@ -24,6 +24,8 @@ export default function Home() {
             alt="Logistics Transport Truck"
             fill
             priority
+            fetchPriority="high"
+            sizes="100vw"
             style={{ objectFit: "cover", objectPosition: "center", zIndex: 0 }}
           />
 
@@ -436,6 +438,7 @@ export default function Home() {
                       alt="Logistics Solution"
                       width={800}
                       height={600}
+                      sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 800px"
                       className="img-fluid w-100 h-auto"
                       style={{
                         transform: "scale(1.1)",
@@ -548,7 +551,7 @@ export default function Home() {
             <div className="col-lg-5">
               <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
                 <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm" style={{ width: 38, height: 38, flexShrink: 0 }}>
-                  <Image src="/truck-logo.png" alt="LoadFlow Logo" width={40} height={40} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                  <Image src="/truck-logo.png" alt="LoadFlow Logo" width={40} height={40} sizes="40px" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
                 <span className="fs-4 fw-bold d-flex align-items-center" style={{ fontFamily: "var(--font-syne)" }}>
                   <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
@@ -559,7 +562,7 @@ export default function Home() {
               </p>
               <div className="d-flex gap-2">
                 {["bi-twitter-x", "bi-linkedin", "bi-github"].map((icon) => (
-                  <a key={icon} href="#" aria-label={`Follow us on ${icon}`} className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 38, height: 38, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
+                  <a key={icon} href="#" aria-label={`Follow us on ${icon}`} className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
                     <i className={`bi ${icon}`} />
                   </a>
                 ))}

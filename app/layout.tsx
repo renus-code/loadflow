@@ -18,8 +18,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "LoadFlow | Freight Made Simple",
-  description: "Manage and track loads easily with LoadFlow.",
+  title: {
+    default: "LoadFlow | Enterprise Logistics & Fleet Management",
+    template: "%s | LoadFlow"
+  },
+  description: "LoadFlow is an enterprise-grade freight management platform. Streamline your dispatching, track multi-stop logistics, and manage your fleet with real-time audit logs.",
+  keywords: ["Logistics", "Freight Management", "Fleet Tracking", "Multi-stop Dispatch", "Supply Chain SaaS", "Trucking Software"],
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
