@@ -20,12 +20,14 @@ export default function Home() {
         >
           {/* LCP Optimized Background Image */}
           <Image
-            src="/truck%20&%20trailer.png"
+            src="/truck-trailer.png"
             alt="Logistics Transport Truck"
             fill
-            priority
+            priority={true}
+            loading="eager"
             fetchPriority="high"
             sizes="100vw"
+            quality={70}
             style={{ objectFit: "cover", objectPosition: "center", zIndex: 0 }}
           />
 
@@ -305,18 +307,16 @@ export default function Home() {
               className="position-absolute top-0 start-0 w-50 h-50 rounded-circle"
               style={{
                 background:
-                  "radial-gradient(circle, rgba(43, 221, 102, 0.15) 0%, transparent 70%)",
+                  "radial-gradient(circle, rgba(43, 221, 102, 0.25) 0%, transparent 75%)",
                 transform: "translate(-20%, -20%)",
-                filter: "blur(100px)",
               }}
             ></div>
             <div
               className="position-absolute bottom-0 end-0 w-50 h-50 rounded-circle"
               style={{
                 background:
-                  "radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)",
+                  "radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 75%)",
                 transform: "translate(20%, 20%)",
-                filter: "blur(100px)",
               }}
             ></div>
           </div>
@@ -428,17 +428,19 @@ export default function Home() {
               <div className="col-lg-6">
                 <div className="position-relative">
                   <div
-                    className="position-absolute translate-middle top-50 start-50 w-75 h-75 bg-success bg-opacity-20 rounded-circle z-0"
-                    style={{ filter: "blur(100px)" }}
+                    className="position-absolute translate-middle top-50 start-50 w-75 h-75 rounded-circle z-0"
+                    style={{ background: "radial-gradient(circle, rgba(43,221,102,0.2) 0%, transparent 75%)" }}
                   ></div>
 
                   <div className="rounded-5 overflow-hidden shadow-2xl border border-white border-opacity-20 z-1 position-relative hover-tilt ripple-effect">
                     <Image
-                      src="/truck%20&%20trailer.png"
+                      src="/truck-trailer.png"
                       alt="Logistics Solution"
                       width={800}
                       height={600}
                       sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 800px"
+                      quality={70}
+                      loading="lazy"
                       className="img-fluid w-100 h-auto"
                       style={{
                         transform: "scale(1.1)",

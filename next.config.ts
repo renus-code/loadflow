@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  images: {
+    qualities: [70, 75],
+  },
   async headers() {
     return [
       {
