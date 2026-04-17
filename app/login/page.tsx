@@ -61,19 +61,22 @@ export default function Login() {
 
   return (
     <div className="d-flex flex-column min-vh-100 premium-bg position-relative overflow-hidden">
-      <Image
-        src="/premium_logistics_bg.webp"
-        alt="Background"
-        fill
-        priority
-        className="object-fit-cover z-0"
-        quality={75}
-      />
-      {/* Overlay to match the premium-bg gradient */}
-      <div 
-        className="position-absolute top-0 start-0 w-100 h-100 z-0" 
-        style={{ background: 'linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8))' }}
-      ></div>
+      {/* Fixed background layer */}
+      <div className="position-fixed top-0 start-0 w-100 h-100 z-0">
+        <Image
+          src="/premium_logistics_bg.webp"
+          alt="Background"
+          fill
+          priority
+          className="object-fit-cover"
+          quality={75}
+        />
+        <div 
+          className="position-absolute top-0 start-0 w-100 h-100" 
+          style={{ background: 'linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8))' }}
+        ></div>
+      </div>
+
       <div className="glow-orb glow-emerald" style={{ top: '10%', left: '-5%' }}></div>
       <div className="glow-orb glow-indigo" style={{ bottom: '20%', right: '-10%' }}></div>
 
