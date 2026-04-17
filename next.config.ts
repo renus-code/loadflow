@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   images: {
-    qualities: [70, 75],
+    qualities: [70, 75, 85],
   },
   async headers() {
     return [

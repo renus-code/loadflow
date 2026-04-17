@@ -24,10 +24,10 @@ export default function Home() {
             alt="Logistics Transport Truck"
             fill
             priority={true}
-            loading="eager"
             fetchPriority="high"
-            sizes="100vw"
-            quality={70}
+            decoding="async"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+            quality={85}
             style={{ objectFit: "cover", objectPosition: "center", zIndex: 0 }}
           />
 
@@ -438,8 +438,9 @@ export default function Home() {
                       alt="Logistics Solution"
                       width={800}
                       height={600}
-                      sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 800px"
-                      quality={70}
+                      sizes="(max-width: 768px) 90vw, (max-width: 1200px) 40vw, 600px"
+                      quality={75}
+                      decoding="async"
                       loading="lazy"
                       className="img-fluid w-100 h-auto"
                       style={{
