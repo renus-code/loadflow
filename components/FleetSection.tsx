@@ -1834,6 +1834,7 @@ export default function FleetSection() {
           </div>
         )}
       </div>
+    </div>
 
       {/* ─── Pagination Controls ───────────────────────────────────────────── */}
       {!loading && totalPages > 1 && (
