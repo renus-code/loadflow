@@ -7,9 +7,15 @@ export default function MobileHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const handleScroll = (e: any) => {
+      // Capture scroll from any nested element (like the <main> container)
+      const scrollPos = e.target.scrollTop || window.scrollY || 0;
+      setIsScrolled(scrollPos > 10);
+    };
+
+    // Use capture: true to catch events from the inner <main> scroll container
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
+    return () => window.removeEventListener("scroll", handleScroll, { capture: true });
   }, []);
 
   const toggleMobileSidebar = () => {
@@ -18,10 +24,14 @@ export default function MobileHeader() {
 
   return (
     <header 
-      className={`d-lg-none position-fixed top-0 start-0 w-100 z-index-1000 transition-all ${
-        isScrolled ? 'py-2 bg-dark bg-opacity-80 backdrop-blur-md shadow-lg border-bottom border-white border-opacity-10' : 'py-3 bg-transparent'
+      className={`d-lg-none position-fixed top-0 start-0 w-100 z-index-1000 premium-nav-transition ${
+        isScrolled ? 'is-scrolled py-2 bg-dark bg-opacity-80 backdrop-blur-md shadow-lg border-bottom border-white border-opacity-10' : 'py-3 bg-transparent'
       }`}
-      style={{ backdropFilter: isScrolled ? 'blur(15px)' : 'none', WebkitBackdropFilter: isScrolled ? 'blur(15px)' : 'none' }}
+      style={{ 
+        backdropFilter: isScrolled ? 'blur(15px)' : 'none', 
+        WebkitBackdropFilter: isScrolled ? 'blur(15px)' : 'none',
+        willChange: 'padding, background-color, backdrop-filter, box-shadow' 
+      }}
     >
       <div className="container-fluid px-4 d-flex align-items-center justify-content-between">
         <Link href="/dashboard" className="d-flex align-items-center gap-2 text-decoration-none transition-all hover-scale-105">
@@ -58,7 +68,12 @@ export default function MobileHeader() {
       <style jsx>{`
         .bg-glass-white-10 { background: rgba(255, 255, 255, 0.05); }
         .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .premium-nav-transition { 
+          transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                      background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                      box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                      backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
       `}</style>
     </header>
   );
