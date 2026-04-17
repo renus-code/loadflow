@@ -100,84 +100,119 @@ export default function DispatchTable({
     currentPage * ITEMS_PER_PAGE
   );
 
-  const MobileLoadCard = ({ load }: { load: ILoad }) => (
+   const MobileLoadCard = ({ load }: { load: ILoad }) => (
     <div 
-      className="glass-card-stitch rounded-4 p-4 mb-3 border border-white border-opacity-10 shadow-lg animate-fade-in cursor-pointer hover-scale-102"
+      className="glass-card-stitch rounded-4 p-4 mb-4 border border-white border-opacity-10 shadow-lg animate-fade-in cursor-pointer"
       onClick={() => onDetails(load)}
-      style={{ transition: 'all 0.3s ease', background: 'rgba(255,255,255,0.03)' }}
+      style={{ 
+        transition: 'all 0.3s ease', 
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      }}
     >
-      <div className="d-flex justify-content-between align-items-start mb-3">
-        <div className="d-flex align-items-center gap-2">
-          <div className="rounded-3 bg-dark bg-opacity-50 p-2 border border-white border-opacity-10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      {/* Header: Load ID and Status */}
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-white border-opacity-5">
+        <div className="d-flex align-items-center gap-3">
+          <div className="rounded-3 bg-emerald bg-opacity-10 p-2 border border-emerald border-opacity-20 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           </div>
           <div className="d-flex flex-column">
-            <span className="fw-black text-white fs-5">#{load.loadNumber}</span>
-            <span className="text-white opacity-40 text-uppercase fw-bold" style={{ fontSize: '10px' }}>
-              {load.commodity || "General"}
+            <span className="fw-black text-white fs-5" style={{ letterSpacing: '-0.02em' }}>#{load.loadNumber}</span>
+            <span className="text-white opacity-40 text-uppercase fw-black" style={{ fontSize: '9px', letterSpacing: '0.05em' }}>
+              {load.commodity || "General Cargo"}
             </span>
           </div>
         </div>
         <StatusBadge status={load.status} />
       </div>
 
-      <div className="d-flex flex-column gap-3 mb-4">
+      {/* Body: Journey info */}
+      <div className="d-flex flex-column gap-4 mb-4">
+        {/* Origin */}
         <div className="d-flex align-items-start gap-3">
-          <div className="mt-1 text-emerald">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div className="mt-1 d-flex align-items-center justify-content-center rounded-circle bg-emerald bg-opacity-10" style={{ width: '24px', height: '24px', border: '1px solid rgba(43, 221, 102, 0.2)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           </div>
-          <div>
-             <div className="text-white-50 x-small fw-bold text-uppercase tracking-wider mb-1">Origin</div>
-             <div className="fw-black text-white fs-6">{load.pickups[0]?.city}, {load.pickups[0]?.state}</div>
-             <div className="mt-1"><StopSummary stops={load.pickups} type="PICKED_UP" /></div>
+          <div className="flex-grow-1">
+             <div className="text-white-50 x-small fw-black text-uppercase tracking-widest mb-1" style={{ fontSize: '8px' }}>Origin</div>
+             <div className="fw-black text-white fs-6 mb-1">{load.pickups[0]?.city}, {load.pickups[0]?.state}</div>
+             <StopSummary stops={load.pickups} type="PICKED_UP" />
           </div>
         </div>
 
+        {/* Destination */}
         <div className="d-flex align-items-start gap-3">
-          <div className="mt-1 text-indigo">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div className="mt-1 d-flex align-items-center justify-content-center rounded-circle bg-indigo bg-opacity-10" style={{ width: '24px', height: '24px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
-          <div>
-             <div className="text-white-50 x-small fw-bold text-uppercase tracking-wider mb-1">Destination</div>
-             <div className="fw-black text-white fs-6">{load.deliveries[0]?.city}, {load.deliveries[0]?.state}</div>
-             <div className="mt-1"><StopSummary stops={load.deliveries} type="DELIVERED" /></div>
+          <div className="flex-grow-1">
+             <div className="text-white-50 x-small fw-black text-uppercase tracking-widest mb-1" style={{ fontSize: '8px' }}>Destination</div>
+             <div className="fw-black text-white fs-6 mb-1">{load.deliveries[0]?.city}, {load.deliveries[0]?.state}</div>
+             <StopSummary stops={load.deliveries} type="DELIVERED" />
           </div>
         </div>
       </div>
 
-      <div className="d-flex align-items-center justify-content-between pt-3 border-top border-white border-opacity-5">
+      {/* Footer: Driver visibility focus (Normal integration, no highlight) */}
+      <div className="pt-3 border-top border-white border-opacity-5 mb-4">
         <div className="d-flex align-items-center gap-2">
           {(() => {
             const isDriverUnassigned = !load.assignedDriverId || typeof load.assignedDriverId === 'string';
             const driverName = !isDriverUnassigned && (load.assignedDriverId as any).name ? (load.assignedDriverId as any).name : "Unassigned";
             return (
               <>
-                <div className={`rounded-circle d-flex align-items-center justify-content-center fw-bold ${isDriverUnassigned ? 'bg-danger bg-opacity-20 text-danger' : 'bg-emerald bg-opacity-20 text-emerald'}`} 
-                     style={{ width: '28px', height: '28px', fontSize: '10px', border: '1px solid currentColor' }}>
+                <div className={`rounded-circle d-flex align-items-center justify-content-center fw-black ${isDriverUnassigned ? 'bg-danger bg-opacity-20 text-danger' : 'bg-white bg-opacity-10 text-white'}`} 
+                     style={{ width: '32px', height: '32px', fontSize: '11px', border: '1px solid currentColor' }}>
                   {driverName.charAt(0).toUpperCase()}
                 </div>
-                <span className={`text-uppercase fw-black x-small ${isDriverUnassigned ? 'text-danger opacity-75' : 'text-white'}`}>
-                  {driverName}
-                </span>
+                <div className="d-flex flex-column">
+                  <span className="text-white-50 fw-black text-uppercase" style={{ fontSize: '8px', letterSpacing: '0.05em' }}>Driver</span>
+                  <span className={`text-uppercase fw-black x-small ${isDriverUnassigned ? 'text-danger opacity-75' : 'text-white'}`} style={{ letterSpacing: '0.02em', fontSize: '11px' }}>
+                    {driverName}
+                  </span>
+                </div>
               </>
             );
           })()}
         </div>
-        
-        <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}>
-            {onEdit && (
-              <button 
-                onClick={() => onEdit(load)} 
-                className={`btn btn-sm btn-glass-emerald p-2 rounded-3 ${['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? 'opacity-25 cursor-not-allowed' : ''}`}
-                title={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? "Finalized or cancelled loads cannot be edited" : "Edit Load"} 
-                disabled={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status)}
-                aria-label="Edit Load"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              </button>
-            )}
-           <button onClick={() => onDetails(load)} className="btn btn-sm btn-glass-indigo px-3 rounded-pill fw-black x-small text-uppercase">Details</button>
-        </div>
+      </div>
+
+      {/* Primary Actions: Guaranteed Visibility Vertical Stack */}
+      <div className="d-flex flex-column gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
+          <button 
+            onClick={() => onDetails(load)} 
+            className="w-100 py-3 rounded-3 fw-black text-uppercase shadow-lg d-flex align-items-center justify-content-center gap-2 border-0"
+            style={{ 
+              fontSize: '12px', 
+              letterSpacing: '0.08em',
+              background: '#6366f1',
+              color: '#ffffff',
+              boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            View Full Details
+          </button>
+
+          {onEdit && !['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) && (
+            <button 
+              onClick={() => onEdit(load)} 
+              className="w-100 py-3 rounded-3 fw-black text-uppercase shadow-lg d-flex align-items-center justify-content-center gap-2 border-0"
+              style={{ 
+                fontSize: '12px', 
+                letterSpacing: '0.08em',
+                background: '#2bdd66',
+                color: '#000000',
+                boxShadow: '0 4px 20px rgba(43, 221, 102, 0.4)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Edit Load Assignment
+            </button>
+          )}
       </div>
     </div>
   );
@@ -379,16 +414,50 @@ export default function DispatchTable({
         .border-bottom-subtle { border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
         .glow-emerald-pill { background: rgba(43, 221, 102, 0.1) !important; box-shadow: 0 0 15px rgba(43, 221, 102, 0.15); border: 1px solid rgba(43, 221, 102, 0.3) !important; }
         .glow-indigo-pill { background: rgba(99, 102, 241, 0.1) !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3) !important; }
-        .btn-glass-indigo { background: rgba(99, 102, 241, 0.15); color: #9093ff; }
-        .btn-glass-indigo:hover { background: rgba(99, 102, 241, 0.25); color: #fff; transform: translateY(-2px); }
-        .btn-glass-emerald { background: rgba(43, 221, 102, 0.15); color: #2bdd66; border: 1px solid rgba(43, 221, 102, 0.3) !important; }
-        .btn-glass-emerald:hover { background: rgba(43, 221, 102, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(43, 221, 102, 0.2); }
+        .btn-glass-indigo { 
+          background: #6366f1 !important; 
+          color: #fff !important; 
+          border: 1px solid rgba(255, 255, 255, 0.4) !important;
+          box-shadow: 0 0 20px rgba(99, 102, 241, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+          opacity: 1 !important;
+        }
+        .btn-glass-indigo:hover { 
+          background: #4f46e5 !important; 
+          transform: translateY(-2px); 
+          box-shadow: 0 0 30px rgba(99, 102, 241, 0.6) !important;
+        }
+        .btn-glass-emerald { 
+          background: #2bdd66 !important; 
+          color: #000 !important; 
+          border: 1px solid rgba(255, 255, 255, 0.4) !important;
+          box-shadow: 0 0 20px rgba(43, 221, 102, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+          opacity: 1 !important;
+        }
+        .btn-glass-emerald:hover { 
+          background: #22c55e !important; 
+          transform: translateY(-2px); 
+          box-shadow: 0 0 30px rgba(43, 221, 102, 0.6) !important;
+        }
         
-        .btn-glass-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
-        .btn-glass-warning:hover { background: rgba(245, 158, 11, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        .btn-glass-warning { 
+          background: rgba(245, 158, 11, 0.25); 
+          color: #fff; 
+          border: 1px solid rgba(245, 158, 11, 0.5) !important;
+        }
+        .btn-glass-warning:hover { 
+          background: rgba(245, 158, 11, 0.45); 
+          transform: translateY(-2px); 
+        }
         
-        .btn-glass-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
-        .btn-glass-danger:hover { background: rgba(239, 68, 68, 0.3); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+        .btn-glass-danger { 
+          background: rgba(239, 68, 68, 0.25); 
+          color: #fff; 
+          border: 1px solid rgba(239, 68, 68, 0.5) !important;
+        }
+        .btn-glass-danger:hover { 
+          background: rgba(239, 68, 68, 0.45); 
+          transform: translateY(-2px); 
+        }
 
         .item-row:hover { background: rgba(255, 255, 255, 0.03) !important; }
          .custom-table tr { background: transparent !important; }

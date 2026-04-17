@@ -632,7 +632,7 @@ export default function FleetSection() {
   );
 
   return (
-    <div className="container-fluid py-4 px-md-5 animate-slide-up mt-4 mt-lg-0">
+    <div className="container-fluid py-4 px-md-5 animate-slide-up mt-5 pt-4 mt-lg-0 pt-lg-0">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
         <div>
           <h2

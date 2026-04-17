@@ -44,8 +44,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           ></div>
         </div>
 
+        <MobileHeader />
         <div className="position-relative z-1 d-flex w-100 h-100">
-          <MobileHeader />
           <Sidebar />
           <div
             className="flex-grow-1 d-flex flex-column overflow-hidden"
@@ -63,7 +63,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         }
         @media (max-width: 991.98px) {
           main {
-            padding-top: 85px !important;
+            padding-top: 100px !important;
           }
         }
       `}</style>

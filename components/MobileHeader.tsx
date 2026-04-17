@@ -24,12 +24,15 @@ export default function MobileHeader() {
 
   return (
     <header 
-      className={`d-lg-none position-fixed top-0 start-0 w-100 z-index-1000 premium-nav-transition ${
-        isScrolled ? 'is-scrolled py-2 bg-dark bg-opacity-80 backdrop-blur-md shadow-lg border-bottom border-white border-opacity-10' : 'py-3 bg-transparent'
-      }`}
+      className="d-lg-none position-fixed top-0 start-0 w-100 premium-nav-transition"
       style={{ 
-        backdropFilter: isScrolled ? 'blur(15px)' : 'none', 
-        WebkitBackdropFilter: isScrolled ? 'blur(15px)' : 'none',
+        zIndex: 10000,
+        backgroundColor: '#0a0c10',
+        paddingTop: isScrolled ? '0.5rem' : '0.85rem',
+        paddingBottom: isScrolled ? '0.5rem' : '0.85rem',
+        backdropFilter: 'blur(30px) saturate(180%)', 
+        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
         willChange: 'padding, background-color, backdrop-filter, box-shadow' 
       }}
     >

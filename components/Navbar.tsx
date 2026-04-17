@@ -20,11 +20,14 @@ export default function Navbar() {
       className={`navbar navbar-expand-lg position-fixed w-100 z-3 ${isScrolled ? "shadow-sm" : ""}`}
       style={{ 
         top: 0, 
-        transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-        backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.9)" : "transparent",
-        backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
-        paddingTop: isScrolled ? "0.8rem" : "1.8rem",
-        paddingBottom: isScrolled ? "0.8rem" : "1.8rem",
+        transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        backgroundColor: isScrolled ? "rgba(8, 10, 15, 0.98)" : "rgba(8, 10, 15, 0.15)",
+        backdropFilter: isScrolled ? "blur(30px) saturate(180%)" : "blur(10px)",
+        paddingTop: isScrolled ? "0.6rem" : "1.2rem",
+        paddingBottom: isScrolled ? "0.6rem" : "1.2rem",
+        borderBottom: isScrolled ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(255, 255, 255, 0.05)",
+        boxShadow: isScrolled ? "0 10px 40px rgba(0, 0, 0, 0.5)" : "none",
+        zIndex: 9999
       }}
     >
       <div className="container-fluid px-3">
@@ -55,7 +58,8 @@ export default function Navbar() {
             className="fs-3 d-flex align-items-center transition-all"
             style={{ 
               fontFamily: "var(--font-syne)",
-              transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+              transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+              color: "#ffffff"
             }}
           >
             <span 
@@ -101,11 +105,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#features"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: isScrolled ? "#05070a" : "#ffffff",
-                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                  color: "rgba(255, 255, 255, 0.8)",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Features
@@ -114,11 +118,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#solutions"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: isScrolled ? "#05070a" : "#ffffff",
-                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                  color: "rgba(255, 255, 255, 0.8)",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Solutions
@@ -127,11 +131,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#pricing"
-                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
+                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: isScrolled ? "#05070a" : "#ffffff",
-                  textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
+                  color: "rgba(255, 255, 255, 0.8)",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Pricing
@@ -145,10 +149,10 @@ export default function Navbar() {
               href="/login"
               className="btn fw-black px-4 py-2 rounded-pill hover-zoom d-flex align-items-center justify-content-center gap-2 transition-all"
               style={{ 
-                backgroundColor: isScrolled ? "#05070a" : "#2bdd66", 
-                color: isScrolled ? "#ffffff" : "#05070a",
-                boxShadow: isScrolled ? "0 4px 12px rgba(0,0,0,0.1)" : "0 0 20px rgba(43,221,102,0.3)",
-                border: isScrolled ? "1px solid rgba(255,255,255,0.1)" : "none",
+                backgroundColor: "#2bdd66", 
+                color: "#05070a",
+                boxShadow: "0 0 20px rgba(43,221,102,0.3)",
+                border: "none",
                 transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
               }}
             >

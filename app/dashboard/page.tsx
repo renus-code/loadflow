@@ -214,7 +214,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="container-fluid px-0 animate-fade-in"
+      className="container-fluid px-0 animate-fade-in pt-md-5 mt-md-4 mt-lg-0 pt-lg-0"
       style={{ maxWidth: "1600px" }}
     >
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center mb-4 mt-2 gap-3 border-bottom pb-4 border-opacity-10 border-white">
