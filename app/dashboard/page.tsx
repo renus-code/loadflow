@@ -217,12 +217,15 @@ export default function Dashboard() {
       className="container-fluid px-0 animate-fade-in"
       style={{ maxWidth: "1600px" }}
     >
-      {/* DASHBOARD HEADER */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
-        <div className="text-start">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center mb-4 mt-2 gap-3 border-bottom pb-4 border-opacity-10 border-white">
+        <div className="text-center text-md-start">
           <h1
             className="display-6 fw-black text-white m-0 tracking-tight"
-            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em" }}
+            style={{ 
+              fontFamily: "var(--font-syne)", 
+              letterSpacing: "-0.04em",
+              fontSize: "clamp(1.75rem, 5vw, 2.5rem)" 
+            }}
           >
             <span className="text-gradient-emerald">
               {user?.role || "User"}
@@ -230,8 +233,8 @@ export default function Dashboard() {
             Dashboard
           </h1>
           <p
-            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
-            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
+            className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small"
+            style={{ letterSpacing: "0.2rem", fontSize: "0.65rem" }}
           >
             {todayStr}
           </p>
@@ -239,20 +242,23 @@ export default function Dashboard() {
 
         {user?.role === "Admin" && (
           <div
-            className="d-flex glass-card p-1 rounded-pill border border-white border-opacity-10 shadow-sm"
-            style={{ background: "rgba(255,255,255,0.03)" }}
+            className="d-flex glass-card-nav p-1 rounded-pill border border-white border-opacity-10 shadow-2xl mx-auto mx-md-0"
+            style={{ 
+              background: "#0d1117",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.4)" 
+            }}
           >
             <button
               onClick={() => setCurrentView("loads")}
-              className={`btn rounded-pill px-4 py-2 fw-bold transition-all border-0 ${currentView === "loads" ? "btn-emerald shadow-lg" : "text-white opacity-50"}`}
-              style={{ fontSize: "0.8rem" }}
+              className={`btn rounded-pill px-4 py-2 fw-black transition-all border-0 ${currentView === "loads" ? "btn-emerald shadow-emerald-glow" : "text-white opacity-40 hover-opacity-100"}`}
+              style={{ fontSize: "0.75rem", letterSpacing: "0.05em" }}
             >
               Loads
             </button>
             <button
               onClick={() => setCurrentView("fleet")}
-              className={`btn rounded-pill px-4 py-2 fw-bold transition-all border-0 ${currentView === "fleet" ? "btn-emerald shadow-lg" : "text-white opacity-50"}`}
-              style={{ fontSize: "0.8rem" }}
+              className={`btn rounded-pill px-4 py-2 fw-black transition-all border-0 ${currentView === "fleet" ? "btn-emerald shadow-emerald-glow" : "text-white opacity-40 hover-opacity-100"}`}
+              style={{ fontSize: "0.75rem", letterSpacing: "0.05em" }}
             >
               Fleet
             </button>
