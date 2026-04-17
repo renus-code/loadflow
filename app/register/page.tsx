@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
+import Image from "next/image";
 import PasswordStrength from "@/components/PasswordStrength";
 import { StateProvinceSelect, CitySelect } from "@/components/LocationSelects";
 
@@ -157,6 +158,19 @@ function RegisterContent() {
 
   return (
     <div className="d-flex flex-column min-vh-100 premium-bg position-relative overflow-hidden py-5">
+      <Image
+        src="/premium_logistics_bg.webp"
+        alt="Background"
+        fill
+        priority
+        className="object-fit-cover z-0"
+        quality={75}
+      />
+      {/* Overlay to match the premium-bg gradient */}
+      <div 
+        className="position-absolute top-0 start-0 w-100 h-100 z-0" 
+        style={{ background: 'linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8))' }}
+      ></div>
       <div
         className="glow-orb glow-emerald"
         style={{ top: "5%", left: "-10%", opacity: 0.3 }}

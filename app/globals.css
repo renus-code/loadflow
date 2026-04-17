@@ -357,11 +357,8 @@ body {
 
 /* ─── HYPER-PREMIUM THEME──────────────────────────── */
 .premium-bg {
-  background:
-    linear-gradient(rgba(10, 20, 42, 0.9), rgba(10, 20, 42, 0.8)),
-    url("/premium_logistics_bg.webp") no-repeat center center fixed;
-  background-size: cover;
   min-height: 100vh;
+  background-color: #0a142a; /* Fallback dark color */
 }
 
 /* BOOTSTRAP OVERRIDES FOR PREMIUM GLASS */
