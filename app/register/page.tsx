@@ -157,7 +157,7 @@ function RegisterContent() {
     ) : null;
 
   return (
-    <div className="d-flex flex-column min-vh-100 premium-bg position-relative overflow-hidden py-5">
+    <div className="d-flex flex-column min-vh-resilient premium-bg position-relative overflow-hidden py-5">
       {/* Fixed background layer */}
       <div className="position-fixed top-0 start-0 w-100 h-100 z-0">
         <Image

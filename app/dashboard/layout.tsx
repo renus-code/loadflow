@@ -27,7 +27,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
         rel="stylesheet"
       />
-      <div className="d-flex vh-100 premium-bg overflow-hidden text-white position-relative">
+      <div className="d-flex vh-resilient premium-bg overflow-hidden text-white position-relative">
         {/* Fixed background layer */}
         <div className="position-fixed top-0 start-0 w-100 h-100 z-0">
           <Image

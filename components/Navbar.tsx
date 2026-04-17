@@ -34,15 +34,21 @@ export default function Navbar() {
           className="navbar-brand d-flex align-items-center gap-2 hover-tilt"
         >
           <div
-            className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm"
-            style={{ width: "40px", height: "40px" }}
+            className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center shadow-2xl bg-white p-1"
+            style={{ 
+              width: "42px", 
+              height: "42px", 
+              border: "1.5px solid rgba(43, 221, 102, 0.2)",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
+            }}
           >
             <Image
               src="/truck-logo.png"
               alt="LoadFlow Logo"
-              width={40}
-              height={40}
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              width={28}
+              height={28}
+              priority
+              style={{ objectFit: "contain" }}
             />
           </div>
           <span

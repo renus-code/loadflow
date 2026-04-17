@@ -25,6 +25,21 @@ html {
   --scrollbar-thumb-hover: rgba(255, 140, 0, 0.6);
   --glass-card-premium: rgba(255, 255, 255, 0.03);
   --glass-border-premium: rgba(255, 255, 255, 0.08);
+  --dvh: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --dvh: 100dvh;
+  }
+}
+
+.min-vh-resilient {
+  min-height: var(--dvh);
+}
+
+.vh-resilient {
+  height: var(--dvh);
 }
 
 body {

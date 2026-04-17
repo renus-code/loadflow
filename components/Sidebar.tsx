@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import UserSidebarProfile from "./UserSidebarProfile";
 import NotificationBell from "./NotificationBell";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 // ─── PREMIUM ICONS (LUCIDE STYLE) ─────────────────────────────────────────────
 const LayoutGridIcon = ({ active }: { active?: boolean }) => (
@@ -147,7 +148,7 @@ export default function Sidebar() {
       {/* MOBILE OVERLAY */}
       {isMobileOpen && (
         <div
-          className="d-lg-none position-fixed top-0 start-0 w-100 vh-100 bg-black bg-opacity-50 backdrop-blur-sm shadow-2xl"
+          className="d-lg-none position-fixed top-0 start-0 w-100 vh-resilient bg-black bg-opacity-50 backdrop-blur-sm shadow-2xl"
           onClick={() => setIsMobileOpen(false)}
           style={{ zIndex: 1001, backdropFilter: "blur(4px)" }}
         />
@@ -191,36 +192,40 @@ export default function Sidebar() {
 
         {/* BRANDING */}
         <div
-          className="pt-4 pb-2 mb-2 px-3"
-          style={{ transition: "all 0.4s ease", paddingLeft: "1.2rem" }}
+          className="pt-4 pb-2 mb-2 px-3 d-flex justify-content-center"
+          style={{ transition: "all 0.4s ease" }}
         >
           <Link
             href="/"
             className="d-flex align-items-center gap-3 text-decoration-none hover-tilt group text-nowrap"
+            style={{ minWidth: isCollapsed ? "40px" : "auto" }}
           >
             <div
-              className="rounded-4 d-flex align-items-center justify-content-center shadow-2xl bg-white p-2 flex-shrink-0"
+              className="rounded-circle d-flex align-items-center justify-content-center shadow-2xl bg-white p-2 flex-shrink-0"
               style={{
-                width: "48px",
-                height: "48px",
-                border: "2px solid rgba(43, 221, 102, 0.1)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+                width: "42px",
+                height: "42px",
+                border: "1.5px solid rgba(43, 221, 102, 0.2)",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.3), 0 0 15px rgba(44, 221, 102, 0.1)",
               }}
             >
-              <img
+              <Image
                 src="/truck-logo.png"
                 alt="LoadFlow Logo"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                width={28}
+                height={28}
+                priority
+                style={{ objectFit: "contain" }}
               />
             </div>
             {!isCollapsed && (
               <span
-                className="fs-3 fw-black d-flex align-items-center"
+                className="fs-3 fw-black d-flex align-items-center animate-fade-in"
                 style={{
                   fontFamily: "var(--font-syne)",
                   letterSpacing: "-0.05em",
                   opacity: 1,
-                  transition: "opacity 0.2s ease",
+                  transition: "opacity 0.3s ease",
                 }}
               >
                 <span className="text-white">Load</span>
@@ -244,7 +249,7 @@ export default function Sidebar() {
 
           <Link
             href="/dashboard"
-            className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-2 w-100 text-nowrap ${
+            className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
               pathname === "/dashboard"
                 ? "bg-emerald-glow shadow-emerald border-emerald"
                 : "text-white-50 hover-bg-white-5 hover-text-white"
@@ -274,7 +279,7 @@ export default function Sidebar() {
             <>
               <Link
                 href="/dashboard/loads/create"
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-2 w-100 text-nowrap ${
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname === "/dashboard/loads/create"
                     ? "bg-emerald-glow shadow-emerald border-emerald"
                     : "text-white-50 hover-bg-white-5 hover-text-white"
@@ -299,7 +304,7 @@ export default function Sidebar() {
               
               <Link
                 href="/dashboard/request-driver"
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-2 w-100 text-nowrap ${
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname === "/dashboard/request-driver"
                     ? "bg-emerald-glow shadow-emerald border-emerald"
                     : "text-white-50 hover-bg-white-5 hover-text-white"
@@ -327,7 +332,7 @@ export default function Sidebar() {
           {user?.role === "Admin" && (
             <Link
               href="/dashboard/users"
-              className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-2 w-100 text-nowrap ${
+              className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
                 pathname.startsWith("/dashboard/users")
                   ? "bg-admin-glow shadow-admin border-admin"
                   : "text-white-50 hover-bg-white-5 hover-text-white"
@@ -359,7 +364,7 @@ export default function Sidebar() {
           {user?.role === 'Admin' && (
              <Link
                 href="/dashboard/audit"
-                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-2 w-100 text-nowrap ${
+                className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname.startsWith('/dashboard/audit') 
                   ? 'bg-admin-glow shadow-admin border-admin' 
                   : 'text-white-50 hover-bg-white-5 hover-text-white'

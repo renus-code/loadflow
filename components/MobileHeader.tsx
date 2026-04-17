@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 export default function MobileHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -23,9 +24,16 @@ export default function MobileHeader() {
       style={{ backdropFilter: isScrolled ? 'blur(15px)' : 'none', WebkitBackdropFilter: isScrolled ? 'blur(15px)' : 'none' }}
     >
       <div className="container-fluid px-4 d-flex align-items-center justify-content-between">
-        <Link href="/dashboard" className="d-flex align-items-center gap-2 text-decoration-none">
-          <div className="rounded-3 overflow-hidden bg-white p-1 shadow-sm" style={{ width: '32px', height: '32px' }}>
-            <img src="/truck-logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        <Link href="/dashboard" className="d-flex align-items-center gap-2 text-decoration-none transition-all hover-scale-105">
+          <div className="rounded-3 overflow-hidden bg-white p-1 shadow-2xl d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px', border: '1px solid rgba(43, 221, 102, 0.1)' }}>
+            <Image 
+              src="/truck-logo.png" 
+              alt="Logo" 
+              width={24}
+              height={24}
+              priority
+              style={{ objectFit: 'contain' }} 
+            />
           </div>
           <span className="fw-black text-white fs-5" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
             Load<span style={{ color: '#2bdd66' }}>Flow</span>

@@ -9,7 +9,7 @@ const CheckPricesModal = dynamic(() => import("@/components/CheckPricesModal"));
 
 export default function Home() {
   return (
-    <div className="d-flex flex-column min-vh-100 bg-dashboard-soft scroll-smooth">
+    <div className="d-flex flex-column min-vh-resilient bg-dashboard-soft scroll-smooth">
       <Navbar />
 
       <main className="flex-grow-1 d-flex flex-column">
@@ -553,11 +553,18 @@ export default function Home() {
             {/* Brand */}
             <div className="col-lg-5">
               <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
-                <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm" style={{ width: 38, height: 38, flexShrink: 0 }}>
-                  <Image src="/truck-logo.png" alt="LoadFlow Logo" width={40} height={40} sizes="40px" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm bg-white p-1" style={{ width: 40, height: 40, flexShrink: 0 }}>
+                  <Image 
+                    src="/truck-logo.png" 
+                    alt="LoadFlow Logo" 
+                    width={32} 
+                    height={32} 
+                    style={{ objectFit: "contain" }} 
+                  />
                 </div>
                 <span className="fs-4 fw-bold d-flex align-items-center" style={{ fontFamily: "var(--font-syne)" }}>
-                  <span className="brand-text-load">Load</span><span className="brand-text-flow">Flow</span>
+                  <span className="brand-text-load text-white">Load</span>
+                  <span className="brand-text-flow" style={{ color: '#2bdd66' }}>Flow</span>
                 </span>
               </Link>
               <p className="mb-4" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", maxWidth: 320, lineHeight: 1.7 }}>
