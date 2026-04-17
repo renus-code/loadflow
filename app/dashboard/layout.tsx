@@ -63,7 +63,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         }
         @media (max-width: 991.98px) {
           main {
-            padding-top: 60px !important;
+            padding-top: 85px !important;
           }
         }
       `}</style>

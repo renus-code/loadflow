@@ -632,7 +632,7 @@ export default function FleetSection() {
   );
 
   return (
-    <div className="container-fluid py-4 px-md-5 animate-slide-up">
+    <div className="container-fluid py-4 px-md-5 animate-slide-up mt-4 mt-lg-0">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
         <div>
           <h2 className="display-6 fw-black text-white mb-1 tracking-tight">
@@ -682,7 +682,8 @@ export default function FleetSection() {
             background: "rgba(255, 255, 255, 0.03)",
             border: "1px solid rgba(255,255,255,0.05)",
             width: "100%",
-            maxWidth: "400px"
+            maxWidth: "400px",
+            margin: "0 auto"
           }}
         >
           <button
@@ -735,22 +736,23 @@ export default function FleetSection() {
             maxWidth: "500px",
             minWidth: "200px",
             background: "rgba(13, 17, 23, 0.85)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+            height: "42px" // Fixed height for better alignment on mobile
           }}
         >
           {/* Premium Custom Criteria Selector */}
           <div
             ref={criteriaRef}
-            className="position-relative border-end border-white border-opacity-10"
-            style={{ minWidth: "100px" }}
+            className="position-relative border-end border-white border-opacity-10 h-100 d-flex align-items-center"
+            style={{ minWidth: "90px" }}
           >
             <div
               onClick={(e) => {
                 e.stopPropagation();
                 setCriteriaOpen(!criteriaOpen);
               }}
-              className="d-flex align-items-center justify-content-between py-2 ps-3 pe-3 transition-all"
+              className="d-flex align-items-center justify-content-between py-1 ps-3 pe-2 transition-all h-100"
               style={{
                 cursor: "pointer",
                 background: criteriaOpen
@@ -846,8 +848,8 @@ export default function FleetSection() {
                           : "rgba(255,255,255,0.7)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        "rgba(255,255,255,0.08)";
+                      if (searchCriteria !== opt.value)
+                        e.currentTarget.style.background = "rgba(255,255,255,0.08)";
                       e.currentTarget.style.color = "#fff";
                     }}
                     onMouseLeave={(e) => {
@@ -1241,7 +1243,8 @@ export default function FleetSection() {
             "0 30px 80px -10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(255,255,255,0.04)",
         }}
       >
-        <div className="table-responsive">
+        <div className="d-none d-md-block">
+          <div className="table-responsive">
           <table
             className="table m-0 text-white"
             style={{ borderCollapse: "separate", borderSpacing: "0" }}
@@ -1685,6 +1688,151 @@ export default function FleetSection() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* 📱 MOBILE CARD VIEW - STITCH PREMIUM */}
+      <div className="d-md-none p-3">
+        {loading ? (
+          <div className="text-center py-5">
+            <div
+              className="spinner-border spinner-border-sm text-emerald mb-3"
+              role="status"
+            ></div>
+            <p className="text-white opacity-75 fw-bold small tracking-widest text-uppercase">
+              Establishing Fleet Sync...
+            </p>
+          </div>
+        ) : paginatedData.length === 0 ? (
+          <div className="text-center py-5 opacity-50">
+            <h3 className="text-white fw-black small text-uppercase tracking-widest">
+              ZERO ASSETS DETECTED
+            </h3>
+          </div>
+        ) : (
+          <div className="d-flex flex-column gap-3">
+            {(paginatedData as (Truck | Trailer)[]).map((v) => {
+              const isTruck = "truckNo" in v;
+              const no = isTruck ? (v as Truck).truckNo : (v as Trailer).trailerNo;
+              const type = isTruck
+                ? (v as Truck).truckType
+                : (v as Trailer).trailerType;
+              const s = getTypeStyle(type);
+
+              return (
+                <div
+                  key={v._id}
+                  className="p-4 rounded-4 border border-white border-opacity-10 shadow-lg position-relative overflow-hidden"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.02)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                  }}
+                >
+                  <div
+                    className="position-absolute top-0 start-0 h-100"
+                    style={{ width: "3px", background: s.text }}
+                  ></div>
+
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <span
+                        className="text-uppercase fw-black opacity-40 mb-1 d-block"
+                        style={{ fontSize: "9px", letterSpacing: "1.5px" }}
+                      >
+                        {isTruck ? "Unit / Truck" : "Unit / Trailer"}
+                      </span>
+                      <h4
+                        className="fw-black text-white m-0"
+                        style={{ fontSize: "1.2rem", letterSpacing: "-0.5px" }}
+                      >
+                        #{no}
+                      </h4>
+                    </div>
+                    <div
+                      className="px-3 py-1 rounded-pill fw-bold"
+                      style={{
+                        fontSize: "9px",
+                        background: s.bg,
+                        color: s.text,
+                        border: `1px solid ${s.border}`,
+                        boxShadow: `0 0 10px ${s.shadow}`,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {type}
+                    </div>
+                  </div>
+
+                  <div className="d-flex flex-column gap-2 mb-4">
+                    <div className="d-flex justify-content-between pb-2 border-bottom border-white border-opacity-5">
+                      <span
+                        className="text-white-50 small fw-bold text-uppercase"
+                        style={{ fontSize: "9px", letterSpacing: "1px" }}
+                      >
+                        License Plate
+                      </span>
+                      <span
+                        className="font-monospace fw-black text-white px-2 py-0 border border-white border-opacity-20 rounded shadow-sm"
+                        style={{
+                          fontSize: "11px",
+                          background: "rgba(255,255,255,0.05)",
+                        }}
+                      >
+                        {v.plate}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span
+                        className="text-white-50 small fw-bold text-uppercase"
+                        style={{ fontSize: "9px", letterSpacing: "1px" }}
+                      >
+                        VIN Matrix
+                      </span>
+                      <span
+                        className="font-monospace text-white-50"
+                        style={{ fontSize: "9px" }}
+                      >
+                        {v.vin}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between mt-1 pt-1">
+                      <span
+                        className="text-white-50 small fw-bold text-uppercase"
+                        style={{ fontSize: "9px", letterSpacing: "1px" }}
+                      >
+                        Vehicle Spec
+                      </span>
+                      <span
+                        className="text-white fw-bold"
+                        style={{ fontSize: "10px" }}
+                      >
+                        {v.make}{" "}
+                        <span className="opacity-50">/ {v.model} ({v.year})</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="d-flex gap-2">
+                    <button
+                      onClick={() => handleEdit(v)}
+                      className="btn btn-emerald flex-grow-1 rounded-pill py-2 fw-black text-uppercase tracking-wider transition-all hover-scale"
+                      style={{ fontSize: "10px", color: "#000" }}
+                    >
+                      Edit Asset
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm({ id: v._id, no })}
+                      className="btn btn-outline-danger flex-grow-1 rounded-pill py-2 border-opacity-10 fw-black text-uppercase tracking-wider transition-all"
+                      style={{ fontSize: "10px" }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ─── Pagination Controls ───────────────────────────────────────────── */}
