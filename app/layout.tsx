@@ -45,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // Preload the LCP image to ensure it's discovered in the document head immediately
-  preload("/truck-trailer.png", { as: "image", fetchPriority: "high" });
+  preload("/truck-trailer.webp", { as: "image", fetchPriority: "high" });
 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">

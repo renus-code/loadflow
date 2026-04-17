@@ -20,7 +20,7 @@ export default function Home() {
         >
           {/* LCP Optimized Background Image */}
           <Image
-            src="/truck-trailer.png"
+            src="/truck-trailer.webp"
             alt="Logistics Transport Truck"
             fill
             priority={true}
@@ -434,7 +434,7 @@ export default function Home() {
 
                   <div className="rounded-5 overflow-hidden shadow-2xl border border-white border-opacity-20 z-1 position-relative hover-tilt ripple-effect">
                     <Image
-                      src="/truck-trailer.png"
+                      src="/truck-trailer.webp"
                       alt="Logistics Solution"
                       width={800}
                       height={600}
