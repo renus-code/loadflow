@@ -132,7 +132,8 @@ export default function Sidebar() {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const isCollapsed = !isHovered;
+  // On mobile, if the sidebar is open, it MUST NOT be collapsed.
+  const isCollapsed = !isHovered && !isMobileOpen;
 
   useEffect(() => {
     const handleToggleMobile = () => setIsMobileOpen((prev) => !prev);
@@ -192,8 +193,8 @@ export default function Sidebar() {
 
         {/* BRANDING */}
         <div
-          className="pt-4 pb-2 mb-2 px-3 d-flex justify-content-center"
-          style={{ transition: "all 0.4s ease" }}
+          className={`pt-4 pb-2 mb-2 px-3 d-flex ${isCollapsed ? "justify-content-center" : "justify-content-start align-items-center"}`}
+          style={{ transition: "all 0.4s ease", paddingLeft: isCollapsed ? "1rem" : "1.5rem" }}
         >
           <Link
             href="/"
