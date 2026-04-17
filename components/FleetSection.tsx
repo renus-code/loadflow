@@ -635,8 +635,14 @@ export default function FleetSection() {
     <div className="container-fluid py-4 px-md-5 animate-slide-up mt-4 mt-lg-0">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
         <div>
-          <h2 className="display-6 fw-black text-white mb-1 tracking-tight">
-            Fleet Management
+          <h2
+            className="fs-2 fw-black text-white m-0 tracking-tight"
+            style={{
+              fontFamily: "var(--font-syne)",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            <span className="text-gradient-emerald">Fleet</span> Management
           </h2>
           <p className="text-white opacity-50 mb-0 small text-uppercase tracking-widest fw-bold">
             Manage trucks and trailers
@@ -660,8 +666,8 @@ export default function FleetSection() {
               setAsyncErrors({}); // Clear errors when toggling form
               setShowForm(!showForm);
             }}
-            className="btn btn-emerald rounded-pill px-4 py-2 fw-black shadow-glow-emerald transition-all hover-scale text-uppercase w-100 w-md-auto"
-            style={{ letterSpacing: "1px", fontSize: "12px" }}
+            className="btn btn-emerald rounded-pill px-4 py-2 fw-black shadow-glow-emerald transition-all hover-float text-uppercase w-100 w-md-auto border-0"
+            style={{ letterSpacing: "1px", fontSize: "11px" }}
             title={
               showForm
                 ? "Close Form"
