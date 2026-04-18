@@ -125,8 +125,8 @@ export default function NotificationsPage() {
 
   return (
     <div className="container-fluid px-0 animate-fade-in" style={{ maxWidth: "1600px" }}>
-      {/* HEADER */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
+      {/* HEADER - Desktop Only */}
+      <div className="d-none d-lg-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
         <div className="text-start">
           <h1
             className="display-6 text-white m-0 tracking-tight"
@@ -142,6 +142,9 @@ export default function NotificationsPage() {
           </p>
         </div>
       </div>
+
+      {/* MOBILE HEADER SPACER - Mobile Only */}
+      <div className="d-lg-none" style={{ height: '1.5rem' }}></div>
 
       <div className="row justify-content-center">
         <div className="col-12 px-2">
@@ -626,6 +629,20 @@ export default function NotificationsPage() {
         }
         .animate-pulse-emerald {
           animation: pulse-emerald 2s infinite;
+        }
+
+        /* Support for various device orientations */
+        @media (max-width: 768px) {
+          .container-safe {
+            padding-bottom: 2rem;
+          }
+        }
+        
+        @media (min-width: 992px) {
+          .desktop-table-container {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+          }
         }
       `}</style>
     </div>

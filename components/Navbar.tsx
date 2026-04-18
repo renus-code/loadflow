@@ -2,31 +2,69 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
+    const navbarCollapse = document.getElementById("navbarNav");
+    
+    const handleShow = () => setMenuOpen(true);
+    const handleHide = () => setMenuOpen(false);
+
+    if (navbarCollapse) {
+      navbarCollapse.addEventListener('show.bs.collapse', handleShow);
+      navbarCollapse.addEventListener('hide.bs.collapse', handleHide);
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        if (navbarCollapse && navbarCollapse.classList.contains("show")) {
+          const bootstrap = (window as any).bootstrap;
+          if (bootstrap && bootstrap.Collapse) {
+            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse) || new bootstrap.Collapse(navbarCollapse, { toggle: false });
+            bsCollapse.hide();
+          } else {
+            navbarCollapse.classList.remove("show");
+            setMenuOpen(false);
+          }
+        }
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+      if (navbarCollapse) {
+        navbarCollapse.removeEventListener('show.bs.collapse', handleShow);
+        navbarCollapse.removeEventListener('hide.bs.collapse', handleHide);
+      }
+    };
   }, []);
 
   return (
     <nav
+      ref={navRef}
       className={`navbar navbar-expand-lg position-fixed w-100 z-3 ${isScrolled ? "shadow-sm" : ""}`}
       style={{ 
         top: 0, 
         transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-        backgroundColor: isScrolled ? "rgba(8, 10, 15, 0.98)" : "rgba(8, 10, 15, 0.15)",
-        backdropFilter: isScrolled ? "blur(30px) saturate(180%)" : "blur(10px)",
+        backgroundColor: (isScrolled || menuOpen) ? "rgba(8, 10, 15, 0.98)" : "transparent",
+        backdropFilter: (isScrolled || menuOpen) ? "blur(30px) saturate(180%)" : "none",
         paddingTop: isScrolled ? "0.6rem" : "1.2rem",
         paddingBottom: isScrolled ? "0.6rem" : "1.2rem",
-        borderBottom: isScrolled ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(255, 255, 255, 0.05)",
-        boxShadow: isScrolled ? "0 10px 40px rgba(0, 0, 0, 0.5)" : "none",
+        borderBottom: (isScrolled || menuOpen) ? "1px solid rgba(255, 255, 255, 0.12)" : "none",
+        boxShadow: (isScrolled || menuOpen) ? "0 10px 40px rgba(0, 0, 0, 0.5)" : "none",
         zIndex: 9999
       }}
     >

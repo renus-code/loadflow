@@ -58,12 +58,24 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <style jsx>{`
+        .vh-resilient {
+          height: 100vh;
+          height: 100dvh;
+          min-height: -webkit-fill-available;
+        }
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }
         @media (max-width: 991.98px) {
           main {
-            padding-top: 100px !important;
+            padding-top: 85px !important;
+            height: calc(100dvh - 85px);
+          }
+        }
+        /* Landscape specific adjustments for small height devices */
+        @media (max-height: 500px) and (orientation: landscape) {
+          main {
+            padding-top: 70px !important;
           }
         }
       `}</style>
