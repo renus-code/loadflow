@@ -2,7 +2,7 @@
   "name": "LoadFlow Logistics",
   "short_name": "LoadFlow",
   "description": "Premium Fleet and Dispatch Management System",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#091328",
   "theme_color": "#091328",
