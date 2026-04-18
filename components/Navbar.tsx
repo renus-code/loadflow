@@ -10,8 +10,23 @@ export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+    const handleScroll = (e: any) => {
+      const scrollPos = e.target.scrollTop || window.scrollY || 0;
+      setIsScrolled(scrollPos > 50);
+      
+      // Auto-close menu on scroll
+      if (menuOpen) {
+        if (navbarCollapse) {
+          const bootstrap = (window as any).bootstrap;
+          if (bootstrap && bootstrap.Collapse) {
+            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse) || new bootstrap.Collapse(navbarCollapse, { toggle: false });
+            bsCollapse.hide();
+          } else {
+            navbarCollapse.classList.remove("show");
+            setMenuOpen(false);
+          }
+        }
+      }
     };
 
     const navbarCollapse = document.getElementById("navbarNav");
@@ -39,18 +54,18 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
     document.addEventListener("mousedown", handleClickOutside);
     
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll, { capture: true });
       document.removeEventListener("mousedown", handleClickOutside);
       if (navbarCollapse) {
         navbarCollapse.removeEventListener('show.bs.collapse', handleShow);
         navbarCollapse.removeEventListener('hide.bs.collapse', handleHide);
       }
     };
-  }, []);
+  }, [menuOpen]);
 
   return (
     <nav

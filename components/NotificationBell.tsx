@@ -7,10 +7,12 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function NotificationBell({ 
   variant = 'default', 
-  isCollapsed = false 
+  isCollapsed = false,
+  onNavClick
 }: { 
   variant?: 'default' | 'sidebar';
   isCollapsed?: boolean;
+  onNavClick?: () => void;
 }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
@@ -106,6 +108,7 @@ export default function NotificationBell({
     return (
       <Link
         href="/dashboard/notifications"
+        onClick={onNavClick}
         className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-2 w-100 text-nowrap border-0 shadow-none bg-transparent ${
           isActive
             ? "bg-emerald-glow shadow-emerald border-emerald"

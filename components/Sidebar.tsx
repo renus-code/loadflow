@@ -135,14 +135,29 @@ export default function Sidebar() {
   // On mobile, if the sidebar is open, it MUST NOT be collapsed.
   const isCollapsed = !isHovered && !isMobileOpen;
 
+  const handleNavClick = () => {
+    if (isMobileOpen) setIsMobileOpen(false);
+  };
+
   useEffect(() => {
     const handleToggleMobile = () => setIsMobileOpen((prev) => !prev);
+    
+    // Auto-close on scroll functionality
+    const handleScroll = () => {
+      if (isMobileOpen) {
+        setIsMobileOpen(false);
+      }
+    };
+
     window.addEventListener("toggle-sidebar", handleToggleMobile);
+    // Add scroll listener to the window or capture from the main scrollable area
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
 
     return () => {
       window.removeEventListener("toggle-sidebar", handleToggleMobile);
+      window.removeEventListener("scroll", handleScroll, { capture: true });
     };
-  }, []);
+  }, [isMobileOpen]);
 
   return (
     <>
@@ -250,6 +265,7 @@ export default function Sidebar() {
 
           <Link
             href="/dashboard"
+            onClick={handleNavClick}
             className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
               pathname === "/dashboard"
                 ? "bg-emerald-glow shadow-emerald border-emerald"
@@ -280,6 +296,7 @@ export default function Sidebar() {
             <>
               <Link
                 href="/dashboard/loads/create"
+                onClick={handleNavClick}
                 className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname === "/dashboard/loads/create"
                     ? "bg-emerald-glow shadow-emerald border-emerald"
@@ -305,6 +322,7 @@ export default function Sidebar() {
               
               <Link
                 href="/dashboard/request-driver"
+                onClick={handleNavClick}
                 className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 text-start group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname === "/dashboard/request-driver"
                     ? "bg-emerald-glow shadow-emerald border-emerald"
@@ -333,6 +351,7 @@ export default function Sidebar() {
           {user?.role === "Admin" && (
             <Link
               href="/dashboard/users"
+              onClick={handleNavClick}
               className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
                 pathname.startsWith("/dashboard/users")
                   ? "bg-admin-glow shadow-admin border-admin"
@@ -365,6 +384,7 @@ export default function Sidebar() {
           {user?.role === 'Admin' && (
              <Link
                 href="/dashboard/audit"
+                onClick={handleNavClick}
                 className={`d-flex align-items-center gap-3 rounded-4 text-decoration-none fw-bold transition-all active-scale-95 group position-relative px-3 py-3 w-100 text-nowrap ${
                   pathname.startsWith('/dashboard/audit') 
                   ? 'bg-admin-glow shadow-admin border-admin' 
@@ -379,7 +399,7 @@ export default function Sidebar() {
              </Link>
           )}
 
-          <NotificationBell variant="sidebar" isCollapsed={isCollapsed} />
+          <NotificationBell variant="sidebar" isCollapsed={isCollapsed} onNavClick={handleNavClick} />
         </div>
 
 
@@ -393,7 +413,7 @@ export default function Sidebar() {
             className="rounded-4 border border-white border-opacity-10 p-1 shadow-profile-compact"
             style={{ background: "#0a101f" }}
           >
-            <UserSidebarProfile isCollapsed={isCollapsed} />
+            <UserSidebarProfile isCollapsed={isCollapsed} onNavClick={handleNavClick} />
           </div>
         </div>
 

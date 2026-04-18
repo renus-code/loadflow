@@ -205,6 +205,16 @@ export default function ProfilePage() {
   const ShieldCheckIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>;
   const SaveIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
   const MapIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>;
+  const TwoFactorIcon = ({ active }: { active?: boolean }) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: active ? "drop-shadow(0 0 8px rgba(255, 107, 0, 0.4))" : "none" }}>
+      <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke={active ? "#ff6b00" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M12 11V15" stroke={active ? "#ff6b00" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="8" r="1" fill={active ? "#ff6b00" : "currentColor"}/>
+      <path d="M15 11C15 9.34315 13.6569 8 12 8C10.3431 8 9 9.34315 9 11" stroke={active ? "#ff6b00" : "currentColor"} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M12 18C12.5523 18 13 17.5523 13 17C13 16.4477 12.5523 16 12 16C11.4477 16 11 16.4477 11 17C11 17.5523 11.4477 18 12 18Z" fill={active ? "#ff6b00" : "currentColor"}/>
+    </svg>
+  );
+
   const HashIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>;
 
   return (
@@ -438,8 +448,8 @@ export default function ProfilePage() {
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
                       <div>
                         <div className="d-flex align-items-center gap-3 mb-2">
-                          <div className="d-flex align-items-center justify-content-center rounded-circle" style={{ width: 44, height: 44, background: (user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.15)' : 'rgba(255, 255, 255, 0.05)', border: `1px solid ${(user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.3)' : 'rgba(255, 255, 255, 0.1)'}` }}>
-                            <ShieldCheckIcon />
+                          <div className="d-flex align-items-center justify-content-center rounded-circle" style={{ width: 44, height: 44, background: (user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.15)' : 'rgba(255, 107, 0, 0.1)', border: `1px solid ${(user as any).isTwoFactorEnabled ? 'rgba(43, 221, 102, 0.3)' : 'rgba(255, 107, 0, 0.2)'}` }}>
+                            <TwoFactorIcon active={!(user as any).isTwoFactorEnabled} />
                           </div>
                           <div>
                             <h6 className="text-white fw-bold mb-1 fs-5">Authenticator App</h6>

@@ -18,7 +18,7 @@ const LogOutIcon = () => (
   </svg>
 );
 
-export default function UserSidebarProfile({ isCollapsed = false }: { isCollapsed?: boolean }) {
+export default function UserSidebarProfile({ isCollapsed = false, onNavClick }: { isCollapsed?: boolean; onNavClick?: () => void }) {
   const user = useAuth((state) => state.user);
   const isLoading = useAuth((state) => state.isLoading);
   const logout = useAuth((state) => state.logout);
@@ -87,6 +87,7 @@ export default function UserSidebarProfile({ isCollapsed = false }: { isCollapse
       <div className="d-flex flex-column gap-2">
         <Link
           href="/dashboard/profile"
+          onClick={onNavClick}
           className={`btn d-flex align-items-center gap-3 fw-bold transition-all border-0 shadow-none rounded-4 active-scale-95 group position-relative px-3 py-3 w-100 text-start text-nowrap ${
             isProfileActive 
             ? 'bg-profile-glow shadow-profile border-profile' 
