@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { TableRowSkeleton, MobileCardSkeleton } from "./SkeletonLoaders";
 
 interface AuditLog {
   _id: string;
@@ -162,11 +163,23 @@ export default function AuditLogViewer() {
 
         <div className="card-body p-0 flex-grow-1 overflow-hidden d-flex flex-column">
           {loading && logs.length === 0 ? (
-            <div className="d-flex justify-content-center align-items-center h-100 p-5">
-              <div
-                className="spinner-border text-emerald opacity-50"
-                role="status"
-              ></div>
+            <div className="p-0 flex-grow-1 overflow-hidden">
+              {/* Desktop Skeleton Rows */}
+              <div className="d-none d-lg-block table-responsive">
+                <table className="table align-middle mb-0 custom-table">
+                  <tbody>
+                    {[...Array(8)].map((_, i) => (
+                      <TableRowSkeleton key={i} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Mobile Skeleton Cards */}
+              <div className="d-lg-none p-3">
+                {[...Array(5)].map((_, i) => (
+                  <MobileCardSkeleton key={i} />
+                ))}
+              </div>
             </div>
           ) : (
             <>

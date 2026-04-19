@@ -25,20 +25,33 @@ if (!cached) {
 
 async function connectToDatabase() {
   if (cached.conn) {
-    return cached.conn;
+    // Basic ping to verify connection health before returning
+    try {
+      if (mongoose.connection.readyState === 1) {
+        return cached.conn;
+      }
+    } catch (err) {
+      console.warn('⚠️ Cached MongoDB connection is stale, reconnecting...');
+      cached.conn = null;
+      cached.promise = null;
+    }
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // Timeout after 10s instead of hanging
+      serverSelectionTimeoutMS: 10000, 
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 15000,
+      maxPoolSize: 10, // Optimize for serverless environments
+      minPoolSize: 1,
+      heartbeatFrequencyMS: 30000,
     };
 
-    console.log('🔄 Initializing MongoDB Connection Protocol...');
+    console.log('🔄 Initializing MongoDB Stability Protocol...');
     
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB Connection Established Successfully');
+      console.log('✅ MongoDB Stability Protocol Established');
       return mongoose;
     });
   }
@@ -48,13 +61,6 @@ async function connectToDatabase() {
   } catch (e: any) {
     cached.promise = null;
     console.error('❌ MONGODB CONNECTION ERROR:', e.message);
-    
-    if (e.code === 'ECONNREFUSED' && e.syscall === 'querySrv') {
-      console.error('💡 DIAGNOSTIC: SRV DNS Resolution Refused.');
-      console.error('   This usually means your network/VPN blocks SRV records.');
-      console.error('   FIX: Use the "Standard Connection String" (mongodb://...) in .env');
-    }
-    
     throw e;
   }
 

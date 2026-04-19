@@ -39,6 +39,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,11 +61,14 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className={`${jakarta.variable} ${outfit.variable} bg-light text-dark`} suppressHydrationWarning>
-        <AuthProvider>
-          <BootstrapClient />
-          <PWARegistration />
-          {children}
-        </AuthProvider>
+        <GlobalErrorBoundary>
+          <AuthProvider>
+            <BootstrapClient />
+            <PWARegistration />
+            {children}
+            <div id="portal-root"></div>
+          </AuthProvider>
+        </GlobalErrorBoundary>
       </body>
     </html>
   );

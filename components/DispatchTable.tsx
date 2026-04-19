@@ -66,9 +66,11 @@ export default function DispatchTable({
     };
     const { className, label } = config[status] || { className: 'bg-secondary bg-opacity-20 text-white', label: status.replace('_', ' ') };
 
+    const isPulsing = ['ASSIGNED', 'IN_TRANSIT', 'PICKED_UP'].includes(status);
+    
     return (
       <span className={`badge border rounded-pill px-2 py-1 fw-black text-uppercase d-inline-flex align-items-center gap-1 ${className} shadow-sm`} style={{ fontSize: '9px', letterSpacing: '0.05em' }}>
-        <div className="rounded-circle bg-current" style={{ width: '5px', height: '5px' }}></div>
+        <div className={`rounded-circle bg-current ${isPulsing ? 'pulse' : ''}`} style={{ width: '5px', height: '5px' }}></div>
         {label}
       </span>
     );
@@ -322,16 +324,20 @@ export default function DispatchTable({
                   {(onEdit || onDelete) && (
                     <td className="px-4 text-end" style={{ border: 'none' }} onClick={(e) => e.stopPropagation()}>
                       <div className="d-flex justify-content-end gap-2">
-                         {onEdit && (
-                          <button 
-                            onClick={() => onEdit(load)}
-                            className={`btn btn-sm btn-glass-emerald px-3 rounded-3 fw-bold border-0 shadow-sm ${['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? 'opacity-25 cursor-not-allowed' : ''}`}
-                            title={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? "Finalized or cancelled loads cannot be edited" : "Edit Load"}
-                            disabled={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status)}
-                          >
-                            Edit
-                          </button>
-                         )}
+                          {onEdit && (
+                           <button 
+                             onClick={() => onEdit(load)}
+                             className={`btn btn-sm px-3 rounded-3 fw-bold border-0 shadow-sm ${
+                               ['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) 
+                                 ? 'btn-glass-disabled opacity-50 cursor-not-allowed grayscale' 
+                                 : 'btn-glass-emerald'
+                             }`}
+                             title={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status) ? "Finalized or cancelled loads cannot be edited" : "Edit Load"}
+                             disabled={['DELIVERED', 'COMPLETED', 'CANCELLED'].includes(load.status)}
+                           >
+                             Edit
+                           </button>
+                          )}
                          {onDelete && (user?.role === 'Admin' || user?.role === 'Dispatcher') && (
                           <button 
                             onClick={() => onDelete(load)}
@@ -490,6 +496,13 @@ export default function DispatchTable({
         .glass-pagination-btn:disabled {
           opacity: 0.3;
           cursor: not-allowed;
+        }
+
+        .btn-glass-disabled {
+          background: rgba(255, 255, 255, 0.05) !important;
+          color: rgba(255, 255, 255, 0.4) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          filter: grayscale(1);
         }
       `}</style>
     </div>

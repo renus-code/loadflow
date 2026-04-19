@@ -10,6 +10,7 @@ import FleetSection from "@/components/FleetSection";
 import { useSearch } from "@/context/SearchContext";
 import { ILoad } from "@/models/Load";
 import { useRouter } from "next/navigation";
+import { TableRowSkeleton, MobileCardSkeleton, CardSkeleton } from "@/components/SkeletonLoaders";
 
 // Removed redundant US_STATES and CA_PROVINCES - now using lib/location
 
@@ -214,7 +215,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="container-fluid px-0 animate-fade-in pt-md-5 mt-md-4 mt-lg-0 pt-lg-0"
+      className="container-fluid px-0 page-transition pt-md-5 mt-md-4 mt-lg-0 pt-lg-0"
       style={{ maxWidth: "1600px" }}
     >
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center mb-4 mt-2 gap-3 border-bottom pb-4 border-opacity-10 border-white">
@@ -278,132 +279,140 @@ export default function Dashboard() {
 
           {/* STATS CARDS GRID - PREMIUM GLASS V4 */}
           <div className="row g-4 mb-5">
-            {[
-              {
-                label: "All Loads",
-                value: totalLoadsCount,
-                color: "var(--accent-emerald)",
-                glow: "nebula-glow-emerald",
-                icon: "inventory_2",
-                bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)",
-              },
+            {isLoading ? (
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="col-12 col-sm-6 col-md-4 col-xl">
+                  <CardSkeleton />
+                </div>
+              ))
+            ) : (
+              [
+                {
+                  label: "All Loads",
+                  value: totalLoadsCount,
+                  color: "var(--accent-emerald)",
+                  glow: "nebula-glow-emerald",
+                  icon: "inventory_2",
+                  bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)",
+                },
 
-              {
-                label: "Pending",
-                value: pendingCount,
-                color: "#00d4ff",
-                glow: "nebula-glow-cyan",
-                icon: "pending_actions",
-                bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)",
-              },
+                {
+                  label: "Pending",
+                  value: pendingCount,
+                  color: "#00d4ff",
+                  glow: "nebula-glow-cyan",
+                  icon: "pending_actions",
+                  bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)",
+                },
 
-              {
-                label: "In Transit",
-                value: transitCount,
-                color: "var(--accent-orange)",
-                glow: "nebula-glow-orange",
-                icon: "route",
-                bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)",
-              },
+                {
+                  label: "In Transit",
+                  value: transitCount,
+                  color: "var(--accent-orange)",
+                  glow: "nebula-glow-orange",
+                  icon: "route",
+                  bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)",
+                },
 
-              {
-                label: "Awaiting Verify",
-                value: deliveredCount,
-                color: "#9093ff",
-                glow: "nebula-glow-indigo",
-                icon: "verified_user",
-                bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)",
-              },
+                {
+                  label: "Awaiting Verify",
+                  value: deliveredCount,
+                  color: "#9093ff",
+                  glow: "nebula-glow-indigo",
+                  icon: "verified_user",
+                  bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)",
+                },
 
-              {
-                label: "Completed",
-                value: completedCount,
-                color: "#dee5ff",
-                glow: "",
-                icon: "task_alt",
-                bg: "rgba(255, 255, 255, 0.03)",
-              },
-              {
-                label: "Cancelled",
-                value: cancelledCount,
-                color: "#ef4444",
-                glow: "nebula-glow-red",
-                icon: "cancel",
-                bg: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%)",
-              },
-            ].map((stat, i) => {
-              const statusValue =
-                stat.label === "All Loads"
-                  ? "ALL"
-                  : stat.label === "Pending"
-                    ? "PENDING"
-                    : stat.label === "In Transit"
-                      ? "IN_TRANSIT"
-                      : stat.label === "Awaiting Verify"
-                        ? "AWAITING_VERIFY"
-                        : stat.label === "Completed"
-                          ? "COMPLETED"
-                          : stat.label === "Cancelled"
-                            ? "CANCELLED"
-                            : null;
+                {
+                  label: "Completed",
+                  value: completedCount,
+                  color: "#dee5ff",
+                  glow: "",
+                  icon: "task_alt",
+                  bg: "rgba(255, 255, 255, 0.03)",
+                },
+                {
+                  label: "Cancelled",
+                  value: cancelledCount,
+                  color: "#ef4444",
+                  glow: "nebula-glow-red",
+                  icon: "cancel",
+                  bg: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%)",
+                },
+              ].map((stat, i) => {
+                const statusValue =
+                  stat.label === "All Loads"
+                    ? "ALL"
+                    : stat.label === "Pending"
+                      ? "PENDING"
+                      : stat.label === "In Transit"
+                        ? "IN_TRANSIT"
+                        : stat.label === "Awaiting Verify"
+                          ? "AWAITING_VERIFY"
+                          : stat.label === "Completed"
+                            ? "COMPLETED"
+                            : stat.label === "Cancelled"
+                              ? "CANCELLED"
+                              : null;
 
-              const isActive =
-                statusFilter === statusValue ||
-                (!statusFilter && statusValue === "ALL");
+                const isActive =
+                  statusFilter === statusValue ||
+                  (!statusFilter && statusValue === "ALL");
 
-              return (
-                <div
-                  key={i}
-                  className="col-12 col-sm-6 col-md-4 col-xl"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setStatusFilter(statusValue)}
-                >
+                return (
                   <div
-                    className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all ${isActive ? "active-filter-card" : ""}`}
-                    style={{
-                      animationDelay: `${i * 100}ms`,
-                      background: stat.bg,
-                      border: isActive
-                        ? `1px solid ${stat.color}`
-                        : "1px solid rgba(255,255,255,0.1)",
-                    }}
+                    key={i}
+                    className="col-12 col-sm-6 col-md-4 col-xl"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setStatusFilter(statusValue)}
                   >
                     <div
-                      className="position-absolute top-0 start-0 h-100"
-                      style={{ width: "6px", background: stat.color }}
-                    ></div>
-                    <p
-                      className="text-uppercase fw-black mb-4"
+                      className={`glass-card-stitch p-4 rounded-4 position-relative overflow-hidden group ${stat.glow} h-100 d-flex flex-column animate-slide-up hover-float transition-all ${isActive ? "active-filter-card" : ""}`}
                       style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.15rem",
-                        color: "#ffffff",
-                        opacity: 0.6,
+                        animationDelay: `${i * 100}ms`,
+                        background: stat.bg,
+                        border: isActive
+                          ? `1px solid ${stat.color}`
+                          : "1px solid rgba(255,255,255,0.1)",
                       }}
                     >
-                      {stat.label}
-                    </p>
-                    <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
-                      <h3
-                        className="fw-black mb-0"
+                      <div
+                        className="position-absolute top-0 start-0 h-100"
+                        style={{ width: "6px", background: stat.color }}
+                      ></div>
+                      <p
+                        className="text-uppercase fw-black mb-4"
                         style={{
-                          color: "#fff",
-                          fontSize: "clamp(2rem, 8vw, 3.5rem)",
-                          fontFamily: "var(--font-syne)",
-                          letterSpacing: "-0.05em",
-                          lineHeight: "1",
+                          fontSize: "11px",
+                          letterSpacing: "0.15rem",
+                          color: "#ffffff",
+                          opacity: 0.6,
                         }}
                       >
-                        {stat.value}
-                      </h3>
-                      <span className="material-symbols-outlined stat-icon-bg">
-                        {stat.icon}
-                      </span>
+                        {stat.label}
+                      </p>
+                      <div className="d-flex align-items-end justify-content-between mt-auto position-relative z-index-2">
+                        <h3
+                          className="fw-black mb-0"
+                          style={{
+                            color: "#fff",
+                            fontSize: "clamp(2rem, 8vw, 3.5rem)",
+                            fontFamily: "var(--font-syne)",
+                            letterSpacing: "-0.05em",
+                            lineHeight: "1",
+                          }}
+                        >
+                          {stat.value}
+                        </h3>
+                        <span className="material-symbols-outlined stat-icon-bg">
+                          {stat.icon}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* DISPATCH table SECTION - GLASS V4 */}
@@ -486,11 +495,24 @@ export default function Dashboard() {
             <div className="card-body p-0">
               <div className="table-responsive">
                 {isLoading || !user ? (
-                  <div className="d-flex justify-content-center p-5">
-                    <div className="spinner-border text-emerald" role="status">
-                      <span className="visually-hidden">Loading...</span>
+                  <>
+                    {/* Desktop Skeleton Rows */}
+                    <div className="d-none d-lg-block">
+                      <table className="table align-middle mb-0 custom-table">
+                        <tbody>
+                          {[...Array(5)].map((_, i) => (
+                            <TableRowSkeleton key={i} />
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </div>
+                    {/* Mobile Skeleton Cards */}
+                    <div className="d-lg-none">
+                      {[...Array(3)].map((_, i) => (
+                        <MobileCardSkeleton key={i} />
+                      ))}
+                    </div>
+                  </>
                 ) : filteredLoads.length === 0 ? (
                   <div className="text-center py-5">
                     <div className="opacity-10 mb-4 d-flex justify-content-center text-white">

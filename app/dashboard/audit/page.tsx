@@ -29,7 +29,7 @@ export default async function AuditLogsPage() {
     });
 
     return (
-      <div className="container-fluid px-0 dashboard-page-container animate-fade-in" style={{ maxWidth: "1600px" }}>
+      <div className="container-fluid px-0 dashboard-page-container page-transition" style={{ maxWidth: "1600px" }}>
         {/* DASHBOARD HEADER */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
           <div className="text-start">
