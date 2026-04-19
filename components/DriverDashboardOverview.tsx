@@ -476,55 +476,52 @@ export default function DriverDashboardOverview({
 
                   <div className="col-12 col-md-7 d-flex align-items-center">
                     <div
-                      className="w-100 glass-card-premium p-4 shadow-lg glass-shine"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(5, 7, 10, 0.9) 100%)",
-                      }}
+                      className="w-100 glass-card-black p-4 shadow-2xl overflow-hidden"
                     >
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <span className="small fw-black text-white tracking-widest text-glow-primary">
+                        <span className="small fw-black text-white tracking-widest opacity-80" style={{ letterSpacing: '0.15rem' }}>
                           PROGRESS
                         </span>
-                        <span className="small fw-black text-emerald text-glow-emerald">
+                        <span className="small fw-black text-emerald text-glow-emerald tracking-widest" style={{ letterSpacing: '0.1rem' }}>
                           ON TIME
                         </span>
                       </div>
                       <div
-                        className="progress-premium-wrapper mb-4"
-                        style={{ height: "18px" }}
+                        className="progress-premium-wrapper mb-4 rounded-pill"
+                        style={{ height: "12px", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}
                       >
                         <div
-                          className="progress-premium-fill"
+                          className="progress-premium-fill rounded-pill"
                           style={{
                             width: `${getProgress(activeLoad.status)}%`,
-                            background:
-                              "linear-gradient(90deg, #6366f1, #3b82f6)",
-                            boxShadow: "0 0 15px rgba(99, 102, 241, 0.4)",
+                            background: "linear-gradient(90deg, #6366f1, #3b82f6, #00d4ff)",
+                            boxShadow: "0 0 20px rgba(99, 102, 241, 0.6)",
+                            height: '100%'
                           }}
                         ></div>
                       </div>
-                      <div className="d-flex justify-content-between mt-3">
+                      <div className="d-flex justify-content-between mt-3 px-1">
                         <div className="text-center">
-                          <div className="x-small fw-black text-white opacity-30 text-uppercase mb-1">
+                          <div className="xx-small fw-black text-white opacity-40 text-uppercase mb-1 tracking-widest">
                             Origin
                           </div>
-                          <div className="small fw-bold text-white">
+                          <div className="small fw-bold text-white fs-6">
                             {activeLoad.pickups[0].city}
                           </div>
                         </div>
                         <div className="text-center">
-                          <div className="x-small fw-black text-white opacity-30 text-uppercase mb-1">
+                          <div className="xx-small fw-black text-white opacity-40 text-uppercase mb-1 tracking-widest">
                             Status
                           </div>
-                          <div className="small fw-bold text-emerald">
+                          <div className="small fw-bold text-emerald fs-6">
                             {getStatusDisplay(activeLoad.status)}
                           </div>
                         </div>
                         <div className="text-center">
-                          <div className="x-small fw-black text-white opacity-30 text-uppercase mb-1">
+                          <div className="xx-small fw-black text-white opacity-40 text-uppercase mb-1 tracking-widest">
                             Target
                           </div>
-                          <div className="small fw-bold text-white">
+                          <div className="small fw-bold text-white fs-6">
                             {activeLoad.deliveries[0].city}
                           </div>
                         </div>

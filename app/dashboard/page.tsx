@@ -319,7 +319,7 @@ export default function Dashboard() {
                   color: "var(--accent-emerald)",
                   glow: "nebula-glow-emerald",
                   icon: "inventory_2",
-                  bg: "linear-gradient(135deg, rgba(43, 221, 102, 0.12) 0%, rgba(43, 221, 102, 0.05) 100%)",
+                  bg: "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(43, 221, 102, 0.1) 100%)",
                 },
 
                 {
@@ -328,7 +328,7 @@ export default function Dashboard() {
                   color: "#00d4ff",
                   glow: "nebula-glow-cyan",
                   icon: "pending_actions",
-                  bg: "linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 212, 255, 0.05) 100%)",
+                  bg: "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 212, 255, 0.1) 100%)",
                 },
 
                 {
@@ -337,7 +337,7 @@ export default function Dashboard() {
                   color: "var(--accent-orange)",
                   glow: "nebula-glow-orange",
                   icon: "route",
-                  bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.05) 100%)",
+                  bg: "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(255, 140, 0, 0.1) 100%)",
                 },
 
                 {
@@ -346,7 +346,7 @@ export default function Dashboard() {
                   color: "#9093ff",
                   glow: "nebula-glow-indigo",
                   icon: "verified_user",
-                  bg: "linear-gradient(135deg, rgba(144, 147, 255, 0.12) 0%, rgba(144, 147, 255, 0.05) 100%)",
+                  bg: "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(144, 147, 255, 0.1) 100%)",
                 },
 
                 {
@@ -355,7 +355,7 @@ export default function Dashboard() {
                   color: "#dee5ff",
                   glow: "",
                   icon: "task_alt",
-                  bg: "rgba(255, 255, 255, 0.03)",
+                  bg: "rgba(0, 0, 0, 0.9)",
                 },
                 {
                   label: "Cancelled",
@@ -363,7 +363,7 @@ export default function Dashboard() {
                   color: "#ef4444",
                   glow: "nebula-glow-red",
                   icon: "cancel",
-                  bg: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%)",
+                  bg: "linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(239, 68, 68, 0.1) 100%)",
                 },
               ].map((stat, i) => {
                 const statusValue =

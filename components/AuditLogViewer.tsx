@@ -160,15 +160,13 @@ export default function AuditLogViewer() {
     <div className="animate-fade-in">
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
         <div
-          className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex justify-content-start align-items-center"
-          style={{ background: "rgba(0,0,0,0.2)" }}
+          className="card-header border-bottom border-white border-opacity-05 px-4 px-md-5 py-4 d-flex justify-content-start align-items-center bg-transparent"
         >
           <h2
-            className="fs-3 text-white m-0 tracking-tight text-start"
+            className="fs-3 fw-black text-white m-0 tracking-tight text-start"
             style={{
               fontFamily: "var(--font-syne)",
               letterSpacing: "-0.04em",
-              fontWeight: 900,
             }}
           >
             <span className="text-gradient-emerald">Audit</span> Logs

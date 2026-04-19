@@ -213,20 +213,33 @@ body {
 
 /* ─── PREMIUM DESIGN SYSTEM ────────────────────────────────────────────── */
 .glass-card-premium {
-  background: var(--glass-card-premium);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--glass-border-premium);
+  background: rgba(10, 15, 30, 0.7) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow:
-    0 4px 24px -1px rgba(0, 0, 0, 0.2),
+    0 20px 40px -10px rgba(0, 0, 0, 0.5),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 32px !important;
 }
 
 .glass-card-premium:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  background: rgba(15, 20, 35, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+}
+
+.glass-card-black {
+  background: rgba(0, 0, 0, 0.85) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 
+    0 40px 100px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  border-radius: 40px !important;
 }
 
 .shadow-glow-emerald {
@@ -424,10 +437,27 @@ body {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(10, 15, 30, 0.8) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.glass-card-stitch {
+  background: rgba(6, 10, 20, 0.8) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.glass-card-stitch:hover {
+  background: rgba(10, 15, 30, 0.9) !important;
+  transform: translateY(-5px) scale(1.01);
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.6) !important;
 }
 
 .bg-mesh-gradient {
@@ -472,14 +502,7 @@ body {
   color: #dee5ff !important;
 }
 
-.glass-card-stitch {
-  background: rgba(15, 25, 50, 0.65) !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
+
 
 .premium-header-accent {
   position: relative;
@@ -520,13 +543,7 @@ body {
   transform: rotate(0deg) scale(1.15);
 }
 
-.glass-card-stitch {
-  background: rgba(10, 20, 42, 0.65) !important;
-  backdrop-filter: blur(32px) saturate(150%);
-  -webkit-backdrop-filter: blur(32px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
-}
+
 
 .mesh-gradient-premium {
   /* Legacy fallback, kept for compatibility */

@@ -731,16 +731,14 @@ export default function UserManagement() {
     <>
       <div className="card border-0 shadow-lg rounded-5 overflow-hidden glass-card animate-slide-up">
         <div
-          className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex flex-wrap justify-content-between align-items-center gap-3"
-          style={{ background: "rgba(255,255,255,0.02)" }}
+          className="card-header border-bottom border-white border-opacity-05 px-4 px-md-5 py-4 d-flex flex-wrap justify-content-between align-items-center gap-3 bg-transparent"
         >
           <div className="d-flex flex-column align-items-start">
             <h2
-              className="fs-3 text-white m-0 tracking-tight"
+              className="fs-3 fw-black text-white m-0 tracking-tight"
               style={{
                 fontFamily: "var(--font-syne)",
                 letterSpacing: "-0.04em",
-                fontWeight: 900,
               }}
             >
               <span className="text-gradient-emerald">Manage</span> Users

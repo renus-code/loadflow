@@ -45,11 +45,11 @@ export default async function AuditLogsPage() {
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
           <div className="text-start">
             <h1
-              className="display-6 fw-black text-white m-0 tracking-tight"
+              className="display-6 text-white m-0 tracking-tight"
               style={{
                 fontFamily: "var(--font-syne)",
                 letterSpacing: "-0.04em",
-                fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
+                fontWeight: 900,
               }}
             >
               <span className="text-gradient-emerald">Admin</span> Dashboard
