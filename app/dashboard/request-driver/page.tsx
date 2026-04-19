@@ -16,6 +16,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import SystemTimeDisplay from "@/components/SystemTimeDisplay";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface DriverRequestFields {
@@ -95,12 +96,7 @@ export default function RequestDriverPage() {
     );
   }
 
-  const todayStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+
 
   return (
     <div className="container-fluid px-0 px-md-3 animate-fade-in position-relative d-flex flex-column" style={{ maxWidth: "1600px", height: "100%" }}>
@@ -109,17 +105,16 @@ export default function RequestDriverPage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
         <div className="text-start">
           <h1
-            className="display-6 text-white m-0 tracking-tight"
-            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em", fontWeight: 900 }}
+            className="display-6 fw-black text-white m-0 tracking-tight"
+            style={{ 
+              fontFamily: "var(--font-syne)", 
+              letterSpacing: "-0.04em",
+              fontSize: "clamp(1.75rem, 5vw, 2.5rem)" 
+            }}
           >
             <span className="text-gradient-emerald">Dispatcher</span> Dashboard
           </h1>
-          <p
-            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
-            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
-          >
-            {todayStr}
-          </p>
+          <SystemTimeDisplay />
         </div>
         
         <div className="d-flex gap-2">

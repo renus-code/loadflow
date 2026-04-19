@@ -100,6 +100,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -151,18 +152,17 @@ body {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.03) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
   border-radius: 4px;
@@ -173,10 +173,12 @@ body {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
   }
+
   70% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
@@ -188,8 +190,13 @@ body {
 }
 
 @keyframes backdropFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalFloatIn {
@@ -197,6 +204,7 @@ body {
     opacity: 0;
     transform: translateY(30px) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -448,7 +456,8 @@ body {
 /* ─── HYPER-PREMIUM THEME──────────────────────────── */
 .premium-bg {
   min-height: 100vh;
-  background-color: #0a142a; /* Fallback dark color */
+  background-color: #0a142a;
+  /* Fallback dark color */
 }
 
 /* BOOTSTRAP OVERRIDES FOR PREMIUM GLASS */
@@ -874,12 +883,14 @@ iframe {
 
 /* Custom hover colors based on scroll state */
 .nav-link-light:hover {
-  color: #00ffa3 !important; /* Brighter Neon for Hero */
+  color: #00ffa3 !important;
+  /* Brighter Neon for Hero */
   text-shadow: 0 0 15px rgba(0, 255, 163, 0.6);
 }
 
 .nav-link-dark:hover {
-  color: var(--accent-emerald) !important; /* Brand Emerald for White Nav */
+  color: var(--accent-emerald) !important;
+  /* Brand Emerald for White Nav */
 }
 
 .nav-pill-hover:hover::after {
@@ -933,11 +944,9 @@ iframe {
 }
 
 .bg-emerald-glow {
-  background: linear-gradient(
-    135deg,
-    rgba(43, 221, 102, 0.2) 0%,
-    rgba(43, 221, 102, 0.05) 100%
-  ) !important;
+  background: linear-gradient(135deg,
+      rgba(43, 221, 102, 0.2) 0%,
+      rgba(43, 221, 102, 0.05) 100%) !important;
   border: 1px solid rgba(43, 221, 102, 0.2) !important;
   box-shadow: 0 0 30px rgba(43, 221, 102, 0.1);
 }
@@ -951,11 +960,9 @@ iframe {
 }
 
 .bg-admin-glow {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 64, 175, 0.2) 0%,
-    rgba(30, 64, 175, 0.05) 100%
-  ) !important;
+  background: linear-gradient(135deg,
+      rgba(30, 64, 175, 0.2) 0%,
+      rgba(30, 64, 175, 0.05) 100%) !important;
   border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 
@@ -976,8 +983,17 @@ iframe {
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.8)); }
-  50% { opacity: 0.8; filter: drop-shadow(0 0 16px rgba(0, 212, 255, 1)); }
+
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.8));
+  }
+
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 16px rgba(0, 212, 255, 1));
+  }
 }
 
 .animate-pulse-soft {
@@ -986,7 +1002,7 @@ iframe {
 
 .text-glow-cyan {
   color: #00d4ff !important;
-  text-shadow: 
+  text-shadow:
     0 0 10px rgba(0, 212, 255, 0.8),
     0 0 20px rgba(0, 119, 255, 0.6),
     0 0 30px rgba(0, 119, 255, 0.4);
@@ -994,13 +1010,25 @@ iframe {
 }
 
 @keyframes float-gentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-float-gentle {
@@ -1010,4 +1038,140 @@ iframe {
 .animate-spin-slow {
   animation: spin-slow 8s infinite linear;
 }
-
+
+/* --- PREMIUM PROGRESS BAR ENHANCEMENTS (LIQUID AMBER EDITION) --- */
+.progress-premium-wrapper {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50px;
+  padding: 3px;
+  /* Deep layered inset for a smooth "hollow" effect */
+  box-shadow:
+    inset 0 2px 10px rgba(0, 0, 0, 0.8),
+    inset 0 1px 3px rgba(0, 0, 0, 0.4),
+    0 1px 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-premium-fill {
+  height: 100%;
+  border-radius: 100px;
+  /* Cyber Gold/Amber Gradient */
+  background: linear-gradient(270deg, #ff8c00, #ffbb00, #f97316, #fbbf24);
+  background-size: 400% 400%;
+  position: relative;
+  box-shadow: 0 0 25px rgba(255, 140, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: progress-liquid 8s ease infinite, progress-glow-pulse 3s infinite ease-in-out;
+  overflow: hidden;
+}
+
+/* Liquid/Wave Overlay */
+.progress-premium-fill::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(45deg,
+      rgba(255, 255, 255, 0.15) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.15) 75%,
+      transparent 75%,
+      transparent);
+  background-size: 30px 30px;
+  animation: progress-wave-move 1s linear infinite;
+  opacity: 0.4;
+}
+
+/* Shine Sweep Overlay */
+.progress-premium-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%);
+  animation: progress-shine-ultra 2.5s infinite ease-in-out;
+}
+
+@keyframes progress-liquid {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes progress-wave-move {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 30px 0;
+  }
+}
+
+@keyframes progress-shine-ultra {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes progress-glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 35px rgba(255, 140, 0, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* --- PREMIUM GLASS CARD SYSTEM --- */
+.glass-card-premium {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(5, 7, 10, 0.8) 100%);
+  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2.5rem;
+  /* Multi-layered soft shadows for high-fidelity elevation */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    inset 0 0 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-premium:hover {
+  transform: translateY(-5px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.3),
+    0 30px 70px rgba(0, 0, 0, 0.8),
+    inset 0 1px 3px rgba(255, 255, 255, 0.2);
+}

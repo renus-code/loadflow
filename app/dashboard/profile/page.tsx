@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import PasswordStrength from "@/components/PasswordStrength";
+import SystemTimeDisplay from "@/components/SystemTimeDisplay";
 
 type ProfileFormData = {
   firstName: string;
@@ -200,12 +201,7 @@ export default function ProfilePage() {
     }
   };
 
-  const todayStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+
 
   if (!user) return null;
 
@@ -236,16 +232,15 @@ export default function ProfilePage() {
         <div className="text-start">
           <h1
             className="display-6 fw-black text-white m-0 tracking-tight"
-            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em", fontWeight: 900 }}
+            style={{ 
+              fontFamily: "var(--font-syne)", 
+              letterSpacing: "-0.04em",
+              fontSize: "clamp(1.75rem, 5vw, 2.5rem)" 
+            }}
           >
             My <span className="text-gradient-emerald" style={{ fontWeight: 900 }}>Profile</span>
           </h1>
-          <p
-            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
-            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
-          >
-            {todayStr} • PERSONAL SETTINGS
-          </p>
+          <SystemTimeDisplay />
         </div>
       </div>
       <div className="row justify-content-center">

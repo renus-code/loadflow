@@ -591,28 +591,68 @@ export default function UserManagement() {
     return (
       <div className="mt-3 pt-3 border-top border-white border-opacity-10">
         <div className="d-flex flex-wrap gap-2">
-          {u.isLocked && isAdmin && (u.role !== "Admin" || u._id === currentUser?.id) && (
-            <button onClick={() => handleUnlock(u._id)} className="btn btn-sm fw-black rounded-pill py-2 px-3 shadow-sm flex-grow-1" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white', border: 'none', fontSize: '0.7rem' }}>
-              UNLOCK
-            </button>
-          )}
+          {u.isLocked &&
+            isAdmin &&
+            (u.role !== "Admin" || u._id === currentUser?.id) && (
+              <button
+                onClick={() => handleUnlock(u._id)}
+                className="btn btn-sm fw-black rounded-pill py-2 px-3 shadow-sm flex-grow-1"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                  color: "white",
+                  border: "none",
+                  fontSize: "0.7rem",
+                }}
+              >
+                UNLOCK
+              </button>
+            )}
           {u.resetPasswordRequested && isAdmin && (
-            <button onClick={() => handleApproveReset(u._id)} className="btn btn-sm btn-success fw-black rounded-pill py-2 px-3 shadow-sm flex-grow-1" style={{ fontSize: '0.7rem' }}>
+            <button
+              onClick={() => handleApproveReset(u._id)}
+              className="btn btn-sm btn-success fw-black rounded-pill py-2 px-3 shadow-sm flex-grow-1"
+              style={{ fontSize: "0.7rem" }}
+            >
               APPROVE RESET
             </button>
           )}
           {isAdmin && (
-            <button onClick={() => handleRevokeSession(u)} className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm" style={{ background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', fontSize: '0.7rem' }}>
+            <button
+              onClick={() => handleRevokeSession(u)}
+              className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm"
+              style={{
+                background: "rgba(245, 158, 11, 0.2)",
+                color: "#fbbf24",
+                fontSize: "0.7rem",
+              }}
+            >
               REVOKE
             </button>
           )}
           {isAdmin && (u.role !== "Admin" || u._id === currentUser?.id) && (
-            <button onClick={() => openEditModal(u)} className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', fontSize: '0.7rem' }}>
+            <button
+              onClick={() => openEditModal(u)}
+              className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm"
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                color: "#fff",
+                fontSize: "0.7rem",
+              }}
+            >
               EDIT
             </button>
           )}
           {isAdmin && u.role !== "Admin" && (
-            <button onClick={() => handleDelete(u)} className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontSize: '0.7rem' }}>
+            <button
+              onClick={() => handleDelete(u)}
+              className="btn btn-sm fw-black rounded-pill py-2 px-3 flex-grow-1 border-0 shadow-sm"
+              style={{
+                background: "rgba(239, 68, 68, 0.2)",
+                color: "#f87171",
+                fontSize: "0.7rem",
+              }}
+            >
               DELETE
             </button>
           )}
@@ -622,33 +662,61 @@ export default function UserManagement() {
   };
 
   const MobileUserCard = ({ user: u }: { user: User }) => (
-    <div 
+    <div
       className="glass-card-stitch rounded-4 p-4 mb-3 border border-white border-opacity-10 shadow-lg animate-fade-in"
-      style={{ 
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)'
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}
     >
       <div className="d-flex justify-content-between align-items-start mb-3">
         <div className="d-flex align-items-center gap-3">
-          <div className="rounded-circle bg-dark bg-opacity-50 d-flex align-items-center justify-content-center fw-black text-white"
-               style={{ width: '40px', height: '40px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            className="rounded-circle bg-dark bg-opacity-50 d-flex align-items-center justify-content-center fw-black text-white"
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
             {u.name.charAt(0).toUpperCase()}
           </div>
-          <div className="d-flex flex-column" style={{ maxWidth: '140px' }}>
-            <span className="fw-black text-white fs-6 mb-0 text-truncate">{u.name}</span>
-            <span className="text-white text-opacity-40 fw-medium text-truncate" style={{ fontSize: '0.65rem' }}>{u.email}</span>
+          <div className="d-flex flex-column" style={{ maxWidth: "140px" }}>
+            <span className="fw-black text-white fs-6 mb-0 text-truncate">
+              {u.name}
+            </span>
+            <span
+              className="text-white text-opacity-40 fw-medium text-truncate"
+              style={{ fontSize: "0.65rem" }}
+            >
+              {u.email}
+            </span>
           </div>
         </div>
         <div className="d-flex flex-column align-items-end gap-1 flex-shrink-0">
-          <span className={`badge rounded-pill fw-black px-3 py-2 shadow-sm ${
-            u.role === "Admin" ? "role-badge-admin" : u.role === "Dispatcher" ? "role-badge-dispatcher" : "role-badge-driver"
-          }`} style={{ fontSize: '9px', letterSpacing: '0.05em', minWidth: '80px', textAlign: 'center' }}>
+          <span
+            className={`badge rounded-pill fw-black px-3 py-2 shadow-sm ${
+              u.role === "Admin"
+                ? "role-badge-admin"
+                : u.role === "Dispatcher"
+                  ? "role-badge-dispatcher"
+                  : "role-badge-driver"
+            }`}
+            style={{
+              fontSize: "9px",
+              letterSpacing: "0.05em",
+              minWidth: "80px",
+              textAlign: "center",
+            }}
+          >
             {u.role.toUpperCase()}
           </span>
           {u.isPending && (
-            <span className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-black mt-1" style={{ width: '100%', textAlign: 'center' }}>
+            <span
+              className="badge rounded-pill bg-warning bg-opacity-10 text-warning px-2 py-1 x-small fw-black mt-1"
+              style={{ width: "100%", textAlign: "center" }}
+            >
               PENDING
             </span>
           )}
@@ -666,16 +734,18 @@ export default function UserManagement() {
           className="card-header border-bottom border-white border-opacity-10 px-4 px-md-5 py-4 d-flex flex-wrap justify-content-between align-items-center gap-3"
           style={{ background: "rgba(255,255,255,0.02)" }}
         >
-          <h2
-            className="fs-3 text-white m-0 tracking-tight"
-            style={{
-              fontFamily: "var(--font-syne)",
-              letterSpacing: "-0.04em",
-              fontWeight: 900,
-            }}
-          >
-            <span className="text-gradient-emerald">Manage</span> Users
-          </h2>
+          <div className="d-flex flex-column align-items-start">
+            <h2
+              className="fs-3 text-white m-0 tracking-tight"
+              style={{
+                fontFamily: "var(--font-syne)",
+                letterSpacing: "-0.04em",
+                fontWeight: 900,
+              }}
+            >
+              <span className="text-gradient-emerald">Manage</span> Users
+            </h2>
+          </div>
 
           <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 ms-auto w-100 w-md-auto mt-3 mt-md-0">
             {/* COMPACT SEARCH */}
@@ -737,7 +807,7 @@ export default function UserManagement() {
             <button
               onClick={openCreateModal}
               className="btn bg-gradient-primary text-white fw-bold d-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-pill shadow-sm hover-float transition-all border-0"
-              style={{ fontSize: "0.85rem", whiteSpace: 'nowrap' }}
+              style={{ fontSize: "0.85rem", whiteSpace: "nowrap" }}
             >
               <UserPlusIcon />
               {isDispatcher ? "Request Driver" : "Invite User"}
@@ -965,7 +1035,9 @@ export default function UserManagement() {
               </div>
             ) : currentUsers.length === 0 ? (
               <div className="text-center py-5 text-white opacity-50 fw-bold">
-                {isDispatcher ? "No requested drivers found." : "No users found."}
+                {isDispatcher
+                  ? "No requested drivers found."
+                  : "No users found."}
               </div>
             ) : (
               currentUsers.map((u) => <MobileUserCard key={u._id} user={u} />)

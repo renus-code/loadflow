@@ -3,7 +3,7 @@
  * PAGE: Fleet Personnel Roster (/dashboard/users)
  * ======================================================================================
  * The administrative command center for managing human assets across the platform.
- * 
+ *
  * Features:
  * 1. Component Injection: Encapsulates heavy data-table logic within the UserManagement component.
  * 2. Global State Reset: Clears persistent Zustand search queries upon unmounting to prevent pollution.
@@ -13,6 +13,7 @@
 "use client";
 
 import UserManagement from "@/components/UserManagement";
+import SystemTimeDisplay from "@/components/SystemTimeDisplay";
 import { useAuth } from "@/context/AuthContext";
 import { useSearch } from "@/context/SearchContext";
 import { useRouter } from "next/navigation";
@@ -30,8 +31,11 @@ export default function UsersPage() {
   }, [setSearchTerm]);
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== 'Admin' && user.role !== 'Dispatcher'))) {
-      router.push('/dashboard');
+    if (
+      !isLoading &&
+      (!user || (user.role !== "Admin" && user.role !== "Dispatcher"))
+    ) {
+      router.push("/dashboard");
     }
   }, [user, isLoading, router]);
 
@@ -45,16 +49,9 @@ export default function UsersPage() {
     );
   }
 
-  if (!user || user.role !== 'Admin') {
+  if (!user || user.role !== "Admin") {
     return null; // Will redirect via useEffect
   }
-
-  const todayStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <div
@@ -65,24 +62,30 @@ export default function UsersPage() {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
         <div className="text-start">
           <h1
-            className="display-6 text-white m-0 tracking-tight"
-            style={{ fontFamily: "var(--font-syne)", letterSpacing: "-0.04em", fontWeight: 900 }}
+            className="display-6 fw-black text-white m-0 tracking-tight"
+            style={{ 
+              fontFamily: "var(--font-syne)", 
+              letterSpacing: "-0.04em",
+              fontSize: "clamp(1.75rem, 5vw, 2.5rem)" 
+            }}
           >
             <span className="text-gradient-emerald">{user?.role || "User"}</span>{" "}
             Dashboard
           </h1>
-          <p
-            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
-            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
-          >
-            {todayStr}
-          </p>
+
+          <SystemTimeDisplay />
         </div>
       </div>
 
       <div className="row justify-content-center">
         <div className="col-12 px-2">
-          <Suspense fallback={<div className="text-white opacity-50 p-4">Loading Management...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-white opacity-50 p-4">
+                Loading Management...
+              </div>
+            }
+          >
             <UserManagement />
           </Suspense>
         </div>

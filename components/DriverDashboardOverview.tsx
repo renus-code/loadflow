@@ -3,7 +3,7 @@
  * COMPONENT: DriverDashboardOverview (The "Mission Command" Interface)
  * ======================================================================================
  * The primary mission-critical hub for drivers, optimized for real-time operation.
- * 
+ *
  * Features:
  * 1. Operational Intelligence: Live weather and traffic monitoring based on active route.
  * 2. Visual Parity: Synchronized duration metrics with the core Logistics Nexus (LoadDetails).
@@ -476,11 +476,9 @@ export default function DriverDashboardOverview({
 
                   <div className="col-12 col-md-7 d-flex align-items-center">
                     <div
-                      className="w-100 p-4 rounded-5 border border-white border-opacity-10 shadow-lg"
+                      className="w-100 glass-card-premium p-4 shadow-lg glass-shine"
                       style={{
-                        background: "rgba(255, 255, 255, 0.03)",
-                        backdropFilter: "blur(20px)",
-                        boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+                        background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(5, 7, 10, 0.9) 100%)",
                       }}
                     >
                       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -492,14 +490,16 @@ export default function DriverDashboardOverview({
                         </span>
                       </div>
                       <div
-                        className="progress rounded-pill bg-white bg-opacity-5 mb-4"
-                        style={{ height: "14px", padding: "2px" }}
+                        className="progress-premium-wrapper mb-4"
+                        style={{ height: "18px" }}
                       >
                         <div
-                          className="progress-bar progress-bar-striped progress-bar-animated bg-emerald rounded-pill"
+                          className="progress-premium-fill"
                           style={{
                             width: `${getProgress(activeLoad.status)}%`,
-                            boxShadow: "0 0 15px rgba(43, 221, 102, 0.5)",
+                            background:
+                              "linear-gradient(90deg, #6366f1, #3b82f6)",
+                            boxShadow: "0 0 15px rgba(99, 102, 241, 0.4)",
                           }}
                         ></div>
                       </div>
@@ -558,7 +558,7 @@ export default function DriverDashboardOverview({
         {/* PERFORMANCE QUICK STATS */}
         <div className="col-12 col-xl-4">
           <div className="d-flex flex-column gap-4 h-100">
-            {/* Service Hours Card */}
+            {/* Total Hours Card */}
             <div
               className="glass-card-stitch p-4 rounded-5 border border-white border-opacity-10 position-relative overflow-hidden hover-float transition-all flex-grow-1"
               style={{
@@ -588,7 +588,7 @@ export default function DriverDashboardOverview({
                 </div>
                 <div>
                   <div className="x-small text-uppercase tracking-widest text-white opacity-40 fw-black mb-1">
-                    Service Hours
+                    Total Hours
                   </div>
                   <div
                     className="h1 fw-black text-white m-0 d-flex align-items-baseline gap-1"
@@ -623,7 +623,7 @@ export default function DriverDashboardOverview({
               </div>
             </div>
 
-            {/* Miles Card */}
+            {/* Total Miles Card */}
             <div
               className="glass-card-stitch p-4 rounded-5 border border-white border-opacity-10 position-relative overflow-hidden hover-float transition-all flex-grow-1"
               style={{
@@ -651,7 +651,7 @@ export default function DriverDashboardOverview({
                 </div>
                 <div>
                   <div className="x-small text-uppercase tracking-widest text-white opacity-40 fw-black mb-1">
-                    Miles
+                    Total Miles
                   </div>
                   <div
                     className="h1 fw-black text-white m-0"
@@ -714,7 +714,7 @@ export default function DriverDashboardOverview({
                     }}
                   >
                     {stats.completed}
-                    <span className="fs-5 fw-bold text-white">
+                    <span className="fs-6 fw-black text-cyan opacity-75" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '0.15em', marginLeft: '4px' }}>
                       {stats.completed === 1 ? "LOAD" : "LOADS"}
                     </span>
                   </div>

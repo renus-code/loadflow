@@ -88,7 +88,7 @@ This document serves as the formal API contract between the Next.js Client and t
 ### 2.3 Loads Management
 - **Method & Path:** `GET /api/loads`
 - **Purpose:** Fetch all loads (filtered by role: Drivers see assigned, Dispatchers/Admins see all).
-- **Dashboard Logic:** Drivers' performance cards (Miles, Service Hours) are calculated from `totalDistance` and `estimatedDuration` fields of all non-cancelled loads.
+- **Dashboard Logic:** Drivers' performance cards (Total Miles, Total Hours) are calculated from `totalDistance` and `estimatedDuration` fields of all non-cancelled loads.
 - **Method & Path:** `POST /api/loads`
 - **Auth Required:** Yes (Dispatcher/Admin)
 - **Request JSON:** Includes `loadNumber`, `commodity`, `pickups`, `deliveries`, `quantity`, `weight`.

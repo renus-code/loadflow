@@ -11,6 +11,7 @@ This document maps the structure and transformation of the data throughout the s
 These represent the structures exactly as stored in our NoSQL database. They contain internal-only fields and relational ObjectIds.
 
 ### 1. User Entity (Logistics Personnel)
+
 ```json
 {
   "_id": "ObjectId('64b1f8...')",
@@ -37,38 +38,40 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "updatedAt": "timestamp"
 }
 ```
-*Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup.*
+
+_Notice: `isPending` is a critical state flag. If `true`, the user has been invited but has not yet completed their secure setup._
 
 ### 2. Load Entity (Multi-Stop Unified Routing)
+
 ```json
 {
   "_id": "ObjectId('64b1f9...')",
   "loadNumber": "string",
   "commodity": "string",
   "pickups": [
-    { 
-      "address": "string", 
-      "city": "string", 
-      "state": "string", 
-      "date": "timestamp", 
-      "appointmentNumber": "string", 
-      "status": "string (PENDING | PICKED_UP)" 
+    {
+      "address": "string",
+      "city": "string",
+      "state": "string",
+      "date": "timestamp",
+      "appointmentNumber": "string",
+      "status": "string (PENDING | PICKED_UP)"
     }
   ],
   "deliveries": [
-    { 
-      "address": "string", 
-      "city": "string", 
-      "state": "string", 
-      "date": "timestamp", 
-      "appointmentNumber": "string", 
-      "status": "string (PENDING | DELIVERED)" 
+    {
+      "address": "string",
+      "city": "string",
+      "state": "string",
+      "date": "timestamp",
+      "appointmentNumber": "string",
+      "status": "string (PENDING | DELIVERED)"
     }
   ],
   "quantity": "number",
   "weight": "number",
   "totalDistance": "number (Used for Driver Mileage tracking)",
-  "estimatedDuration": "number (Used for Driver Service Hours calculation)",
+  "estimatedDuration": "number (Used for Driver Total Hours calculation)",
   "status": "string (PENDING | ASSIGNED | PICKED_UP | IN_TRANSIT | DELIVERED | COMPLETED | CANCELLED)",
   "assignedDriverId": "ObjectId | null",
   "truckNumber": "string | null",
@@ -81,9 +84,11 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "updatedAt": "timestamp"
 }
 ```
-*Notice: Performance metrics (Miles/Duration) are tracked per load to enable real-time dashboard analytics.*
+
+_Notice: Performance metrics (Miles/Duration) are tracked per load to enable real-time dashboard analytics._
 
 ### 3. Notification Entity (System Alerts)
+
 ```json
 {
   "_id": "ObjectId('75c...)",
@@ -97,10 +102,12 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "createdAt": "timestamp"
 }
 ```
-*Notice: Optimized for performance using Optimistic UI in the frontend and 5s backend polling.*
-*Notice: Categories are classified on-the-fly via regex patterns: 'LOADS' matches load updates, 'USERS' matches registrations/driver requests.*
+
+_Notice: Optimized for performance using Optimistic UI in the frontend and 5s backend polling._
+_Notice: Categories are classified on-the-fly via regex patterns: 'LOADS' matches load updates, 'USERS' matches registrations/driver requests._
 
 ### 4. Audit Log Entity (Security Monitoring)
+
 ```json
 {
   "_id": "ObjectId('86d...)",
@@ -115,6 +122,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
 ```
 
 ### 5. Asset Entities (Trucks & Trailers)
+
 ```json
 {
   "Truck": {
@@ -147,6 +155,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
 These structures define what the frontend sends and exactly what the Next.js API returns via HTTP routes.
 
 ### Driver Recruitment Request DTO (Dispatcher)
+
 ```json
 {
   "firstName": "John",
@@ -154,9 +163,11 @@ These structures define what the frontend sends and exactly what the Next.js API
   "email": "john.doe@gmail.com"
 }
 ```
-*Notice: Dispatched to `/api/driver-requests`. This triggers an Admin notification to invite the candidate.*
+
+_Notice: Dispatched to `/api/driver-requests`. This triggers an Admin notification to invite the candidate._
 
 ### Driver Activation DTO (Onboarding Completion)
+
 ```json
 {
   "password": "NewStrongPassword!",
@@ -169,9 +180,11 @@ These structures define what the frontend sends and exactly what the Next.js API
   "address": "123 Fleet St"
 }
 ```
-*Notice: The frontend sends this to `/api/auth/register` to transition a user from `isPending: true` to `isPending: false`.*
+
+_Notice: The frontend sends this to `/api/auth/register` to transition a user from `isPending: true` to `isPending: false`._
 
 ### Profile Mutation DTO
+
 ```json
 {
   "name": "Jane Doe",
@@ -185,17 +198,21 @@ These structures define what the frontend sends and exactly what the Next.js API
   "newPassword": "NewStrongPassword456!"
 }
 ```
-*Notice: Securely updates personal info and rotates password via `/api/auth/profile/update`.*
+
+_Notice: Securely updates personal info and rotates password via `/api/auth/profile/update`._
 
 ### MFA Verification DTO
+
 ```json
 {
   "token": "123456"
 }
 ```
-*Notice: Validates TOTP code against base32 secret via `/api/auth/2fa/verify`.*
+
+_Notice: Validates TOTP code against base32 secret via `/api/auth/2fa/verify`._
 
 ### Public Request DTOs (Demo & Pricing Estimate)
+
 ```json
 {
   "fullName": "string",
@@ -205,13 +222,15 @@ These structures define what the frontend sends and exactly what the Next.js API
   "assetTier": "string (e.g., '1 - 5', '500 - 4,999')"
 }
 ```
-*Notice: Dispatched via Next.js Server Actions (`submitDemoRequest` & `submitPricingRequest`) from the unauthenticated landing page. Exists transiently in memory, dispatched directly to Nodemailer.*
+
+_Notice: Dispatched via Next.js Server Actions (`submitDemoRequest` & `submitPricingRequest`) from the unauthenticated landing page. Exists transiently in memory, dispatched directly to Nodemailer._
 
 ---
 
 ## Step 3: Frontend View Models
 
 ### Audit Log Row ViewModel
+
 ```json
 {
   "id": "86d...",
@@ -222,7 +241,8 @@ These structures define what the frontend sends and exactly what the Next.js API
   "timestamp": "2 mins ago"
 }
 ```
-*Notice: The frontend dashboard aggregates raw `AuditLog` fields and resolves `userId` references into readable Actor names before displaying in the table.*
+
+_Notice: The frontend dashboard aggregates raw `AuditLog` fields and resolves `userId` references into readable Actor names before displaying in the table._
 
 ---
 
@@ -230,15 +250,15 @@ These structures define what the frontend sends and exactly what the Next.js API
 
 **1. Dispatcher Request:**
 Dispatcher submits a candidate via `/api/driver-requests`.
-⬇ *(Admin receives system notification)*
+⬇ _(Admin receives system notification)_
 
 **2. Admin Invitation:**
 Admin invites account via `/api/auth/register` (RBAC mode).
-⬇ *(Nodemailer sends invitation email with signed link)*
+⬇ _(Nodemailer sends invitation email with signed link)_
 
 **3. Driver Registration:**
 Driver clicks link, lands on `/register?email=...`, and completes setup.
-⬇ *(Audit log records USER_ACTIVATED)*
+⬇ _(Audit log records USER_ACTIVATED)_
 
 **4. Ecosystem Ready:**
 Admins and Dispatchers receive "Registration Complete" Notifications.

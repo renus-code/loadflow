@@ -15,6 +15,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import SystemTimeDisplay from "@/components/SystemTimeDisplay";
 
 // Helper to simplify notification messages
 const formatNotification = (message: string) => {
@@ -140,12 +141,7 @@ export default function NotificationsPage() {
 
   const filteredNotifications = notifications;
 
-  const todayStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+
 
   return (
     <div
@@ -156,24 +152,17 @@ export default function NotificationsPage() {
       <div className="d-none d-lg-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 mt-1 gap-2 border-bottom pb-3 border-opacity-10 border-white">
         <div className="text-start">
           <h1
-            className="display-6 text-white m-0 tracking-tight"
-            style={{
-              fontFamily: "var(--font-syne)",
+            className="display-6 fw-black text-white m-0 tracking-tight"
+            style={{ 
+              fontFamily: "var(--font-syne)", 
               letterSpacing: "-0.04em",
-              fontWeight: 900,
+              fontSize: "clamp(1.75rem, 5vw, 2.5rem)" 
             }}
           >
-            <span className="text-gradient-emerald">
-              {user?.role || "User"}
-            </span>{" "}
+            <span className="text-gradient-emerald">{user?.role || "User"}</span>{" "}
             Dashboard
           </h1>
-          <p
-            className="text-white mt-1 fw-bold mb-0 opacity-35 text-uppercase small"
-            style={{ letterSpacing: "0.15rem", fontSize: "0.7rem" }}
-          >
-            {todayStr}
-          </p>
+          <SystemTimeDisplay />
         </div>
       </div>
 

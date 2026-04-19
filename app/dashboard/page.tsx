@@ -24,6 +24,7 @@ import DispatcherCharts from "@/components/DispatcherCharts";
 import DriverDashboardOverview from "@/components/DriverDashboardOverview";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import FleetSection from "@/components/FleetSection";
+import SystemTimeDisplay from "@/components/SystemTimeDisplay";
 import { useSearch } from "@/context/SearchContext";
 import { ILoad } from "@/models/Load";
 import { useRouter } from "next/navigation";
@@ -62,27 +63,7 @@ export default function Dashboard() {
     type: "warning",
   });
 
-  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
-  useEffect(() => {
-    setCurrentTime(new Date());
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const todayStr = currentTime?.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const timeStr = currentTime?.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true
-  });
 
   const fetchLoads = useCallback(async () => {
     try {
@@ -271,21 +252,7 @@ export default function Dashboard() {
             </span>{" "}
             Dashboard
           </h1>
-          <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mt-2">
-            <p
-              className="text-white fw-bold mb-0 opacity-40 text-uppercase small"
-              style={{ letterSpacing: "0.2rem", fontSize: "0.65rem" }}
-            >
-              {todayStr}
-            </p>
-            <span className="opacity-20 text-white">•</span>
-            <p
-              className="text-emerald fw-bold mb-0 text-uppercase small"
-              style={{ letterSpacing: "0.15rem", fontSize: "0.65rem", color: "#2bdd66", textShadow: "0 0 10px rgba(43,221,102,0.3)" }}
-            >
-              {timeStr || "00:00:00"}
-            </p>
-          </div>
+          <SystemTimeDisplay />
         </div>
 
         {user?.role === "Admin" && (

@@ -44,7 +44,7 @@ export interface ILoad extends Document {
   weightUnit: 'lbs' | 'kg';
   
   // PERFORMANCE TRACKING: These fields drive the Driver Dashboard analytics.
-  // They are used to calculate Miles and Service Hours.
+  // They are used to calculate Miles and Total Hours.
   totalDistance?: number;       // Calculated distance in miles
   estimatedDuration?: number;   // Calculated time in hours
   
