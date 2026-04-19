@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * MODEL: Notification (User Engagement)
+ * ======================================================================================
+ * Manages the asynchronous messaging pipeline for the LoadFlow ecosystem.
+ * 
+ * Features:
+ * 1. Targeted Delivery: Supports global (role-based) or specific (user-based) alerts.
+ * 2. Visual Semantics: Categorizes messages into priority types (INFO, DANGER, etc.).
+ * 3. Deep Linking: Orchestrates contextual navigation via optional action URLs.
+ * 4. Lifecycle Management: Tracks read/unread states with automated timestamps.
+ * ======================================================================================
+ */
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface INotification extends Document {

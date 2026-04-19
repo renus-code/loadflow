@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Power Unit Asset Registry (/api/trucks)
+ * ======================================================================================
+ * Manages the digital twin inventory for fleet tractor units.
+ * 
+ * Features:
+ * 1. Role-Based Access: GET allowed for all roles; POST restricted to 'Admin' only.
+ * 2. Uniqueness Enforcement: Validates distinct TruckNo, VIN, and Plates before creation.
+ * 3. Sorting Engine: Delivers truck assets in alpha-numeric order for fleet planning.
+ * 4. Data Integrity: Performs strict field validation and numeric parsing (year).
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Truck from '@/models/Truck';

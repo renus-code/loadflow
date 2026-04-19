@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Driver Recruitment Requests (/api/driver-requests)
+ * ======================================================================================
+ * Orchestrates the induction requests from dispatchers to the administrative team.
+ * 
+ * Features:
+ * 1. Dispatcher Empowerment: Allows dispatchers to propose new drivers for the fleet.
+ * 2. Admin Notification: Triggers an INFO-level alert for admins with actionable invite links.
+ * 3. Pre-Validation: Checks for email duplication against the existing user database.
+ * 4. Contextual Deep Linking: Embeds auto-fill parameters in admin links for seamless onboarding.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Notification from "@/models/Notification";

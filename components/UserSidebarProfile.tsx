@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Sidebar Identity & Action Module
+ * ======================================================================================
+ * Renders the authenticated user's profile and core actions within the administrative sidebar.
+ * 
+ * Features:
+ * 1. Adaptive Layout: Seamlessly transitions between collapsed (icon-only) and expanded states.
+ * 2. Visual Hierarchy: Highlights the active 'My Profile' route with dynamic neon glow effects.
+ * 3. Secure Disconnect: Integrates the logout action directly into the user's primary visual anchor.
+ * ======================================================================================
+ */
 "use client";
 
 import { useAuth } from "@/context/AuthContext";

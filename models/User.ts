@@ -1,5 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+/**
+ * ======================================================================================
+ * MODEL: User
+ * ======================================================================================
+ * Represents a person in the LoadFlow system.
+ * This model handles:
+ * 1. Authentication: Password hashes, 2FA secrets, and login attempts.
+ * 2. RBAC (Role-Based Access Control): Admin, Dispatcher, and Driver roles.
+ * 3. Profile Data: Driver license, contact info, and registration status.
+ * 4. Security: tokenVersion for global session revocation and account locking.
+ * ======================================================================================
+ */
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -18,9 +30,12 @@ export interface IUser extends Document {
   loginAttempts?: number;
   isLocked?: boolean;
   lockedUntil?: Date | null;
-  tokenVersion: number;              // Session Revocation: Increment this to instantly invalidate all JWTs for this user
-  twoFactorSecret?: string;          // 2FA TOTP secret string
-  isTwoFactorEnabled: boolean;       // Whether the user has setup 2FA
+  // SESSION REVOCATION: Incrementing this number instantly invalidates all existing 
+  // JWT tokens for this user, forcing them to re-login.
+  tokenVersion: number;              
+  twoFactorSecret?: string;          // 2FA TOTP secret string (Base32)
+  isTwoFactorEnabled: boolean;       // Status of 2FA enrollment
+  // Tracking who invited this user (if it was a driver request)
   requestedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
 }

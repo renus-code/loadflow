@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Notification Hub (/api/notifications)
+ * ======================================================================================
+ * Orchestrates the real-time delivery of system alerts to authenticated users.
+ * 
+ * Features:
+ * 1. Adaptive Logic: Fetches notifications based on specific User ID and Role.
+ * 2. Interaction Tracking: Supports atomic status updates for 'isRead' flags.
+ * 3. Security Hardening: Integrated with 'withStability' for connection orchestration.
+ * 4. Performant Sync: Optimized for high-frequency polling from the NotificationBell.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import Notification from '@/models/Notification';
 import { getUserFromRequest } from '@/lib/auth';

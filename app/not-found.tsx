@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: 404 - Not Found (Kinetic Experience)
+ * ======================================================================================
+ * A premium fallback interface for non-existent routes.
+ * 
+ * Features:
+ * 1. Intelligent Redirection: Dynamic "Back to Command Center" logic based on auth state.
+ * 2. Visual Excellence: Implements the "Nebula" aesthetic with floating orbs and mesh gradients.
+ * 3. Responsive Layout: Full-screen immersive experience optimized for all devices.
+ * ======================================================================================
+ */
 "use client";
 
 import React from "react";

@@ -1,3 +1,18 @@
+/**
+ * ======================================================================================
+ * COMPONENT: LoadManagementForm (Mission Logistics Ingestion)
+ * ======================================================================================
+ * The primary interface for dispatchers to architect new logistics missions.
+ * 
+ * Features:
+ * 1. Dynamic Stop Architecture: Multi-pickup/multi-delivery logic using 'useFieldArray'.
+ * 2. Intelligent Geolocation: Seamlessly integrates State/City selection with context-aware validation.
+ * 3. Cargo Specifications: Comprehensive handling for commodity, quantity, and weight units.
+ * 4. Temporal Calculations: Automated transit duration estimation based on stop appointment windows.
+ * 5. High-Fidelity Feedback: Optimistic concurrency handling via document versioning (__v).
+ * 6. Visual Semantics: Distinct color-coding for pickups (Indigo) vs. deliveries (Emerald).
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";

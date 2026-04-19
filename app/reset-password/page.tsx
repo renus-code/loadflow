@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * PAGE: Security Credential Update (Reset Password)
+ * ======================================================================================
+ * The final stage of the secure password recovery lifecycle.
+ * 
+ * Features:
+ * 1. Cryptographic Validation: Only proceeds if an administrative approval token is active.
+ * 2. High-Strength Enforcement: Requires complex passwords with real-time strength analysis.
+ * 3. Identity Confirmation: Synchronizes confirmation fields for error-free updates.
+ * 4. UX Polish: Automatically redirects to login upon successful credential rotation.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";

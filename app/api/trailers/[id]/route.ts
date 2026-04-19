@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Non-Motorized Asset Mutation (Trailer By ID)
+ * ======================================================================================
+ * Modifies or retires trailer records within the fleet registry.
+ * 
+ * Features:
+ * 1. Pre-Flight Uniqueness Check: Queries the DB against conflicting VINs or Plates before attempting saves.
+ * 2. Optimistic Concurrency Control (OCC): Uses `__v` checks to prevent destructive mid-air collisions.
+ * 3. Strict Admin Boundary: Denies mutation access to dispatchers and drivers to maintain registry integrity.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Trailer from '@/models/Trailer';

@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * UTILITY: Location Services (External API Bridge)
+ * ======================================================================================
+ * Orchestrates real-time geographic data retrieval from global providers.
+ * 
+ * Features:
+ * 1. Dynamic City Discovery: Integrates with CountriesNow API for state-specific city lists.
+ * 2. Intelligent Mapping: Synchronizes regional codes with external country/state schemas.
+ * 3. Error Tolerance: Implements resilient fetch patterns with graceful fallback to empty sets.
+ * 4. Contextual Resolution: Parses combined state-code strings for high-accuracy API calls.
+ * ======================================================================================
+ */
 // US States and Canadian Provinces data for shared use
 export const US_STATES: [string, string, string][] = [
   ["AL", "Alabama", "🇺🇸"],

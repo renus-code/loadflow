@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Global Confirmation Dialogue
+ * ======================================================================================
+ * Provides a high-fidelity, interruptive prompt for destructive or critical actions.
+ * 
+ * Features:
+ * 1. Portal Escaping: Renders at the document root to bypass CSS stacking contexts (z-index).
+ * 2. Thematic Alerting: Supports dynamic visual states ('warning' vs 'danger') with custom SVG iconography.
+ * 3. Kinetic Animations: Employs 'scale-in' and 'glow' transitions to draw immediate user focus.
+ * ======================================================================================
+ */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 

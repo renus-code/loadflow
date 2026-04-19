@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * PAGE: Dashboard Central (Unified Hub)
+ * ======================================================================================
+ * The core operational engine of the application. This page dynamically adapts
+ * its logic and UI based on the authenticated user's role.
+ * 
+ * Features:
+ * 1. Role-Based Routing: Seamlessly switches between Driver, Dispatcher, and Admin views.
+ * 2. Real-Time Sync: Implements background polling for mission-critical load updates.
+ * 3. Predictive Analytics: Integrates charts and visual summaries for high-level oversight.
+ * 4. Contextual Actions: Manages global modal states for load editing and assignment.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -5,6 +19,9 @@ import { useAuth } from "@/context/AuthContext";
 import DispatchTable from "@/components/DispatchTable";
 import LoadDetailsModal from "@/components/LoadDetailsModal";
 import AdminVisualSummary from "@/components/AdminVisualSummary";
+import AdminCharts from "@/components/AdminCharts";
+import DispatcherCharts from "@/components/DispatcherCharts";
+import DriverDashboardOverview from "@/components/DriverDashboardOverview";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import FleetSection from "@/components/FleetSection";
 import { useSearch } from "@/context/SearchContext";
@@ -45,11 +62,26 @@ export default function Dashboard() {
     type: "warning",
   });
 
-  const todayStr = new Date().toLocaleDateString("en-US", {
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const todayStr = currentTime?.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+  });
+
+  const timeStr = currentTime?.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
   });
 
   const fetchLoads = useCallback(async () => {
@@ -215,10 +247,16 @@ export default function Dashboard() {
 
   return (
     <div
-      className="container-fluid px-0 page-transition pt-md-5 mt-md-4 mt-lg-0 pt-lg-0"
+      className="container-fluid px-0 page-transition pt-md-5 mt-md-4 mt-lg-0 pt-lg-0 position-relative"
       style={{ maxWidth: "1600px" }}
     >
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center mb-4 mt-2 gap-3 border-bottom pb-4 border-opacity-10 border-white">
+      {/* AMBIENT BACKGROUND GLOWS */}
+      <div className="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style={{ pointerEvents: "none", zIndex: -1 }}>
+        <div className="position-absolute rounded-circle" style={{ top: "-10%", left: "-5%", width: "40vw", height: "40vw", background: "radial-gradient(circle, rgba(43,221,102,0.05) 0%, rgba(0,0,0,0) 70%)", filter: "blur(60px)" }}></div>
+        <div className="position-absolute rounded-circle" style={{ top: "20%", right: "-10%", width: "50vw", height: "50vw", background: "radial-gradient(circle, rgba(0,212,255,0.03) 0%, rgba(0,0,0,0) 70%)", filter: "blur(80px)" }}></div>
+      </div>
+
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center mb-4 mt-2 gap-3 border-bottom pb-4 border-opacity-10 border-white position-relative z-index-2">
         <div className="text-center text-md-start">
           <h1
             className="display-6 fw-black text-white m-0 tracking-tight"
@@ -233,19 +271,29 @@ export default function Dashboard() {
             </span>{" "}
             Dashboard
           </h1>
-          <p
-            className="text-white mt-2 fw-bold mb-0 opacity-40 text-uppercase small"
-            style={{ letterSpacing: "0.2rem", fontSize: "0.65rem" }}
-          >
-            {todayStr}
-          </p>
+          <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mt-2">
+            <p
+              className="text-white fw-bold mb-0 opacity-40 text-uppercase small"
+              style={{ letterSpacing: "0.2rem", fontSize: "0.65rem" }}
+            >
+              {todayStr}
+            </p>
+            <span className="opacity-20 text-white">•</span>
+            <p
+              className="text-emerald fw-bold mb-0 text-uppercase small"
+              style={{ letterSpacing: "0.15rem", fontSize: "0.65rem", color: "#2bdd66", textShadow: "0 0 10px rgba(43,221,102,0.3)" }}
+            >
+              {timeStr || "00:00:00"}
+            </p>
+          </div>
         </div>
 
         {user?.role === "Admin" && (
           <div
             className="d-flex glass-card-nav p-1 rounded-pill border border-white border-opacity-10 shadow-2xl mx-auto mx-md-0"
             style={{ 
-              background: "#0d1117",
+              background: "rgba(13, 17, 23, 0.7)",
+              backdropFilter: "blur(20px)",
               boxShadow: "0 10px 40px rgba(0,0,0,0.4)" 
             }}
           >
@@ -272,8 +320,19 @@ export default function Dashboard() {
       ) : (
         <>
           {user?.role === "Admin" && (
-            <div className="mb-5">
+            <div className="mb-5 d-flex flex-column gap-4">
               <AdminVisualSummary loads={loads} drivers={drivers} />
+              <AdminCharts loads={loads} drivers={drivers} />
+            </div>
+          )}
+          {user?.role === "Dispatcher" && (
+            <div className="mb-5 d-flex flex-column gap-4">
+              <DispatcherCharts loads={loads} drivers={drivers} />
+            </div>
+          )}
+          {user?.role === "Driver" && (
+            <div className="mb-5 d-flex flex-column gap-4">
+              <DriverDashboardOverview loads={loads} user={user} />
             </div>
           )}
 

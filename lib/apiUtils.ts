@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * UTILITY: API Stability Wrapper (withStability)
+ * ======================================================================================
+ * A Higher-Order Function (HOF) that enforces application-wide stability standards.
+ * 
+ * Features:
+ * 1. Connection Orchestration: Automatically manages MongoDB connection cycles.
+ * 2. Performance Monitoring: Flags and logs "Slow Routes" exceeding 5000ms latency.
+ * 3. Unified Error Schema: Standardizes 400 (Validation), 409 (Duplicate), and 500 errors.
+ * 4. Observability: Provides detailed execution duration and error context in logs.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from './mongodb';
 

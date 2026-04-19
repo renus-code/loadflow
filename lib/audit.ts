@@ -4,6 +4,18 @@
  * Provides a simple utility `logAction` to record activity to the AuditLog collection.
  * This should be used in any API route that mutates application state.
  */
+/**
+ * ======================================================================================
+ * UTILITY: Audit Logger
+ * ======================================================================================
+ * The system's "Black Box" recorder. Tracks every sensitive action in the database.
+ * 
+ * Features:
+ * 1. Action Tracking: Logs who did what, when, and to which entity.
+ * 2. Contextual Metadata: Captures IP addresses, User Agents, and specific change details.
+ * 3. Non-Blocking: Designed for fast execution to avoid delaying main API responses.
+ * ======================================================================================
+ */
 import { NextRequest } from 'next/server';
 import mongoose from 'mongoose';
 import AuditLog from '@/models/AuditLog';

@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * UTILITY: Communications Engine (Email/SMTP)
+ * ======================================================================================
+ * The centralized bridge for all system-to-human communications.
+ * 
+ * Features:
+ * 1. Multi-Template Architecture: Specialized HTML layouts for invitations, alerts, and lead capture.
+ * 2. Branding Integration: Injects high-fidelity CSS and branding (Stitch nebula, vibrant gradients) into emails.
+ * 3. Secure Delivery: Utilizes Nodemailer with TLS/SSL protocols for reliable message transmission.
+ * 4. Error Hardening: Non-blocking failures with structured logging for administrative oversight.
+ * ======================================================================================
+ */
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({

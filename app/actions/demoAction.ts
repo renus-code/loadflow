@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * SERVER ACTION: Lead Generation Handler (Demo & Pricing)
+ * ======================================================================================
+ * Processes high-value business inquiries from prospective enterprise clients.
+ * 
+ * Features:
+ * 1. Admin Orchestration: Dispatches structured email alerts to the sales/admin team.
+ * 2. Asynchronous Execution: Handles lead transmission in the background via 'use server'.
+ * 3. Validation Feedback: Provides structured success/error states to client-side modals.
+ * ======================================================================================
+ */
 "use server";
 
 import { sendAdminDemoAlertEmail, sendAdminEstimationAlertEmail } from "@/lib/email";

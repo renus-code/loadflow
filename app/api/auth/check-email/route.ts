@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Registration Pre-Flight (Email Verification)
+ * ======================================================================================
+ * Validates whether an email exists in the system and if it's eligible for registration.
+ * 
+ * Features:
+ * 1. Status Check: Identifies if a user is in a 'pending' state, awaiting activation.
+ * 2. Role Gating: Immediately blocks Admin accounts from self-registering.
+ * 3. Data Hydration: Returns the user's pre-assigned role and name to populate the registration form.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

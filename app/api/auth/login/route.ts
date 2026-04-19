@@ -1,4 +1,17 @@
-// Login API: Checks passwords and sets a secure login cookie.
+/**
+ * ======================================================================================
+ * API ROUTE: Secure Authentication (Login)
+ * ======================================================================================
+ * The core security gateway for user session management.
+ * 
+ * Features:
+ * 1. Brute-Force Protection: Implements a 3-attempt lockout threshold for non-admin users.
+ * 2. Rate Limiting: Integrated with the IP-based rate limiter to prevent automated attacks.
+ * 3. 2FA Orchestration: Dynamically detects and enforces TOTP requirements if enabled.
+ * 4. Secure Session: Issues signed JWT tokens with tokenVersion tracking for revocation.
+ * 5. Data Privacy: Sanitizes user objects before response and uses httpOnly cookies.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";

@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * PAGE: API Documentation Explorer (Swagger UI)
+ * ======================================================================================
+ * Provides an interactive environment for developers to test and explore API endpoints.
+ * 
+ * Features:
+ * 1. Interactive Explorer: Full Swagger UI integration for live endpoint testing.
+ * 2. Dynamic Spec Loading: Fetches the latest OpenAPI manifest from '/api/swagger'.
+ * 3. Client-Side Only: Utilizes Next.js dynamic imports to ensure zero SSR conflicts with Swagger UI.
+ * 4. Professional Branding: Custom-themed top bar mimicking the official Swagger interface.
+ * ======================================================================================
+ */
 "use client";
 
 import dynamic from "next/dynamic";

@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * COMPONENT: FleetSection (Asset Lifecycle Management)
+ * ======================================================================================
+ * A professional administrative interface for managing the mechanical core of the fleet.
+ * 
+ * Features:
+ * 1. Dual-Asset Tabs: Specialized management for Trucks (Day/Sleeper Cab) and Trailers (Reefer, Dry Van, etc.).
+ * 2. High-Fidelity Forms: Custom glassmorphic inputs with real-time uniqueness validation for VIN, Plates, and Unit Numbers.
+ * 3. Contextual Search: Premium search engine with field-specific criteria (VIN, Plate, Type, etc.).
+ * 4. Optimistic Versioning: Uses __v document versioning to handle concurrency during multi-admin edits.
+ * 5. Visual Semantics: Dynamically themed asset cards with specific color schemes for different vehicle types.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useEffect, useRef } from "react";

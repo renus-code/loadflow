@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Mobile Dashboard Navigator
+ * ======================================================================================
+ * Provides a highly optimized, sticky navigation bar specifically for mobile viewport sizes.
+ * 
+ * Features:
+ * 1. Scroll Intelligence: Captures nested container scroll events to trigger dynamic resizing.
+ * 2. Sidebar Bridge: Dispatches custom window events ('toggle-sidebar') to orchestrate the mobile menu.
+ * 3. Premium Aesthetics: Utilizes hardware-accelerated CSS properties for buttery smooth glassmorphism.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";

@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: User Identity & Security Management (/dashboard/profile)
+ * ======================================================================================
+ * The centralized interface for managing personal logistics data and security credentials.
+ * 
+ * Features:
+ * 1. Geographic Hydration: Cascades province selection down to available cities automatically.
+ * 2. Multi-Factor Auth (2FA): Integrates TOTP QR code generation and verification pipelines.
+ * 3. Security Hardening: Enforces strict password validation (12+ chars, special chars, no history repeat).
+ * ======================================================================================
+ */
 "use client";
 
 import { useAuth } from "@/context/AuthContext";

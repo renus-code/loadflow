@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * COMPONENT: DispatchTable (Cargo Logistics Nexus)
+ * ======================================================================================
+ * A high-density interactive workspace for managing active and historical cargo assignments.
+ * 
+ * Features:
+ * 1. Sorting & Pagination: Advanced client-side arrangement of large-scale logistics data.
+ * 2. Visual Status Protocol: Semantic, pulsing badges for real-time shipment monitoring.
+ * 3. Stop Tracking: Integrated progress bars for pickup and delivery completion cycles.
+ * 4. Hybrid Layout: High-density desktop table vs action-oriented mobile cards.
+ * 5. Lifecycle Guarding: Context-aware action buttons based on load status (e.g., editing lock on delivery).
+ * ======================================================================================
+ */
 "use client";
 
 // Interactive Loads Table: Shows all cargo assignments with filtering and sorting.

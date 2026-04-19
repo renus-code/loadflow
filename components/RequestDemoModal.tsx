@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * COMPONENT: RequestDemoModal (Enterprise Induction Interface)
+ * ======================================================================================
+ * A professional onboarding gateway for high-value logistics partners.
+ * 
+ * Features:
+ * 1. Professional Validation: Strict verification for corporate credentials and fleet volume.
+ * 2. Visual Excellence: Kinetic rocket iconography and dual-tone gradient aesthetics.
+ * 3. Security Hardening: SSL-encrypted submission logic with background action integration.
+ * 4. Experience Orchestration: Dedicated "confirmed" state with professional follow-up instructions.
+ * 5. Industrial Design: High-contrast modal architecture with optimized click targets for desktop/tablet.
+ * ======================================================================================
+ */
 "use client";
 
 import React, { useState, useEffect } from "react";

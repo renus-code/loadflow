@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Navbar (Global Header)
+ * ======================================================================================
+ * The primary entry point for navigation across the application.
+ * Features:
+ * 1. Dynamic Theming: Transitions from transparent to white on scroll for peak readability.
+ * 2. Branding Stability: Maintains consistent logo identity across background changes.
+ * 3. Mobile Responsive: Implements a collapse menu for smaller viewports.
+ * 4. Micro-Interactions: Features smooth transitions and hover-tilt branding effects.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";
@@ -70,16 +82,16 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className={`navbar navbar-expand-lg position-fixed w-100 z-3 ${isScrolled ? "shadow-sm" : ""}`}
+      className={`navbar navbar-expand-lg position-fixed w-100 z-3 ${isScrolled ? "navbar-light shadow-sm" : "navbar-dark"}`}
       style={{ 
         top: 0, 
         transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-        backgroundColor: (isScrolled || menuOpen) ? "rgba(8, 10, 15, 0.98)" : "transparent",
+        backgroundColor: (isScrolled || menuOpen) ? "rgba(255, 255, 255, 1)" : "transparent",
         backdropFilter: (isScrolled || menuOpen) ? "blur(30px) saturate(180%)" : "none",
         paddingTop: isScrolled ? "0.6rem" : "1.2rem",
         paddingBottom: isScrolled ? "0.6rem" : "1.2rem",
-        borderBottom: (isScrolled || menuOpen) ? "1px solid rgba(255, 255, 255, 0.12)" : "none",
-        boxShadow: (isScrolled || menuOpen) ? "0 10px 40px rgba(0, 0, 0, 0.5)" : "none",
+        borderBottom: (isScrolled || menuOpen) ? "1px solid rgba(0, 0, 0, 0.12)" : "none",
+        boxShadow: (isScrolled || menuOpen) ? "0 10px 40px rgba(0, 0, 0, 0.12)" : "none",
         zIndex: 9999
       }}
     >
@@ -107,18 +119,17 @@ export default function Navbar() {
               style={{ objectFit: "contain" }}
             />
           </div>
-          <span
-            className="fs-3 d-flex align-items-center transition-all"
-            style={{ 
-              fontFamily: "var(--font-syne)",
-              transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-              color: "#ffffff"
-            }}
-          >
+            <span
+              className="fs-3 d-flex align-items-center transition-all"
+              style={{ 
+                fontFamily: "var(--font-syne)",
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                color: isScrolled ? "transparent" : "#ffffff"
+              }}
+            >
             <span 
               className="brand-text-load"
               style={{ 
-                filter: isScrolled ? "brightness(0.8) contrast(1.2)" : "none",
                 transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
               }}
             >
@@ -127,7 +138,6 @@ export default function Navbar() {
             <span 
               className="brand-text-flow"
               style={{ 
-                filter: isScrolled ? "saturate(1.4) drop-shadow(0 0 8px rgba(43,221,102,0.2))" : "none",
                 transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
               }}
             >
@@ -146,7 +156,7 @@ export default function Navbar() {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon navbar-dark"></span>
+          <span className={`navbar-toggler-icon ${isScrolled ? "" : "navbar-dark"}`}></span>
         </button>
 
         {/* CENTER LINKS & ACTION BUTTONS */}
@@ -158,11 +168,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#features"
-                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: "rgba(255, 255, 255, 0.8)",
-                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                  color: (isScrolled || menuOpen) ? "rgba(5, 7, 10, 0.8)" : "rgba(255, 255, 255, 0.8)",
+                  textShadow: (isScrolled || menuOpen) ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Features
@@ -171,11 +181,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#solutions"
-                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: "rgba(255, 255, 255, 0.8)",
-                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                  color: (isScrolled || menuOpen) ? "rgba(5, 7, 10, 0.8)" : "rgba(255, 255, 255, 0.8)",
+                  textShadow: (isScrolled || menuOpen) ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Solutions
@@ -184,11 +194,11 @@ export default function Navbar() {
             <li className="nav-item">
               <Link
                 href="/#pricing"
-                className="nav-link fw-bold px-4 py-2 nav-pill-hover"
+                className={`nav-link fw-bold px-4 py-2 nav-pill-hover ${isScrolled ? "nav-link-dark" : "nav-link-light"}`}
                 style={{
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  color: "rgba(255, 255, 255, 0.8)",
-                  textShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                  color: (isScrolled || menuOpen) ? "rgba(5, 7, 10, 0.8)" : "rgba(255, 255, 255, 0.8)",
+                  textShadow: (isScrolled || menuOpen) ? "none" : "0 2px 4px rgba(0,0,0,0.5)"
                 }}
               >
                 Pricing

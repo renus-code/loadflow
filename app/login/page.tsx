@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * PAGE: Secure Authentication Hub (Login)
+ * ======================================================================================
+ * The frontline security gateway for the LoadFlow ecosystem.
+ * 
+ * Features:
+ * 1. Multi-Factor Authentication: Supports secondary verification for enhanced security.
+ * 2. Brute-Force Protection: Implements automated account locking after excessive failures.
+ * 3. Secure State Recovery: Synchronizes the Zustand auth store post-authentication.
+ * 4. Premium Visuals: Features glassmorphism, animated orbs, and slide-in transitions.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";

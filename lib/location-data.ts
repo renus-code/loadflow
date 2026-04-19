@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * UTILITY: Geographic Intelligence (Location Data)
+ * ======================================================================================
+ * Provides standardized regional datasets for North American logistics.
+ * 
+ * Features:
+ * 1. Multilingual Support: Map definitions for US States and Canadian Provinces.
+ * 2. Normalization Engine: Robust 'resolveState' utility to handle case-insensitive lookups.
+ * 3. Visual Identity: Injects regional flags (🇺🇸, 🇨🇦) for high-fidelity UI selectors.
+ * 4. Performant Access: Utilizes pre-cached Maps for O(1) resolution speed.
+ * ======================================================================================
+ */
 export const US_STATES: [string, string][] = [
   ["AL", "Alabama"],
   ["AK", "Alaska"],

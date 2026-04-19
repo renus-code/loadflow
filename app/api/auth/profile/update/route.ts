@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Profile Mutation Engine
+ * ======================================================================================
+ * Handles the persistent modification of user demographic and security data.
+ * 
+ * Features:
+ * 1. Role-Based Stripping: Silently ignores fields that the active user's role is not authorized to edit.
+ * 2. Cryptographic Re-hashing: Securely generates new bcrypt hashes if a password rotation is requested.
+ * 3. Transactional Validation: Enforces the presence of the current password before authorizing a new one.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

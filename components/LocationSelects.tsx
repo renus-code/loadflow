@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Geographic Selector Suite
+ * ======================================================================================
+ * Provides dynamic, type-ahead dropdowns for North American states and cities.
+ * 
+ * Features:
+ * 1. Cascading Logic: City selects automatically fetch data based on the chosen State.
+ * 2. Custom Type-Ahead: Implements an 'open on focus' and 'close on click-outside' strategy.
+ * 3. Performance: Leverages geographic normalization libraries to prevent UI freezing.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";

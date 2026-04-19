@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: System Audit Ledger (/dashboard/audit)
+ * ======================================================================================
+ * The centralized administrative view for platform-wide activity tracking.
+ * 
+ * Features:
+ * 1. Security Enforcement: Strictly utilizes server-side JWT verification to block non-admins.
+ * 2. Visual Architecture: Injects the highly interactive AuditLogViewer component.
+ * 3. Dynamic Hydration: Injects server-rendered timestamps for immediate temporal context.
+ * ======================================================================================
+ */
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import AuditLogViewer from '@/components/AuditLogViewer';

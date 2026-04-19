@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Motorized Asset Mutation (Truck By ID)
+ * ======================================================================================
+ * Modifies or retires power-unit records within the fleet registry.
+ * 
+ * Features:
+ * 1. Dynamic Object Stripping: Prevents modification of protected fields (`_id`, `__v`, timestamps) during mass updates.
+ * 2. Cross-Record Conflict Resolution: Verifies that new plates or numbers don't belong to another active truck.
+ * 3. Concurrency Protection: Throws a 409 Conflict if another administrator modified the truck during the current session.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Truck from '@/models/Truck';

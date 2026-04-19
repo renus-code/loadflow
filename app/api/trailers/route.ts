@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Fleet Asset Inventory (/api/trailers)
+ * ======================================================================================
+ * Orchestrates the management of non-powered logistics equipment.
+ * 
+ * Features:
+ * 1. Role-Based Access Control: GET permitted for operational visibility; POST restricted to Admins.
+ * 2. Deduplication Protocol: Verifies VIN and Plate uniqueness to maintain registry integrity.
+ * 3. Structured Metadata: Stores specialized trailer types (Reefer, Dry Van, etc.).
+ * 4. Dynamic Sorting: Facilitates rapid asset selection for dispatchers via alpha-sorting.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Trailer from '@/models/Trailer';

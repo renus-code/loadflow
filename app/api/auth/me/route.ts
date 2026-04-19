@@ -1,4 +1,16 @@
-// Session API: Reloads the user's profile when they refresh the browser.
+/**
+ * ======================================================================================
+ * API ROUTE: Session Recovery & Validation (/me)
+ * ======================================================================================
+ * Synchronizes the client-side auth state with the server's source of truth.
+ * 
+ * Features:
+ * 1. Session Hydration: Reloads the user's profile upon browser refresh or app mount.
+ * 2. Token Versioning: Performs a critical mismatch check between JWT and Database.
+ * 3. Cache Invalidation: Explicitly disables edge/browser caching for sensitive auth state.
+ * 4. Automatic Cleanup: Purges invalid session cookies if revocation is detected.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import connectToDatabase from '@/lib/mongodb';

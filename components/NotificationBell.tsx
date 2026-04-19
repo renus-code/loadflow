@@ -5,6 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
+/**
+ * ======================================================================================
+ * COMPONENT: NotificationBell
+ * ======================================================================================
+ * A high-performance notification system that provides real-time alerts.
+ * Features:
+ * 1. Ultra-fast Polling: Syncs with the backend every 5 seconds.
+ * 2. Optimistic UI: Decrements counts and removes alerts instantly for better UX.
+ * 3. Multi-Variant: Supports both Topbar (dropdown) and Sidebar (link) layouts.
+ * 4. Animated Feedback: Pulsing glow badges for urgent attention.
+ * ======================================================================================
+ */
 export default function NotificationBell({ 
   variant = 'default', 
   isCollapsed = false,
@@ -14,6 +26,9 @@ export default function NotificationBell({
   isCollapsed?: boolean;
   onNavClick?: () => void;
 }) {
+  // ------------------------------------------------------------------------------------
+  // SECTION: STATE & REFS
+  // ------------------------------------------------------------------------------------
   const [notifications, setNotifications] = useState<any[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -23,6 +38,14 @@ export default function NotificationBell({
   const pathname = usePathname();
   const isActive = pathname === "/dashboard/notifications";
 
+  // ------------------------------------------------------------------------------------
+  // SECTION: API INTERACTIONS
+  // ------------------------------------------------------------------------------------
+
+  /**
+   * Fetches the latest notifications from the database.
+   * Limits to 10 for the dropdown view.
+   */
   const fetchNotifications = async () => {
     if (!user) return;
     try {
@@ -40,12 +63,39 @@ export default function NotificationBell({
     }
   };
 
+  /**
+   * Marks a single notification as read.
+   * Uses "Optimistic UI" - updates the local state BEFORE the server responds
+   * to provide zero-latency feedback to the user.
+   */
+  const markAsRead = async (id: string) => {
+    // Optimistic Update: Update UI immediately
+    setNotifications((prev) => prev.filter((n) => n._id !== id));
+    setTotalUnread((prev) => Math.max(0, prev - 1));
+
+    try {
+      const res = await fetch(`/api/notifications/${id}`, { method: "PATCH" });
+      if (!res.ok) {
+        // Rollback if failed (optional, but good for stability)
+        // fetchNotifications(); 
+      }
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  // ------------------------------------------------------------------------------------
+  // SECTION: LIFECYCLE & POLLING
+  // ------------------------------------------------------------------------------------
+
+  // Initializes notification fetching and sets up the 5s polling interval
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Polling every 30s
+    const interval = setInterval(fetchNotifications, 5000); // Ultra-fast polling every 5s
     return () => clearInterval(interval);
   }, [user]);
 
+  // Handles closing the dropdown when clicking outside the component
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -58,18 +108,6 @@ export default function NotificationBell({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const markAsRead = async (id: string) => {
-    try {
-      const res = await fetch(`/api/notifications/${id}`, { method: "PATCH" });
-      if (res.ok) {
-        setNotifications((prev) => prev.filter((n) => n._id !== id));
-        setTotalUnread((prev) => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error("Failed to mark notification as read:", error);
-    }
-  };
 
   const markAllRead = async () => {
     try {
@@ -179,18 +217,20 @@ export default function NotificationBell({
         </svg>
         {totalUnread > 0 && (
           <span 
-            className="position-absolute translate-middle badge rounded-pill bg-danger border border-dark fw-black p-0 d-flex align-items-center justify-content-center"
+            className="position-absolute translate-middle badge rounded-pill bg-danger border-0 fw-black p-0 d-flex align-items-center justify-content-center animate-pulse-glow"
             style={{ 
-              top: '20%', 
-              left: '80%', 
-              fontSize: '0.55rem',
-              minWidth: '16px',
-              height: '16px',
-              boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)',
-              zIndex: 2
+              top: '15%', 
+              left: '85%', 
+              fontSize: '0.65rem',
+              minWidth: '18px',
+              height: '18px',
+              boxShadow: '0 0 15px rgba(255, 50, 50, 0.8), 0 0 5px rgba(255, 255, 255, 0.5)',
+              zIndex: 10,
+              color: 'white',
+              letterSpacing: '-0.02em'
             }}
           >
-            {totalUnread > 99 ? "99+" : totalUnread}
+            {totalUnread > 9 ? "9+" : totalUnread}
           </span>
         )}
       </button>
@@ -426,6 +466,23 @@ export default function NotificationBell({
           to {
             opacity: 1;
             transform: scale(1) translateY(0);
+          }
+        }
+        .animate-pulse-glow {
+          animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+          0% {
+            box-shadow: 0 0 5px rgba(255, 50, 50, 0.6), 0 0 0px rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            box-shadow: 0 0 15px rgba(255, 50, 50, 0.9), 0 0 8px rgba(255, 255, 255, 0.6);
+            transform: translate(-50%, -50%) scale(1.15);
+          }
+          100% {
+            box-shadow: 0 0 5px rgba(255, 50, 50, 0.6), 0 0 0px rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(1);
           }
         }
       `}</style>

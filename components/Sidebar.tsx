@@ -1,6 +1,17 @@
-"use client";
+/**
+ * ======================================================================================
+ * COMPONENT: Sidebar (Main Navigation)
+ * ======================================================================================
+ * The primary navigation hub of the application.
+ * Features:
+ * 1. Adaptive Logic: Displays different menu items based on User Role (Admin/Dispatcher/Driver).
+ * 2. Smart Collapse: Minimizes to an icon-only view to maximize workspace real estate.
+ * 3. Responsive: Transforms into a full-screen drawer on mobile devices.
+ * 4. Micro-Animations: Uses Lucide-inspired SVG icons with glow effects and transitions.
+ * ======================================================================================
+ */
 
-// App Navigation: The main side menu that changes based on user role.
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";

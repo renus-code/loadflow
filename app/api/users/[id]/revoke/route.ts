@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Global Session Revocation
+ * ======================================================================================
+ * Emergency administrative endpoint to instantly terminate all active sessions for a user.
+ * 
+ * Features:
+ * 1. Token Invalidation: Increments the `tokenVersion` in the DB, instantly rendering all issued JWTs invalid.
+ * 2. High-Privilege Gate: Only accessible to users with the 'Admin' role.
+ * 3. Audit Ledger: Emits a 'SESSION_REVOKED' event into the immutable audit trail.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * UTILITY: Auth Helpers
+ * ======================================================================================
+ * Handles JWT verification and role-based authorization for server-side routes.
+ * 
+ * Features:
+ * 1. Token Verification: Decodes secure HttpOnly cookies.
+ * 2. Role Protection: Middleware-like logic to enforce Admin/Dispatcher/Driver access.
+ * 3. Identity Resolution: Extracts validated user models from request headers.
+ * ======================================================================================
+ */
 import { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import dbConnect from '@/lib/mongodb';

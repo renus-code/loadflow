@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * COMPONENT: AuditLogViewer (System Accountability Hub)
+ * ======================================================================================
+ * A professional interface for reviewing system-wide actions and event history.
+ * 
+ * Features:
+ * 1. Semantic Action Tracking: Color-coded classification for CRUD, Auth, and System events.
+ * 2. Real-Time Intelligence: Implements background polling (5s interval) for live monitoring.
+ * 3. Deep-Dive Context: Captures actor details, target entities, and specific metadata chunks.
+ * 4. Responsive Visibility: Transitions from a high-density desktop table to streamlined mobile cards.
+ * 5. Forensic Infrastructure: Displays IP addresses and actor roles for security transparency.
+ * ======================================================================================
+ */
 "use client";
 
 import React, { useEffect, useState } from "react";

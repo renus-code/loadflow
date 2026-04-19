@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Fleet Logistics Delegation (Assign Load)
+ * ======================================================================================
+ * Connects human operators (drivers) and physical assets (trucks/trailers) to a cargo order.
+ * 
+ * Features:
+ * 1. Optimistic Concurrency Control (OCC): Prevents data corruption using `__v` version checking.
+ * 2. Automated State Transitions: Seamlessly moves a load from 'PENDING' to 'ASSIGNED'.
+ * 3. Event Notification: Automatically pings the assigned driver to alert them of their new mission.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Load from "@/models/Load";

@@ -1,8 +1,15 @@
 /**
- * Global MongoDB Connection Protocol
- * 
+ * ======================================================================================
+ * UTILITY: connectToDatabase (MongoDB Connection Protocol)
+ * ======================================================================================
  * Ensures a single, heavily optimized database connection pool is used across 
- * all serverless Next.js API routes, preventing connection spikes and memory leaks.
+ * all serverless Next.js API routes.
+ * 
+ * Features:
+ * 1. Connection Caching: Uses a global variable to prevent connection spikes during hot reloads.
+ * 2. Stability Protocol: Implements timeouts and pool size limits for serverless efficiency.
+ * 3. Health Monitoring: Pings existing connections before returning them to callers.
+ * ======================================================================================
  */
 import mongoose from 'mongoose';
 

@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Centralized Alerts & Notifications (/dashboard/notifications)
+ * ======================================================================================
+ * A unified communications hub for drivers, dispatchers, and administrators.
+ * 
+ * Features:
+ * 1. Intelligent Parsing: Uses a custom string interpreter to extract titles and subtitles from raw messages.
+ * 2. Adaptive Layouts: Serves a high-density table for desktop and a touch-friendly card stack for mobile.
+ * 3. Pagination & Filtering: Integrates server-side pagination with client-side category/unread filtering.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useEffect } from "react";

@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Audit Log Retrieval (/api/audit)
+ * ======================================================================================
+ * Provides administrative transparency into system-wide activities.
+ * 
+ * Features:
+ * 1. Security Enforcement: Strictly restricted to 'Admin' users via requireRole.
+ * 2. Performance Architecture: Implements granular pagination and skip/limit logic.
+ * 3. Identity Hydration: Populates actor profiles (name, email, role) for transparency.
+ * 4. Temporal Sorting: Delivers logs in reverse-chronological order for rapid triage.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import AuditLog from "@/models/AuditLog";

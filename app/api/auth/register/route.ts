@@ -1,3 +1,19 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Fleet Onboarding (Registration/Induction)
+ * ======================================================================================
+ * Manages the transition from "Invited" to "Active" user status.
+ * 
+ * Features:
+ * 1. Dual-Mode Logic: 
+ *    - Admin/Dispatcher: Create invitations or requests for drivers.
+ *    - Public: Self-activation for invited users with valid credentials.
+ * 2. Strict Validation: Cross-references license numbers with DOB and province formats.
+ * 3. Role-Based Creation: Dispatchers can only request Driver accounts for review.
+ * 4. Audit Log Integration: Tracks invitations, requests, and final activations.
+ * 5. Notification Engine: Keeps stakeholders informed throughout the induction lifecycle.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';

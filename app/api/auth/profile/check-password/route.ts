@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Security Check (Password Verification)
+ * ======================================================================================
+ * Interstitial authentication layer for validating high-stakes actions.
+ * 
+ * Features:
+ * 1. Synchronous Verification: Validates current plaintext passwords against stored bcrypt hashes.
+ * 2. Session Hydration: Uses JWT payloads to guarantee request origin.
+ * 3. Pre-flight Check: Used before allowing sensitive profile modifications.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

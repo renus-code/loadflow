@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * CONTEXT: Search State Management (Zustand)
+ * ======================================================================================
+ * Provides a high-performance global search state for dashboard filtering.
+ * 
+ * Features:
+ * 1. Store Instancing: Creates unique Zustand stores per request to prevent SSR cross-talk.
+ * 2. Atomic Updates: Utilizes the selector pattern (useSearch) for surgically precise re-renders.
+ * 3. Centralized Filtering: Connects the global Navbar search to localized table components.
+ * ======================================================================================
+ */
 "use client";
 
 // Search State: Powers the fast search bar for filtering dashboard tables.

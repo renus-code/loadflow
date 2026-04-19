@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Load Entity Management (Individual Missions)
+ * ======================================================================================
+ * Provides granular control over specific logistics missions.
+ * 
+ * Features:
+ * 1. Intelligent Updates: Automatically recalculates mileage/duration if stops are modified.
+ * 2. Concurrency Safety: Implements __v version checks to prevent overwriting dispatcher edits.
+ * 3. Role-Based Soft Deletion: Dispatchers 'CANCEL' loads; Admins perform 'PERMANENT' deletion.
+ * 4. Rich Hydration: Populates driver/creator profiles and linked ProofOfDelivery (POD) assets.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Load from "@/models/Load";

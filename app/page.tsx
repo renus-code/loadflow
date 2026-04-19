@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * PAGE: Landing Hub (Hero Experience)
+ * ======================================================================================
+ * The high-conversion public face of the LoadFlow platform.
+ * 
+ * Features:
+ * 1. Performance-First: Implements LCP preloading and decoding:async for background assets.
+ * 2. Visual Storytelling: Multi-section parallax-ready layout with kinetic mesh gradients.
+ * 3. Conversion Engine: Features dynamic modals for demos and role-based entry points.
+ * 4. Micro-Animations: Uses slide-in-left and pulse transitions for an "alive" feel.
+ * ======================================================================================
+ */
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";

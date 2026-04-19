@@ -973,4 +973,41 @@ iframe {
 
 .hover-text-white:hover {
   color: white !important;
-}
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.8)); }
+  50% { opacity: 0.8; filter: drop-shadow(0 0 16px rgba(0, 212, 255, 1)); }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s infinite ease-in-out;
+}
+
+.text-glow-cyan {
+  color: #00d4ff !important;
+  text-shadow: 
+    0 0 10px rgba(0, 212, 255, 0.8),
+    0 0 20px rgba(0, 119, 255, 0.6),
+    0 0 30px rgba(0, 119, 255, 0.4);
+  filter: drop-shadow(0 0 2px #00d4ff);
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 3s infinite ease-in-out;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s infinite linear;
+}
+

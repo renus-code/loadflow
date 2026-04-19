@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Quick Load Form
+ * ======================================================================================
+ * A streamlined interface for rapid cargo assignment creation.
+ * 
+ * Features:
+ * 1. State Management: Encapsulates form data and validation logic locally.
+ * 2. Visual Polish: Implements 'focus-ring' styling for high-accessibility inputs.
+ * 3. Error Handling: Provides immediate visual feedback for required fields.
+ * ======================================================================================
+ */
 "use client";
 
 // Cargo Form Modal: Used for creating new loads and editing existing ones.

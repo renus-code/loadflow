@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Secure Account Recovery (Forgot Password)
+ * ======================================================================================
+ * Initiates the administrator-approved password reset pipeline.
+ * 
+ * Features:
+ * 1. Rate Limiting: Strictly limits requests to 5 per hour per IP to prevent email enumeration.
+ * 2. Silent Failures: Returns success even if the email doesn't exist, preventing scraping.
+ * 3. Admin Notification: Automatically dispatches a system alert to administrators for manual approval.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

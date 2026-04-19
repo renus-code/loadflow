@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Header Identity Module
+ * ======================================================================================
+ * Renders the authenticated user's miniaturized profile widget in the global Navbar.
+ * 
+ * Features:
+ * 1. Dynamic Hydration: Polls the Zustand Auth Context for real-time state.
+ * 2. Visual Polish: Auto-generates gradient-backed initials and displays role badging.
+ * 3. Loading Resilience: Employs an internal skeleton loader during initial mount.
+ * ======================================================================================
+ */
 "use client";
 
 import { useAuth } from "@/context/AuthContext";

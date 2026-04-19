@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Central Mission Command Layout
+ * ======================================================================================
+ * The structural shell for all authenticated dashboard pages.
+ * 
+ * Features:
+ * 1. Context Providers: Injects the `AuthProvider` and `SearchProvider` for deep global state management.
+ * 2. Z-Index Layering: Stacks the premium industrial background beneath interactive UI components.
+ * 3. Viewport Resilience: Implements `.vh-resilient` CSS to combat mobile browser address bar layout shifts.
+ * ======================================================================================
+ */
 "use client";
 
 import Sidebar from "@/components/Sidebar";

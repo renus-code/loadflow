@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Create Cargo Assignment (/dashboard/loads/create)
+ * ======================================================================================
+ * The administrative interface for instantiating new logistics missions.
+ * 
+ * Features:
+ * 1. Role Verification: Restricted exclusively to Admins and Dispatchers.
+ * 2. Visual Architecture: Injects the LoadManagementForm component in 'creation' mode.
+ * 3. Dynamic Hydration: Includes real-time system date headers for operational context.
+ * ======================================================================================
+ */
 "use client";
 
 import { useRouter } from "next/navigation";

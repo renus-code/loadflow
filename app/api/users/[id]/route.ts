@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: User Entity Management (/api/users/[id])
+ * ======================================================================================
+ * Orchestrates granular control over individual user accounts and security profiles.
+ * 
+ * Features:
+ * 1. Self-Service Logic: Users can view their own data; Admins have global oversight.
+ * 2. Immutable Protection: Specifically blocks unauthorized role escalation or password tampering.
+ * 3. Atomic Integrity: Implements version-checked updates (__v) to prevent race conditions.
+ * 4. Safety Constraints: Hard-coded protection preventing the deletion of Admin accounts.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

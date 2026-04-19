@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Real-time Password Strength Meter
+ * ======================================================================================
+ * Provides visual feedback during user registration/password resets.
+ * 
+ * Features:
+ * 1. Progressive Evaluation: Evaluates against 5 criteria (length, case, numbers, symbols).
+ * 2. Visual Guidance: Dynamic progress bar with color-coded strength tiers (Weak -> Strong).
+ * 3. Auto-Hide: Dissolves seamlessly from the UI once all security requirements are met.
+ * ======================================================================================
+ */
 "use client";
 
 interface Rule {

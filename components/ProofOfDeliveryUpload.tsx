@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: ProofOfDeliveryUpload
+ * ======================================================================================
+ * A secure modal interface for drivers to upload cargo documentation.
+ * Features:
+ * 1. Binary Transmission: Uses FormData to stream images to the /api/pods endpoint.
+ * 2. Visual Feedback: Displays real-time status (Transmitting...) and error states.
+ * 3. Premium UI: Implements "Ether-Card" styling with indigo glows and backdrop blurs.
+ * 4. Constraint Enforcement: Restricts file types and provides clear sizing guidelines.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState } from "react";

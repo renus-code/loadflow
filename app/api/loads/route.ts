@@ -5,6 +5,19 @@ import Load, { IStop } from "@/models/Load";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 
+/**
+ * ======================================================================================
+ * API ROUTE: /api/loads
+ * ======================================================================================
+ * Handles the retrieval and creation of logistics loads.
+ * Features:
+ * 1. Role-Based Access: Drivers see only assigned loads; Dispatchers/Admins see all.
+ * 2. Map Enrichment: Automatically geocodes addresses and calculates route stats (POST).
+ * 3. Audit Logging: Tracks every load creation in the system audit trail.
+ * 4. Concurrency: Uses MongoDB for persistence and real-time retrieval.
+ * ======================================================================================
+ */
+
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
@@ -13,13 +26,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // ----------------------------------------------------------------------------------
+    // FILTER LOGIC
+    // ----------------------------------------------------------------------------------
     const filter: any = {};
     if (user.role === 'Driver') {
+      // Drivers only see missions assigned directly to them
       filter.assignedDriverId = user.id;
     } else if (user.role === 'Dispatcher') {
-      // Dispatchers see all relevant active/cancelled loads
+      // Dispatchers see the global operational overview
     }
-    // Admins see all loads including CANCELLED for permanent deletion approval
+    // Admins see everything, including audit-ready cancelled loads
 
     const loads = await Load.find(filter)
       .populate('assignedDriverId', 'name email')
@@ -52,6 +69,9 @@ export async function POST(req: NextRequest) {
       weightUnit
     } = body;
 
+    // ----------------------------------------------------------------------------------
+    // VALIDATION & MAP ENRICHMENT
+    // ----------------------------------------------------------------------------------
     if (!loadNumber || !commodity || !pickups || !Array.isArray(pickups) || pickups.length === 0 || 
         !deliveries || !Array.isArray(deliveries) || deliveries.length === 0 || 
         !quantity || !quantityUnit || !weight || !weightUnit) {

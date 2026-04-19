@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * PAGE: Fleet Induction (Registration)
+ * ======================================================================================
+ * The primary entry point for new users to activate their professional profiles.
+ * 
+ * Features:
+ * 1. Role Detection: Automatically identifies Driver or Dispatcher roles via invite-only email checks.
+ * 2. Multi-Section Onboarding: Collects Account, Induction, and Service Location data.
+ * 3. Robust Validation: Features complex password strength checks and real-time confirms.
+ * 4. Location Intelligence: Integrates dynamic city/province selection for Canadian logistics.
+ * 5. Premium UI: Implements "Stitch" glassmorphism and animated kinetic backgrounds.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";

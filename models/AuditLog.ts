@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * MODEL: AuditLog (System Ledger)
+ * ======================================================================================
+ * The immutable record of all significant state changes within the LoadFlow ecosystem.
+ * 
+ * Features:
+ * 1. Actor Attribution: Links actions directly to specific User IDs.
+ * 2. High-Fidelity Details: Stores JSON snapshots of payload/context via 'Mixed' types.
+ * 3. Investigative Metadata: Captures origin IPs for security forensics.
+ * 4. Optimized Retrieval: Features multi-key indexing for fast administrative querying.
+ * ======================================================================================
+ */
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAuditLog extends Document {

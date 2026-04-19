@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Fleet Expansion Request (/dashboard/request-driver)
+ * ======================================================================================
+ * The dispatcher portal for initiating driver recruitment and induction pipelines.
+ * 
+ * Features:
+ * 1. Visual Storytelling: Implements a dual-panel layout with premium CSS illustrations.
+ * 2. Form Validation: Uses react-hook-form to ensure candidate emails are syntactically sound.
+ * 3. Status Delegation: Submits requests to the administrator queue rather than direct creation.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState } from "react";

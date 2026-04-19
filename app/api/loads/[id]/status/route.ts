@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Transit Telemetry Engine (Load Status Update)
+ * ======================================================================================
+ * Granularly tracks and records the physical progression of cargo across the continent.
+ * 
+ * Features:
+ * 1. Compound Status Resolution: Automatically infers overall 'IN_TRANSIT' or 'DELIVERED' status based on individual pickup/drop-off completions.
+ * 2. Delivery Proof Enforcement: Rejects 'COMPLETED' status transitions if a POD (Proof of Delivery) is missing.
+ * 3. Notification Cascade: Fires precise updates to the Dispatcher upon every successful stop or state change.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Load from "@/models/Load";

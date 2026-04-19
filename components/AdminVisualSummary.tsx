@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Administrator Visual Telemetry (HUD)
+ * ======================================================================================
+ * Provides real-time visual analytics of fleet operations and human resources.
+ * 
+ * Features:
+ * 1. SVG Data Visualization: Utilizes custom stroke-dasharray math to draw animated circular progress rings.
+ * 2. Predictive Aggregation: Calculates fleet success rates and active dispatch percentages on the fly.
+ * 3. Driver Roster: Renders a compact, high-density efficiency index for all registered operators.
+ * ======================================================================================
+ */
 "use client";
 
 // Dashboard Stats: Displays the circular progress rings and top-level analytics.
@@ -30,8 +42,8 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
         <div className="glass-card-stitch p-4 h-100 rounded-5 border border-white border-opacity-10 d-flex flex-column">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h4 className="fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)' }}>System Performance</h4>
-              <p className="small text-white opacity-70 m-0">Real-time logistics analytics</p>
+              <h4 className="fw-black text-white m-0" style={{ fontFamily: 'var(--font-syne)' }}>Network Status</h4>
+              <p className="small text-white opacity-70 m-0">Live snapshot of your logistics operations</p>
             </div>
             <div className="badge rounded-pill bg-emerald bg-opacity-10 text-emerald px-3 py-2 border border-emerald border-opacity-20" style={{ color: '#2bdd66' }}>
               Operational
@@ -42,7 +54,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-md-6">
               <div className="premium-inner-card p-3 rounded-4">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="small text-white opacity-80">Completion Rate</span>
+                  <span className="small text-white opacity-80">Loads Completed</span>
                   <span className="small fw-black text-emerald" style={{ color: '#2bdd66' }}>
                     {totalLoads > 0 ? Math.round((completedLoads / totalLoads) * 100) : 0}%
                   </span>
@@ -58,15 +70,15 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-md-6">
               <div className="premium-inner-card p-3 rounded-4">
                 <div className="d-flex justify-content-between mb-2">
-                  <span className="small text-white opacity-80">Active Utilization</span>
+                  <span className="small text-white opacity-80">Awaiting Assignment</span>
                   <span className="small fw-black text-orange" style={{ color: '#f59e0b' }}>
-                    {totalLoads > 0 ? Math.round((loads.filter(l => l.status !== 'COMPLETED' && l.status !== 'CANCELLED').length / totalLoads) * 100) : 0}%
+                    {totalLoads > 0 ? Math.round((loads.filter(l => l.status === 'PENDING').length / totalLoads) * 100) : 0}%
                   </span>
                 </div>
                 <div className="progress bg-dark bg-opacity-50 rounded-pill shadow-inner" style={{ height: '8px' }}>
                   <div 
                     className="progress-bar bg-gradient-orange rounded-pill shadow-orange" 
-                    style={{ width: `${totalLoads > 0 ? (loads.filter(l => l.status !== 'COMPLETED' && l.status !== 'CANCELLED').length / totalLoads) * 100 : 0}%` }}
+                    style={{ width: `${totalLoads > 0 ? (loads.filter(l => l.status === 'PENDING').length / totalLoads) * 100 : 0}%` }}
                   ></div>
                 </div>
               </div>
@@ -75,34 +87,34 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
             <div className="col-12 mt-4">
                {/* OPERATIONAL ANALYTICS DASHBOARD */}
                <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-                  <span className="small text-white opacity-70 text-uppercase tracking-widest fw-black">Operational Analytics</span>
+                  <span className="small text-white opacity-70 text-uppercase tracking-widest fw-black">At A Glance</span>
                   <div className="x-small text-emerald fw-bold d-flex align-items-center gap-2 bg-emerald bg-opacity-10 px-2 py-1 rounded-pill border border-emerald border-opacity-20">
-                     <span className="pulse-dot"></span> Real-time Performance
+                     <span className="pulse-dot"></span> Live Data
                   </div>
                </div>
 
                <div className="row g-3">
                   {[
                      { 
-                        label: 'Fleet Utilization', 
-                        value: drivers.length > 0 ? Math.round((drivers.filter(d => loads.some(l => l.assignedDriverId === (d as any)._id && l.status !== 'COMPLETED')).length / drivers.length) * 100) : 0, 
+                        label: 'Active Drivers', 
+                        value: drivers.length > 0 ? Math.round((drivers.filter(d => loads.some(l => (l.assignedDriverId?._id === d._id || l.assignedDriverId === d._id) && l.status !== 'COMPLETED' && l.status !== 'CANCELLED')).length / drivers.length) * 100) : 0, 
                         color: '#00d4ff', 
                         icon: 'speed',
-                        desc: 'Active Duty'
+                        desc: '% of fleet driving'
                      },
                      { 
-                        label: 'Operational Efficiency', 
-                        value: totalLoads > 0 ? Math.round((completedLoads / totalLoads) * 100) : 0, 
-                        color: '#2bdd66', 
-                        icon: 'trending_up',
-                        desc: 'Completion'
-                     },
-                     { 
-                        label: 'Transit Health', 
-                        value: totalLoads > 0 ? Math.round(100 - (pendingLoads / totalLoads * 40)) : 100, 
+                        label: 'Success Rate', 
+                        value: totalLoads > 0 ? Math.round(((totalLoads - loads.filter(l => l.status === 'CANCELLED').length) / totalLoads) * 100) : 100, 
                         color: '#9093ff', 
-                        icon: 'auto_graph',
-                        desc: 'System Flow'
+                        icon: 'verified',
+                        desc: 'Uncancelled loads'
+                     },
+                     { 
+                        label: 'Active Loads', 
+                        value: totalLoads > 0 ? Math.round((loads.filter(l => l.status !== 'COMPLETED' && l.status !== 'CANCELLED' && l.status !== 'PENDING').length / totalLoads) * 100) : 0, 
+                        color: '#f59e0b', 
+                        icon: 'local_shipping',
+                        desc: 'Moving on road'
                      }
                    ].map((kpi, i) => (
                      <div key={i} className="col-12 col-md-4 mb-3 mb-md-0">
@@ -159,7 +171,7 @@ export default function AdminVisualSummary({ loads, drivers }: AdminVisualSummar
                                 {stats.active} ACTIVE • {stats.completed} DONE
                              </div>
                              <div className="fw-black text-uppercase px-2 py-0.5 rounded-pill bg-dark bg-opacity-60" style={{ fontSize: '8px', color: efficiencyColor, letterSpacing: '0.05em', border: `1px solid ${efficiencyColor}33`, whiteSpace: 'nowrap' }}>
-                                {efficiency}% EFFICIENCY
+                                {efficiency}% COMPLETION
                              </div>
                           </div>
                         </div>

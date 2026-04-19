@@ -1,3 +1,14 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Asynchronous Icon Injector
+ * ======================================================================================
+ * Defers the loading of Bootstrap Icons to prevent render blocking.
+ * 
+ * Features:
+ * 1. Performance Tuning: Swaps 'media' attribute to prioritize First Contentful Paint.
+ * 2. Non-blocking: Avoids critical CSS path congestion.
+ * ======================================================================================
+ */
 "use client";
 
 import { useEffect, useState } from "react";

@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: 2FA Cryptographic Seeding (Generate)
+ * ======================================================================================
+ * Initializes the Time-Based One-Time Password (TOTP) pipeline for an account.
+ * 
+ * Features:
+ * 1. Secret Generation: Uses `otplib` to create a secure, randomized base32 secret.
+ * 2. QR Provisioning: Dynamically generates an `otpauth://` URI and encodes it as a base64 QR code.
+ * 3. State Preparation: Saves the secret to the user document but keeps `isTwoFactorEnabled` false until verified.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSecret, generateURI } from 'otplib';
 import QRCode from 'qrcode';

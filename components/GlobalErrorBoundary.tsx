@@ -13,10 +13,16 @@ interface State {
 }
 
 /**
- * GlobalErrorBoundary
+ * ======================================================================================
+ * COMPONENT: Resilience Gateway (Global Error Boundary)
+ * ======================================================================================
+ * A premium, box-less recovery screen that catches runtime crashes.
  * 
- * A premium, box-less recovery screen that catches runtime crashes
- * and provides a high-fidelity experience even during failure.
+ * Features:
+ * 1. Deep Interception: Catches React lifecycle crashes before they propagate to the window.
+ * 2. Visual Recovery: Provides a high-fidelity experience even during failure, maintaining brand trust.
+ * 3. Telemetry Ejection: Exposes stack traces strictly within development environments.
+ * ======================================================================================
  */
 class GlobalErrorBoundary extends Component<Props, State> {
   public state: State = {

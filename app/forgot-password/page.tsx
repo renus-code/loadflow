@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Password Recovery Request (Forgot Password)
+ * ======================================================================================
+ * Initiates the multi-stage password reset lifecycle.
+ * 
+ * Features:
+ * 1. Admin Oversight: Requests are logged and require administrative approval for completion.
+ * 2. Secure Communication: Integrates with the email utility to send recovery instructions.
+ * 3. Premium Aesthetics: Consistent with the LoadFlow "Stitch" design system and orbs.
+ * ======================================================================================
+ */
 "use client";
 
 import Link from "next/link";

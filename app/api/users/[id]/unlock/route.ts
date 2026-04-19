@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Security Lockout Override (Unlock Account)
+ * ======================================================================================
+ * Administrator-gated endpoint to restore access to accounts locked due to brute-force attempts.
+ * 
+ * Features:
+ * 1. State Reset: Clears the `isLocked` boolean and resets `loginAttempts` to 0.
+ * 2. Cross-Admin Prevention: Hardcodes logic preventing Admins from unlocking other Admins to enforce separation of duties.
+ * 3. Immediate Efficacy: Allows the target user to attempt login immediately upon success.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

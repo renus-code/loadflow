@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Cryptographic Credential Rotation (Reset Password)
+ * ======================================================================================
+ * Executes the final step of the password reset process after admin approval.
+ * 
+ * Features:
+ * 1. Approval Gate: Rejects attempts if the administrator hasn't explicitly flagged `resetPasswordApproved`.
+ * 2. Type Guarding: Strictly validates inputs to prevent NoSQL injection via object payloads.
+ * 3. State Reset: Clears both `resetPasswordRequested` and `resetPasswordApproved` flags upon success.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

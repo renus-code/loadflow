@@ -6,6 +6,19 @@ import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { createStore, useStore } from 'zustand';
 import { useRouter } from 'next/navigation';
 
+/**
+ * ======================================================================================
+ * CONTEXT: AuthContext
+ * ======================================================================================
+ * The architectural heart of the application's global state.
+ * This file uses Zustand + React Context to manage:
+ * 1. Global Session: Tracks the currently logged-in user and their role.
+ * 2. Auth Actions: Handles login verification, profile refreshing, and secure logout.
+ * 3. Persistence: Synchronizes with the `/api/auth/me` endpoint to ensure valid JWTs.
+ * 4. Security: Implements a 1-hour idle session timeout for enhanced protection.
+ * ======================================================================================
+ */
+
 export interface User {
   id: string;
   name: string;
@@ -28,6 +41,10 @@ interface AuthActions {
 type AuthStoreType = AuthState & AuthActions;
 type AuthStore = ReturnType<typeof createAuthStore>;
 
+/**
+ * Create the global Auth Store using Zustand.
+ * This store contains both state (user, loading) and actions (fetch, logout).
+ */
 const createAuthStore = () =>
   createStore<AuthStoreType>()((set, get) => ({
     user: null,
@@ -144,7 +161,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Atomic Selector Pattern implementation
+/**
+ * Atomic Selector Pattern: Use this hook to access specific pieces of auth state.
+ * Example: const user = useAuth((state) => state.user);
+ */
 export function useAuth<T>(selector: (state: AuthStoreType) => T): T {
   const store = useContext(AuthContext);
   if (!store) {

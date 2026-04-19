@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * MODEL: Trailer (Asset Lifecycle Management)
+ * ======================================================================================
+ * Defines the physical specifications and operational state of fleet equipment.
+ * 
+ * Features:
+ * 1. Unique Identifiers: Enforces strict uniqueness for TrailerNo, VIN, and License Plates.
+ * 2. Type Classification: Supports Dry Van, Reefer, Flatbed, and Tri-Axle configurations.
+ * 3. Data Integrity: Implements optimistic concurrency control for multi-dispatcher edits.
+ * 4. Temporal Tracking: Maintains automated creation and update timestamps.
+ * ======================================================================================
+ */
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITrailer {

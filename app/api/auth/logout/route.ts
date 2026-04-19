@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Session Termination (Logout)
+ * ======================================================================================
+ * Performs a secure, dual-layer session termination.
+ * 
+ * Features:
+ * 1. Hard Revocation: Increments tokenVersion in MongoDB to instantly invalidate the JWT.
+ * 2. Client-Side Clearing: Issues an expired httpOnly cookie to purge the browser session.
+ * 3. Atomic Integrity: Ensures all active sessions for the user are revoked upon logout.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import connectToDatabase from '@/lib/mongodb';

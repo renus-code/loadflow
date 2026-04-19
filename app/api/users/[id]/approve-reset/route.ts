@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Security Credential Reset Authorization
+ * ======================================================================================
+ * Administrator-gated endpoint to manually approve password reset requests.
+ * 
+ * Features:
+ * 1. Role Verification: Strictly enforces Admin privileges before permitting execution.
+ * 2. State Mutation: Flips `resetPasswordApproved` to true, unlocking the user's ability to set a new password.
+ * 3. Self-Service Exclusion: Prevents normal admins from approving their own resets unless specifically configured.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Notification Action Controller
+ * ======================================================================================
+ * Handles precise manipulation (Read/Delete) of individual notification records.
+ * 
+ * Features:
+ * 1. Targeted Updates: Provides PATCH routing for marking specific messages as 'read'.
+ * 2. Role-Aware Ownership: Validates that users can only manipulate notifications assigned to them or their role (except Admins).
+ * 3. Secure Deletion: Implements DELETE routing for permanent record removal.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Notification from '@/models/Notification';

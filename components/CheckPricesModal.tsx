@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * COMPONENT: CheckPricesModal (Lead Capture Interface)
+ * ======================================================================================
+ * A high-conversion, multi-step interface for prospective enterprise clients.
+ * 
+ * Features:
+ * 1. Sequential Progression: 5-stage interactive funnel with real-time validation.
+ * 2. Visual Feedback: Integrated progress tracking and "success" state orchestration.
+ * 3. Premium Form Controls: Custom Tier selectors and international phone input logic.
+ * 4. Ambient Aesthetics: Glassmorphic gradients with pulse animations and nebula glows.
+ * 5. Lead Transmission: Secure submission to administrative pricing actions for CRM integration.
+ * ======================================================================================
+ */
 "use client";
 
 import React, { useState, useEffect } from "react";

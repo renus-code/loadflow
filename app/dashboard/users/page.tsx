@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Fleet Personnel Roster (/dashboard/users)
+ * ======================================================================================
+ * The administrative command center for managing human assets across the platform.
+ * 
+ * Features:
+ * 1. Component Injection: Encapsulates heavy data-table logic within the UserManagement component.
+ * 2. Global State Reset: Clears persistent Zustand search queries upon unmounting to prevent pollution.
+ * 3. Perimeter Security: Forcefully ejects non-administrator accounts.
+ * ======================================================================================
+ */
 "use client";
 
 import UserManagement from "@/components/UserManagement";

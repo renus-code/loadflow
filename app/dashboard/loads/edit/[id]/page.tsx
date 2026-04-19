@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * PAGE: Edit Cargo Assignment (/dashboard/loads/edit/[id])
+ * ======================================================================================
+ * The administrative interface for modifying active logistics missions.
+ * 
+ * Features:
+ * 1. Secure Routing: Automatically redirects unauthorized personnel.
+ * 2. Dynamic Hydration: Fetches existing load data via the Load ID parameter before render.
+ * 3. State Preservation: Passes the fetched load into LoadManagementForm to populate default values.
+ * ======================================================================================
+ */
 "use client";
 
 import { useRouter, useParams } from "next/navigation";

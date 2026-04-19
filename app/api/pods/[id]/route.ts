@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: Immutable Cargo Verification (Proof of Delivery By ID)
+ * ======================================================================================
+ * Manages the retrieval and deletion of signed legal delivery documentation.
+ * 
+ * Features:
+ * 1. Population Logic: Resolves the underlying `loadId` reference when fetching a POD to provide context.
+ * 2. Hardened Access: Restricts delete capabilities to Admin and Dispatcher roles only.
+ * 3. Clean Architecture: Separates database un-linking from blob storage removal for safety.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import ProofOfDelivery from "@/models/ProofOfDelivery";

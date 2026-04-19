@@ -1,3 +1,16 @@
+/**
+ * ======================================================================================
+ * API ROUTE: /api/pods (Proof of Delivery)
+ * ======================================================================================
+ * Orchestrates the secure upload of delivery documents to Cloudinary.
+ * 
+ * Features:
+ * 1. Multi-Part Uploads: Processes binary file data from client-side forms.
+ * 2. Cloudinary Integration: Routes assets to cloud storage with specific transformations.
+ * 3. Link Persistence: Saves secure URLs to the database and links them to specific loads.
+ * 4. Auth Verification: Ensures only authorized personnel can submit documentation.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 import dbConnect from "@/lib/mongodb";

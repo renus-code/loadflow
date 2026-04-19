@@ -29,6 +29,10 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "requestedBy": "ObjectId (Dispatcher ID for recruitment flow)",
   "tokenVersion": "number (Session revocation index)",
   "isTwoFactorEnabled": "boolean",
+  "loginAttempts": "number",
+  "isLocked": "boolean",
+  "resetPasswordRequested": "boolean",
+  "resetPasswordApproved": "boolean",
   "createdAt": "timestamp",
   "updatedAt": "timestamp"
 }
@@ -63,6 +67,8 @@ These represent the structures exactly as stored in our NoSQL database. They con
   ],
   "quantity": "number",
   "weight": "number",
+  "totalDistance": "number (Used for Driver Mileage tracking)",
+  "estimatedDuration": "number (Used for Driver Service Hours calculation)",
   "status": "string (PENDING | ASSIGNED | PICKED_UP | IN_TRANSIT | DELIVERED | COMPLETED | CANCELLED)",
   "assignedDriverId": "ObjectId | null",
   "truckNumber": "string | null",
@@ -75,6 +81,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "updatedAt": "timestamp"
 }
 ```
+*Notice: Performance metrics (Miles/Duration) are tracked per load to enable real-time dashboard analytics.*
 
 ### 3. Notification Entity (System Alerts)
 ```json
@@ -90,6 +97,7 @@ These represent the structures exactly as stored in our NoSQL database. They con
   "createdAt": "timestamp"
 }
 ```
+*Notice: Optimized for performance using Optimistic UI in the frontend and 5s backend polling.*
 *Notice: Categories are classified on-the-fly via regex patterns: 'LOADS' matches load updates, 'USERS' matches registrations/driver requests.*
 
 ### 4. Audit Log Entity (Security Monitoring)
@@ -109,17 +117,25 @@ These represent the structures exactly as stored in our NoSQL database. They con
 ### 5. Asset Entities (Trucks & Trailers)
 ```json
 {
-  "truck": {
+  "Truck": {
+    "_id": "ObjectId",
     "truckNo": "string",
     "vin": "string",
     "plate": "string",
-    "truckType": "string (Sleeper Cab | Day Cab)"
+    "truckType": "string (Sleeper Cab | Day Cab)",
+    "status": "string (Active | Maintenance | Decommissioned)",
+    "createdBy": "ObjectId",
+    "createdAt": "timestamp"
   },
-  "trailer": {
+  "Trailer": {
+    "_id": "ObjectId",
     "trailerNo": "string",
     "vin": "string",
     "plate": "string",
-    "trailerType": "string (Dry Van | Reefer | Tri Axle | Flatbed)"
+    "trailerType": "string (Dry Van | Reefer | Tri Axle | Flatbed)",
+    "status": "string (Active | Maintenance | Decommissioned)",
+    "createdBy": "ObjectId",
+    "createdAt": "timestamp"
   }
 }
 ```
@@ -154,6 +170,30 @@ These structures define what the frontend sends and exactly what the Next.js API
 }
 ```
 *Notice: The frontend sends this to `/api/auth/register` to transition a user from `isPending: true` to `isPending: false`.*
+
+### Profile Mutation DTO
+```json
+{
+  "name": "Jane Doe",
+  "phone": "416-555-0199",
+  "licenseNumber": "A1234-56789-01234",
+  "city": "Toronto",
+  "province": "ON",
+  "postalCode": "M5V 2H1",
+  "address": "123 Fleet St",
+  "currentPassword": "OldPassword123!",
+  "newPassword": "NewStrongPassword456!"
+}
+```
+*Notice: Securely updates personal info and rotates password via `/api/auth/profile/update`.*
+
+### MFA Verification DTO
+```json
+{
+  "token": "123456"
+}
+```
+*Notice: Validates TOTP code against base32 secret via `/api/auth/2fa/verify`.*
 
 ### Public Request DTOs (Demo & Pricing Estimate)
 ```json

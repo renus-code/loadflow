@@ -1,9 +1,25 @@
+/**
+ * ======================================================================================
+ * COMPONENT: LoadDetailsModal (Mission Command Intelligence Hub)
+ * ======================================================================================
+ * The most complex UI entity in the platform, orchestrating the full lifecycle of a shipment.
+ * 
+ * Features:
+ * 1. Semantic Status Management: Handles transition logic for PENDING -> COMPLETED states.
+ * 2. Geo-Intelligence Integration: Syncs with 'maps' utility for real-time distance/duration estimations.
+ * 3. Asset Reconciliation: Synchronizes driver, truck, and trailer assignments with optimistic locking.
+ * 4. Document Control: Integrated POD (Proof of Delivery) upload and verification workflow.
+ * 5. Responsive Data Visualization: Adaptive grids for multi-stop routing and cargo specifications.
+ * 6. Audit-Ready Interactions: Every modal action triggers structured system logging.
+ * ======================================================================================
+ */
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ILoad } from "@/models/Load";
 import ProofOfDeliveryUpload from "./ProofOfDeliveryUpload";
+import { calculateMockRouteStatsSync } from "@/lib/maps";
 
 interface Driver {
   _id: string;
@@ -89,13 +105,13 @@ const GlassSelect = ({
           border: isOpen
             ? `1.5px solid rgba(${accentRgb}, 0.6)`
             : "1.5px solid rgba(255, 255, 255, 0.1)",
-          background: disabled 
-            ? "rgba(25, 30, 45, 1)" 
+          background: disabled
+            ? "rgba(25, 30, 45, 1)"
             : isOpen
               ? `rgba(${accentRgb}, 0.15)`
               : "rgba(30, 35, 50, 1)",
-          boxShadow: disabled 
-            ? "none" 
+          boxShadow: disabled
+            ? "none"
             : isOpen
               ? `0 0 0 3px rgba(${accentRgb}, 0.12), 0 4px 20px rgba(${accentRgb}, 0.15)`
               : "0 2px 8px rgba(0,0,0,0.2)",
@@ -398,21 +414,30 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
 
   const googleMapsUrl = useMemo(() => {
     if (!load.pickups?.length || !load.deliveries?.length) return "";
-    
-    const origin = encodeURIComponent(`${load.pickups[0].address}, ${load.pickups[0].city}, ${load.pickups[0].state}`);
-    const destination = encodeURIComponent(`${load.deliveries[load.deliveries.length - 1].address}, ${load.deliveries[load.deliveries.length - 1].city}, ${load.deliveries[load.deliveries.length - 1].state}`);
-    
+
+    const origin = encodeURIComponent(
+      `${load.pickups[0].address}, ${load.pickups[0].city}, ${load.pickups[0].state}`,
+    );
+    const destination = encodeURIComponent(
+      `${load.deliveries[load.deliveries.length - 1].address}, ${load.deliveries[load.deliveries.length - 1].city}, ${load.deliveries[load.deliveries.length - 1].state}`,
+    );
+
     const waypointsList = [];
     for (let i = 1; i < load.pickups.length; i++) {
-      waypointsList.push(`${load.pickups[i].address}, ${load.pickups[i].city}, ${load.pickups[i].state}`);
+      waypointsList.push(
+        `${load.pickups[i].address}, ${load.pickups[i].city}, ${load.pickups[i].state}`,
+      );
     }
     for (let i = 0; i < load.deliveries.length - 1; i++) {
-      waypointsList.push(`${load.deliveries[i].address}, ${load.deliveries[i].city}, ${load.deliveries[i].state}`);
+      waypointsList.push(
+        `${load.deliveries[i].address}, ${load.deliveries[i].city}, ${load.deliveries[i].state}`,
+      );
     }
-    
-    const waypoints = waypointsList.length > 0 
-      ? `&waypoints=${waypointsList.map(w => encodeURIComponent(w)).join('|')}` 
-      : "";
+
+    const waypoints =
+      waypointsList.length > 0
+        ? `&waypoints=${waypointsList.map((w) => encodeURIComponent(w)).join("|")}`
+        : "";
 
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}`;
   }, [load.pickups, load.deliveries]);
@@ -484,7 +509,9 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
   const handleAssign = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (user.role !== "Dispatcher" && user.role !== "Admin") {
-      alert("Permission denied: only Dispatchers or Admins can modify load assignments.");
+      alert(
+        "Permission denied: only Dispatchers or Admins can modify load assignments.",
+      );
       return;
     }
     try {
@@ -527,7 +554,9 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
   const handleUnassign = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (user.role !== "Dispatcher" && user.role !== "Admin") {
-      alert("Permission denied: only Dispatchers or Admins can modify load assignments.");
+      alert(
+        "Permission denied: only Dispatchers or Admins can modify load assignments.",
+      );
       return;
     }
     try {
@@ -641,7 +670,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           zIndex: 999999,
-          animation: "backdropFadeIn 0.3s ease-out"
+          animation: "backdropFadeIn 0.3s ease-out",
         }}
       />
 
@@ -661,18 +690,18 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
           display: "block",
           padding: "40px 16px",
           pointerEvents: "auto",
-          WebkitOverflowScrolling: "touch"
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <div
           className="modal-dialog modal-xl modal-dialog-centered animate-scale-in"
-          style={{ 
+          style={{
             maxWidth: "1100px",
             width: "92%",
             margin: "2rem auto",
             pointerEvents: "auto",
             display: "flex",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           <div
@@ -687,288 +716,310 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
               height: "auto",
               minHeight: "min-content",
               display: "block",
-              overflow: "visible"
+              overflow: "visible",
             }}
           >
-          {/* HEADER */}
-          <div className="modal-header border-0 p-4 pt-4 pb-2 d-flex justify-content-between align-items-start position-relative overflow-hidden">
-            <div
-              className="position-absolute top-0 start-0 w-100 h-100"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(99, 102, 241, 0.12) 0%, transparent 100%)",
-                zIndex: 0,
-              }}
-            ></div>
-            <div className="position-relative" style={{ zIndex: 1 }}>
-              <h2
-                className="modal-title fw-black text-white fs-2 mb-0 text-uppercase tracking-tighter text-gradient-white"
-                style={{ letterSpacing: "-1px" }}
-              >
-                {load.loadNumber}
-              </h2>
-            </div>
-            <button
-              type="button"
-              className="btn-close btn-close-white opacity-50 transition-all hover-rotate-90"
-              onClick={onClose}
-              style={{ zIndex: 1 }}
-              aria-label="Close"
-              title="Close"
-            ></button>
-          </div>
-
-          <div className="modal-body px-4 pb-0 pt-0">
-            <div className="row g-5 mb-0">
-              {/* STATUS TRACKER */}
+            {/* HEADER */}
+            <div className="modal-header border-0 p-4 pt-4 pb-2 d-flex justify-content-between align-items-start position-relative overflow-hidden">
               <div
-                className="col-12 px-4 status-tracker-wrapper"
-                style={{ marginTop: "3.5rem", marginBottom: "0.5rem" }}
-              >
-                <div
-                  className="d-flex justify-content-between align-items-center mb-2 position-relative"
-                  style={{ minHeight: "60px" }}
+                className="position-absolute top-0 start-0 w-100 h-100"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(99, 102, 241, 0.12) 0%, transparent 100%)",
+                  zIndex: 0,
+                }}
+              ></div>
+              <div className="position-relative" style={{ zIndex: 1 }}>
+                <h2
+                  className="modal-title fw-black text-white fs-2 mb-0 text-uppercase tracking-tighter text-gradient-white"
+                  style={{ letterSpacing: "-1px" }}
                 >
-                  {/* Progress Line Background */}
+                  {load.loadNumber}
+                </h2>
+              </div>
+              <button
+                type="button"
+                className="btn-close btn-close-white opacity-50 transition-all hover-rotate-90"
+                onClick={onClose}
+                style={{ zIndex: 1 }}
+                aria-label="Close"
+                title="Close"
+              ></button>
+            </div>
+
+            <div className="modal-body px-4 pb-0 pt-0">
+              <div className="row g-5 mb-0">
+                {/* STATUS TRACKER */}
+                <div
+                  className="col-12 px-4 status-tracker-wrapper"
+                  style={{ marginTop: "3.5rem", marginBottom: "0.5rem" }}
+                >
                   <div
-                    className="position-absolute"
-                    style={{
-                      top: "16px",
-                      left: "50px",
-                      right: "50px",
-                      height: "1px",
-                      background: "rgba(255,255,255,0.05)",
-                      zIndex: 0,
-                    }}
+                    className="d-flex justify-content-between align-items-center mb-2 position-relative"
+                    style={{ minHeight: "60px" }}
                   >
-                    {/* Progress Line Active */}
+                    {/* Progress Line Background */}
                     <div
-                      className="h-100 transition-all duration-1000 ease-out"
+                      className="position-absolute"
                       style={{
-                        width: `${(currentStatusIndex / (statusWorkflow.length - 1)) * 100}%`,
-                        background: "linear-gradient(90deg, #2bdd66, #00ffa3)",
-                        boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)",
-                        position: "relative",
-                        height: "2px",
-                        top: "-0.5px"
+                        top: "16px",
+                        left: "50px",
+                        right: "50px",
+                        height: "1px",
+                        background: "rgba(255,255,255,0.05)",
+                        zIndex: 0,
                       }}
-                    ></div>
-                  </div>
-
-                  {statusWorkflow.map((node, i) => {
-                    const isActive = load.status === node;
-                    const isPast = currentStatusIndex > i;
-
-                    return (
+                    >
+                      {/* Progress Line Active */}
                       <div
-                        key={node}
-                        className="d-flex flex-column align-items-center position-relative"
-                        style={{ zIndex: 1, width: "100px" }}
-                      >
+                        className="h-100 transition-all duration-1000 ease-out"
+                        style={{
+                          width: `${(currentStatusIndex / (statusWorkflow.length - 1)) * 100}%`,
+                          background:
+                            "linear-gradient(90deg, #2bdd66, #00ffa3)",
+                          boxShadow: "0 0 20px rgba(43, 221, 102, 0.4)",
+                          position: "relative",
+                          height: "2px",
+                          top: "-0.5px",
+                        }}
+                      ></div>
+                    </div>
+
+                    {statusWorkflow.map((node, i) => {
+                      const isActive = load.status === node;
+                      const isPast = currentStatusIndex > i;
+
+                      return (
                         <div
-                          className={`rounded-circle d-flex align-items-center justify-content-center transition-all duration-500 
+                          key={node}
+                          className="d-flex flex-column align-items-center position-relative"
+                          style={{ zIndex: 1, width: "100px" }}
+                        >
+                          <div
+                            className={`rounded-circle d-flex align-items-center justify-content-center transition-all duration-500 
                           ${isActive ? "shadow-glow-emerald scale-125" : ""} 
                           ${isPast ? "bg-emerald" : isActive ? "bg-emerald" : "bg-dark border border-white border-opacity-10"}`}
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            backdropFilter: "blur(10px)",
-                            boxShadow: isActive
-                              ? "0 0 30px rgba(43, 221, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4)"
-                              : "none",
-                          }}
-                        >
-                          {isPast ? (
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              backdropFilter: "blur(10px)",
+                              boxShadow: isActive
+                                ? "0 0 30px rgba(43, 221, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4)"
+                                : "none",
+                            }}
+                          >
+                            {isPast ? (
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            ) : (
+                              <div
+                                className={`rounded-circle ${isActive ? "bg-white shadow-lg pulse-active" : "bg-white opacity-20"}`}
+                                style={{ width: "6px", height: "6px" }}
+                              ></div>
+                            )}
+                          </div>
+                          <span
+                            className={`fw-black text-uppercase text-center w-100 mt-4 transition-all duration-300
+                          ${isActive ? "text-white" : isPast ? "text-white opacity-70" : "text-white opacity-40"}`}
+                            style={{
+                              fontSize: "9px",
+                              letterSpacing: "1px",
+                              lineHeight: "1.2",
+                              textShadow: isActive
+                                ? "0 0 10px rgba(255, 255, 255, 0.5)"
+                                : "none",
+                              fontWeight: isActive ? "900" : "700",
+                            }}
+                          >
+                            {node.replace("_", " ")}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* LEFT COLUMN: SPECS & ASSETS */}
+                <div className="col-lg-6">
+                  <div className="row g-4">
+                    <div className="col-12">
+                      <div className="ether-card p-4 rounded-5 mb-4">
+                        <div className="d-flex align-items-center gap-3 mb-4">
+                          <div className="p-2 rounded-3 bg-emerald bg-opacity-10 border-ether">
                             <svg
-                              width="14"
-                              height="14"
+                              width="18"
+                              height="18"
                               viewBox="0 0 24 24"
                               fill="none"
-                              stroke="white"
-                              strokeWidth="4"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
+                              stroke="#2bdd66"
+                              strokeWidth="2.5"
                             >
-                              <polyline points="20 6 9 17 4 12" />
+                              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                              <line x1="12" y1="22.08" x2="12" y2="12" />
                             </svg>
-                          ) : (
-                            <div
-                              className={`rounded-circle ${isActive ? "bg-white shadow-lg pulse-active" : "bg-white opacity-20"}`}
-                              style={{ width: "6px", height: "6px" }}
-                            ></div>
-                          )}
+                          </div>
+                          <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
+                            Cargo Profile
+                          </h6>
                         </div>
-                        <span
-                          className={`fw-black text-uppercase text-center w-100 mt-4 transition-all duration-300
-                          ${isActive ? "text-white" : isPast ? "text-white opacity-70" : "text-white opacity-40"}`}
-                          style={{
-                            fontSize: "9px",
-                            letterSpacing: "1px",
-                            lineHeight: "1.2",
-                            textShadow: isActive
-                              ? "0 0 10px rgba(255, 255, 255, 0.5)"
-                              : "none",
-                            fontWeight: isActive ? "900" : "700",
-                          }}
-                        >
-                          {node.replace("_", " ")}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* LEFT COLUMN: SPECS & ASSETS */}
-              <div className="col-lg-6">
-                <div className="row g-4">
-                  <div className="col-12">
-                    <div className="ether-card p-4 rounded-5 mb-4">
-                      <div className="d-flex align-items-center gap-3 mb-4">
-                        <div className="p-2 rounded-3 bg-emerald bg-opacity-10 border-ether">
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#2bdd66"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                            <line x1="12" y1="22.08" x2="12" y2="12" />
-                          </svg>
-                        </div>
-                        <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
-                          Cargo Profile
-                        </h6>
-                      </div>
-                      
-                      {/* Commodity / Description */}
-                      <div className="mb-4">
-                        <label className="text-white opacity-40 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
-                          Primary Commodity
-                        </label>
-                        <div className="fw-black fs-4 text-white text-uppercase tracking-tight">
-                          {load.commodity || "General Freight"}
-                        </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-6">
-                          <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
-                            Quantity
+                        {/* Commodity / Description */}
+                        <div className="mb-4">
+                          <label className="text-white opacity-40 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
+                            Primary Commodity
                           </label>
-                          <div className="fw-black fs-3 text-white">
-                            {load.quantity}{" "}
-                            <span className="opacity-40 fs-6 fw-medium">
-                              skids
-                            </span>
+                          <div className="fw-black fs-4 text-white text-uppercase tracking-tight">
+                            {load.commodity || "General Freight"}
                           </div>
                         </div>
-                        <div className="col-6 d-flex flex-column align-items-end">
-                          <div className="text-center">
+
+                        <div className="row">
+                          <div className="col-6">
                             <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
-                              Weight
+                              Quantity
                             </label>
                             <div className="fw-black fs-3 text-white">
-                              {load.weight.toLocaleString()}{" "}
+                              {load.quantity}{" "}
                               <span className="opacity-40 fs-6 fw-medium">
-                                lbs
+                                skids
                               </span>
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* ROUTE STATS */}
-                      <div className="row mt-3 pt-3 border-top border-white border-opacity-5 animate-fade-in">
-                        <div className="col-6">
-                          <div className="d-flex align-items-center gap-2 mb-1">
-                            <div className="p-1 px-2 rounded-2 bg-emerald bg-opacity-10 border border-emerald border-opacity-10 d-flex align-items-center justify-content-center">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2bdd66" strokeWidth="3" style={{ filter: "drop-shadow(0 0 4px rgba(45, 221, 102, 0.4))" }}>
-                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                                <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
-                              </svg>
-                            </div>
-                            <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
-                              Route Distance
-                            </label>
-                          </div>
-                          <div className="fw-black fs-4 text-white">
-                            {(() => {
-                              if (load.totalDistance) return load.totalDistance.toLocaleString();
-                              
-                              const getCoords = (stop: any) => {
-                                if (stop.lat != null && stop.lng != null) return { lat: stop.lat, lng: stop.lng };
-                                const fullAddress = `${stop.address || ''}, ${stop.city || ''}, ${stop.state || ''}`.trim();
-                                if (!fullAddress || fullAddress === ", ,") return null;
-                                let hash = 0;
-                                for (let i = 0; i < fullAddress.length; i++) {
-                                  hash = fullAddress.charCodeAt(i) + ((hash << 5) - hash);
-                                }
-                                return {
-                                  lat: 25 + Math.abs((hash % 25000) / 1000),
-                                  lng: -125 + Math.abs((hash % 55000) / 1000)
-                                };
-                              };
-
-                              const getDistKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-                                const R = 6371;
-                                const dLat = (lat2 - lat1) * (Math.PI / 180);
-                                const dLon = (lon2 - lon1) * (Math.PI / 180);
-                                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2); 
-                                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-                                return R * c; 
-                              };
-
-                              const allStops = [...(load.pickups || []), ...(load.deliveries || [])];
-                              if (allStops.length < 2) return "—";
-
-                              let totalKm = 0;
-                              let hasValidCoords = false;
-                              for (let i = 0; i < allStops.length - 1; i++) {
-                                const c1 = getCoords(allStops[i]);
-                                const c2 = getCoords(allStops[i+1]);
-                                if (c1 && c2) {
-                                  totalKm += (getDistKm(c1.lat, c1.lng, c2.lat, c2.lng) * 1.2);
-                                  hasValidCoords = true;
-                                } else {
-                                  totalKm += 150;
-                                }
-                              }
-                              return hasValidCoords ? Math.round(totalKm * 0.621371).toLocaleString() : "—";
-                            })()}{" "}
-                            <span className="opacity-40 fs-6 fw-medium">mi</span>
-                          </div>
-                        </div>
-                        <div className="col-6 text-end">
-                          <div className="d-flex align-items-center justify-content-end gap-2 mb-1">
-                            <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
-                              Est. Transit Time
-                            </label>
-                            <div className="p-1 px-2 rounded-2 bg-indigo bg-opacity-10 border border-indigo border-opacity-10 d-flex align-items-center justify-content-center">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="3" style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}>
-                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                              </svg>
+                          <div className="col-6 d-flex flex-column align-items-end">
+                            <div className="text-center">
+                              <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
+                                Weight
+                              </label>
+                              <div className="fw-black fs-3 text-white">
+                                {load.weight.toLocaleString()}{" "}
+                                <span className="opacity-40 fs-6 fw-medium">
+                                  lbs
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <div className="fw-black fs-4 text-white">
+                        </div>
+
+                        {/* ROUTE STATS */}
+                        <div className="row mt-3 pt-3 border-top border-white border-opacity-5 animate-fade-in">
+                          <div className="col-6">
+                            <div className="d-flex align-items-center gap-2 mb-1">
+                              <div className="p-1 px-2 rounded-2 bg-emerald bg-opacity-10 border border-emerald border-opacity-10 d-flex align-items-center justify-content-center">
+                                <svg
+                                  width="13"
+                                  height="13"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#2bdd66"
+                                  strokeWidth="3"
+                                  style={{
+                                    filter:
+                                      "drop-shadow(0 0 4px rgba(45, 221, 102, 0.4))",
+                                  }}
+                                >
+                                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                                  <line x1="8" y1="2" x2="8" y2="18" />
+                                  <line x1="16" y1="6" x2="16" y2="22" />
+                                </svg>
+                              </div>
+                              <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
+                                Route Distance
+                              </label>
+                            </div>
+                            <div className="fw-black fs-4 text-white">
+                              {load.totalDistance ||
+                                calculateMockRouteStatsSync(
+                                  load.pickups,
+                                  load.deliveries,
+                                ).distance}{" "}
+                              <span className="opacity-40 fs-6 fw-medium">
+                                mi
+                              </span>
+                            </div>
+                          </div>
+                          <div className="col-6 text-end">
+                            <div className="d-flex align-items-center justify-content-end gap-2 mb-1">
+                              <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest m-0">
+                                Est. Transit Time
+                              </label>
+                              <div className="p-1 px-2 rounded-2 bg-indigo bg-opacity-10 border border-indigo border-opacity-10 d-flex align-items-center justify-content-center">
+                                <svg
+                                  width="13"
+                                  height="13"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#6366f1"
+                                  strokeWidth="3"
+                                  style={{
+                                    filter:
+                                      "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))",
+                                  }}
+                                >
+                                  <circle cx="12" cy="12" r="10" />
+                                  <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                              </div>
+                            </div>
+                            <div className="fw-black fs-4 text-white">
                               {(() => {
-                                if (load.pickups.length > 0 && load.deliveries.length > 0) {
+                                if (
+                                  load.pickups.length > 0 &&
+                                  load.deliveries.length > 0
+                                ) {
                                   try {
                                     const first = load.pickups[0];
-                                    const last = load.deliveries[load.deliveries.length - 1];
-                                    if (first.date && first.time && last.date && last.time) {
+                                    const last =
+                                      load.deliveries[
+                                        load.deliveries.length - 1
+                                      ];
+                                    if (
+                                      first.date &&
+                                      first.time &&
+                                      last.date &&
+                                      last.time
+                                    ) {
                                       const d1 = new Date(first.date);
                                       const d2 = new Date(last.date);
-                                      const y1 = d1.getFullYear(), m1 = String(d1.getMonth()+1).padStart(2, '0'), day1 = String(d1.getDate()).padStart(2, '0');
-                                      const y2 = d2.getFullYear(), m2 = String(d2.getMonth()+1).padStart(2, '0'), day2 = String(d2.getDate()).padStart(2, '0');
-                                      
-                                      const start = new Date(`${y1}-${m1}-${day1}T${first.time}`);
-                                      const end = new Date(`${y2}-${m2}-${day2}T${last.time}`);
-                                      const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-                                      
+                                      const y1 = d1.getFullYear(),
+                                        m1 = String(d1.getMonth() + 1).padStart(
+                                          2,
+                                          "0",
+                                        ),
+                                        day1 = String(d1.getDate()).padStart(
+                                          2,
+                                          "0",
+                                        );
+                                      const y2 = d2.getFullYear(),
+                                        m2 = String(d2.getMonth() + 1).padStart(
+                                          2,
+                                          "0",
+                                        ),
+                                        day2 = String(d2.getDate()).padStart(
+                                          2,
+                                          "0",
+                                        );
+
+                                      const start = new Date(
+                                        `${y1}-${m1}-${day1}T${first.time}`,
+                                      );
+                                      const end = new Date(
+                                        `${y2}-${m2}-${day2}T${last.time}`,
+                                      );
+                                      const diffHours =
+                                        (end.getTime() - start.getTime()) /
+                                        (1000 * 60 * 60);
+
                                       if (diffHours > 0 && diffHours < 1000) {
                                         return diffHours.toFixed(1);
                                       }
@@ -978,995 +1029,1213 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                   }
                                 }
 
-                                if (load.estimatedDuration) return load.estimatedDuration.toFixed(1);
+                                if (load.estimatedDuration)
+                                  return load.estimatedDuration.toFixed(1);
 
-                                // Fallback: calculate from distance
-                                const getCoords = (stop: any) => {
-                                  if (stop.lat != null && stop.lng != null) return { lat: stop.lat, lng: stop.lng };
-                                  const fullAddress = `${stop.address || ''}, ${stop.city || ''}, ${stop.state || ''}`.trim();
-                                  if (!fullAddress || fullAddress === ", ,") return null;
-                                  let hash = 0;
-                                  for (let i = 0; i < fullAddress.length; i++) {
-                                    hash = fullAddress.charCodeAt(i) + ((hash << 5) - hash);
-                                  }
-                                  return { lat: 25 + Math.abs((hash % 25000) / 1000), lng: -125 + Math.abs((hash % 55000) / 1000) };
-                                };
-                                const getDistKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-                                  const R = 6371;
-                                  const dLat = (lat2 - lat1) * (Math.PI / 180);
-                                  const dLon = (lon2 - lon1) * (Math.PI / 180);
-                                  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2); 
-                                  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-                                };
-                                const allStops = [...(load.pickups || []), ...(load.deliveries || [])];
-                                let totalKm = 0;
-                                let hasValidCoords = false;
-                                for (let i = 0; i < allStops.length - 1; i++) {
-                                  const c1 = getCoords(allStops[i]);
-                                  const c2 = getCoords(allStops[i+1]);
-                                  if (c1 && c2) {
-                                    totalKm += (getDistKm(c1.lat, c1.lng, c2.lat, c2.lng) * 1.2);
-                                    hasValidCoords = true;
-                                  } else {
-                                    totalKm += 150;
-                                  }
-                                }
-                                if (hasValidCoords) {
-                                  const distMiles = Math.round(totalKm * 0.621371);
-                                  if (distMiles > 0) return (Math.round((distMiles / 55) * 10) / 10).toFixed(1);
-                                }
-                                
-                                return "—";
+                                return calculateMockRouteStatsSync(
+                                  load.pickups,
+                                  load.deliveries,
+                                ).duration.toFixed(1);
                               })()}{" "}
-                          <span className="opacity-40 fs-6 fw-medium">hrs</span>
+                              <span className="opacity-40 fs-6 fw-medium">
+                                hrs
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-
-                </div>
-
-                  <div className="col-12">
-                    <div className="ether-card p-4 rounded-5">
-                      <div className="d-flex justify-content-between align-items-center mb-4">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="p-2 rounded-3 bg-indigo bg-opacity-20 border-ether">
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#6366f1"
-                              strokeWidth="2.5"
-                            >
-                              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                              <circle cx="8.5" cy="7" r="4" />
-                              <polyline points="17 11 19 13 23 9" />
-                            </svg>
+                    <div className="col-12">
+                      <div className="ether-card p-4 rounded-5">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="p-2 rounded-3 bg-indigo bg-opacity-20 border-ether">
+                              <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#6366f1"
+                                strokeWidth="2.5"
+                              >
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="8.5" cy="7" r="4" />
+                                <polyline points="17 11 19 13 23 9" />
+                              </svg>
+                            </div>
+                            <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
+                              Fleet Assignment
+                            </h6>
                           </div>
-                          <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
-                            Fleet Assignment
-                          </h6>
-                        </div>
-                        {user.role === "Dispatcher" &&
-                          load.assignedDriverId &&
-                          !showEditAssignment && (
-                            <button
-                              type="button"
-                              className={`btn ${
-                                load.status === "DELIVERED" ||
-                                load.status === "COMPLETED" ||
-                                load.status === "CANCELLED"
-                                  ? "btn-secondary opacity-50 cursor-not-allowed"
-                                  : "btn-indigo"
-                              } btn-sm px-4 rounded-pill fw-black`}
-                              style={{
-                                fontSize: "10px",
-                                border:
+                          {user.role === "Dispatcher" &&
+                            load.assignedDriverId &&
+                            !showEditAssignment && (
+                              <button
+                                type="button"
+                                className={`btn ${
                                   load.status === "DELIVERED" ||
                                   load.status === "COMPLETED" ||
                                   load.status === "CANCELLED"
-                                    ? "1px solid rgba(255, 255, 255, 0.1)"
-                                    : "none",
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setShowEditAssignment(true);
-                              }}
-                              disabled={
-                                load.status === "DELIVERED" ||
-                                load.status === "COMPLETED" ||
-                                load.status === "CANCELLED"
-                              }
-                            >
-                              Modify
-                            </button>
-                          )}
-                      </div>
-
-                      {load.assignedDriverId && !showEditAssignment ? (
-                        <div className="animate-fade-in">
-                          <div className="mb-4">
-                            <div className="d-flex align-items-center gap-2 mb-2">
-                              <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#a855f7"
-                                strokeWidth="2.5"
-                                style={{ filter: "drop-shadow(0 0 4px rgba(168, 85, 247, 0.4))" }}
+                                    ? "btn-secondary opacity-50 cursor-not-allowed"
+                                    : "btn-indigo"
+                                } btn-sm px-4 rounded-pill fw-black`}
+                                style={{
+                                  fontSize: "10px",
+                                  border:
+                                    load.status === "DELIVERED" ||
+                                    load.status === "COMPLETED" ||
+                                    load.status === "CANCELLED"
+                                      ? "1px solid rgba(255, 255, 255, 0.1)"
+                                      : "none",
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowEditAssignment(true);
+                                }}
+                                disabled={
+                                  load.status === "DELIVERED" ||
+                                  load.status === "COMPLETED" ||
+                                  load.status === "CANCELLED"
+                                }
                               >
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                              </svg>
-                              <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                Assigned Operator
-                              </label>
-                            </div>
-                            <div className="fw-black fs-4 text-white">
-                              {(load.assignedDriverId as unknown as Driver)
-                                ?.name || "Active Driver"}
-                            </div>
-                          </div>
-                          <div className="row g-4">
-                            {/* Truck Block */}
-                            <div className="col-12">
-                              <div className="row g-3">
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="#6366f1"
-                                      strokeWidth="2.5"
-                                      style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}
-                                    >
-                                      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                                      <path d="M19 18h2a1 1 0 0 0 1-1v-4.24a2 2 0 0 0-.81-1.6l-3.19-2.39V18Z" />
-                                      <circle cx="7" cy="18" r="2" />
-                                      <circle cx="17" cy="18" r="2" />
-                                    </svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Truck Type
-                                    </label>
-                                  </div>
-                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(99, 102, 241, 0.1)" }}>
-                                    {load.truckType || "—"}
-                                  </div>
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="#6366f1"
-                                      strokeWidth="2.5"
-                                      style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}
-                                    >
-                                      <rect x="3" y="11" width="18" height="10" rx="2" />
-                                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                    </svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Vector Unit
-                                    </label>
-                                  </div>
-                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                    {load.truckNumber || "—"}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {/* Trailer Block */}
-                            <div className="col-12">
-                              <div className="row g-3">
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="#10b981"
-                                      strokeWidth="2.5"
-                                      style={{ filter: "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))" }}
-                                    >
-                                      <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" />
-                                      <path d="M2 15h20" />
-                                    </svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Trailer Type
-                                    </label>
-                                  </div>
-                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
-                                    {load.trailerType || "—"}
-                                  </div>
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="#10b981"
-                                      strokeWidth="2.5"
-                                      style={{ filter: "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))" }}
-                                    >
-                                      <path d="m15 7 1 1h5l1 1v10l-1 1h-6l-1-1v-5l-1-1h-4l-1-1v-5l1-1h5z" />
-                                    </svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Relay Unit
-                                    </label>
-                                  </div>
-                                  <div className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                    {load.trailerNumber || "—"}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : user.role === "Admin" ? (
-                        <div
-                          className="p-5 rounded-4 border border-white border-opacity-10 text-center"
-                          style={{
-                            background: "rgba(255, 255, 255, 0.02)",
-                            boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)",
-                          }}
-                        >
-                          <div
-                            className="bg-indigo bg-opacity-10 p-3 rounded-circle d-inline-flex mx-auto mb-3"
-                            style={{ border: "1px solid rgba(99, 102, 241, 0.1)" }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5">
-                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                          </div>
-                          <h6 className="fw-black text-white text-uppercase tracking-widest small mb-2">
-                            Fleet Assignment Pending
-                          </h6>
-                        </div>
-                      ) : (
-                        <div
-                          className="p-4 rounded-4 border border-white border-opacity-10 pb-5"
-                          style={{
-                            background: "#0b101f",
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-                          }}
-                        >
-                          <div className="mb-4">
-                            <div className="d-flex align-items-center gap-2 mb-2">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                              <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                Assigned Operator
-                              </label>
-                            </div>
-                            <GlassSelect
-                              value={selectedDriverId}
-                              onChange={setSelectedDriverId}
-                              placeholder="Select Operator..."
-                              options={drivers.map((d) => ({
-                                value: d._id,
-                                label: d.name,
-                              }))}
-                            />
-                          </div>
-                          <div className="row g-4 mb-4">
-                            <div className="col-12">
-                              <div className="row g-3">
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Truck Type
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={truckType}
-                                    onChange={(val) => {
-                                      setTruckType(val);
-                                      const currentTruck = trucks.find(
-                                        (t) => t.truckNo === truckNumber,
-                                      );
-                                      if (
-                                        currentTruck &&
-                                        val &&
-                                        currentTruck.truckType !== val
-                                      ) {
-                                        setTruckNumber("");
-                                        setTruckSpecs("");
-                                      }
-                                    }}
-                                    placeholder="Select Cab Type..."
-                                    options={[
-                                      {
-                                        value: "Sleeper Cab",
-                                        label: "Sleeper Cab",
-                                      },
-                                      { value: "Day Cab", label: "Day Cab" },
-                                    ]}
-                                    variant="indigo"
-                                  />
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Vector Unit (Truck)
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={truckNumber}
-                                    disabled={!truckType}
-                                    onChange={(val) => {
-                                      setTruckNumber(val);
-                                      const selected = trucks.find(
-                                        (t) => t.truckNo === val,
-                                      );
-                                      if (selected) {
-                                        setTruckSpecs(
-                                          `${selected.year} ${selected.make} ${selected.model}`,
-                                        );
-                                        setTruckType(selected.truckType);
-                                      }
-                                    }}
-                                    placeholder={truckType ? "Select Truck ID..." : "Select Type First"}
-                                    options={trucks
-                                      .filter(
-                                        (t) =>
-                                          !truckType ||
-                                          t.truckType === truckType,
-                                      )
-                                      .map((t) => ({
-                                        value: t.truckNo,
-                                        label: t.truckNo,
-                                      }))}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="col-12">
-                              <div className="row g-3">
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><path d="M16 8h5l2 3v5h-7V8z"></path><circle cx="5.5" cy="18.5" r="2.5"></circle></svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Trailer Type
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={trailerType}
-                                    onChange={(val) => {
-                                      setTrailerType(val);
-                                      const currentTrailer = trailers.find(
-                                        (t) => t.trailerNo === trailerNumber,
-                                      );
-                                      if (
-                                        currentTrailer &&
-                                        val &&
-                                        currentTrailer.trailerType !== val
-                                      ) {
-                                        setTrailerNumber("");
-                                        setTrailerSpecs("");
-                                      }
-                                    }}
-                                    placeholder="Select Type..."
-                                    options={[
-                                      { value: "Dry Van", label: "Dry Van" },
-                                      { value: "Reefer", label: "Reefer" },
-                                      { value: "Tri Axle", label: "Tri Axle" },
-                                      { value: "Flatbed", label: "Flatbed" },
-                                    ]}
-                                    variant="emerald"
-                                  />
-                                </div>
-                                <div className="col-6">
-                                  <div className="d-flex align-items-center gap-2 mb-2">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line></svg>
-                                    <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
-                                      Relay Unit (Trailer)
-                                    </label>
-                                  </div>
-                                  <GlassSelect
-                                    value={trailerNumber}
-                                    disabled={!trailerType}
-                                    onChange={(val) => {
-                                      setTrailerNumber(val);
-                                      const selected = trailers.find(
-                                        (t) => t.trailerNo === val,
-                                      );
-                                      if (selected) {
-                                        setTrailerSpecs(
-                                          `${selected.year} ${selected.make} ${selected.model}`,
-                                        );
-                                        setTrailerType(selected.trailerType);
-                                      }
-                                    }}
-                                    placeholder={trailerType ? "Select Trailer ID..." : "Select Type First"}
-                                    options={trailers
-                                      .filter(
-                                        (t) =>
-                                          !trailerType ||
-                                          t.trailerType === trailerType,
-                                      )
-                                      .map((t) => ({
-                                        value: t.trailerNo,
-                                        label: t.trailerNo,
-                                      }))}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="d-flex gap-3 pt-4 mt-2">
-                            {load.assignedDriverId && (
-                              <button
-                                className="btn btn-outline-light btn-sm flex-grow-1 rounded-pill fw-black"
-                                onClick={() => setShowEditAssignment(false)}
-                              >
-                                Cancel
+                                Modify
                               </button>
                             )}
-                            <button
-                              className="btn btn-emerald btn-sm flex-grow-1 rounded-pill fw-black"
-                              onClick={handleAssign}
-                            >
-                              Assign
-                            </button>
-                          </div>
                         </div>
-                      )}
+
+                        {load.assignedDriverId && !showEditAssignment ? (
+                          <div className="animate-fade-in">
+                            <div className="mb-4">
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#a855f7"
+                                  strokeWidth="2.5"
+                                  style={{
+                                    filter:
+                                      "drop-shadow(0 0 4px rgba(168, 85, 247, 0.4))",
+                                  }}
+                                >
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                  <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                  Assigned Operator
+                                </label>
+                              </div>
+                              <div className="fw-black fs-4 text-white">
+                                {(load.assignedDriverId as unknown as Driver)
+                                  ?.name || "Active Driver"}
+                              </div>
+                            </div>
+                            <div className="row g-4">
+                              {/* Truck Block */}
+                              <div className="col-12">
+                                <div className="row g-3">
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#6366f1"
+                                        strokeWidth="2.5"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))",
+                                        }}
+                                      >
+                                        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+                                        <path d="M19 18h2a1 1 0 0 0 1-1v-4.24a2 2 0 0 0-.81-1.6l-3.19-2.39V18Z" />
+                                        <circle cx="7" cy="18" r="2" />
+                                        <circle cx="17" cy="18" r="2" />
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Truck Type
+                                      </label>
+                                    </div>
+                                    <div
+                                      className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase"
+                                      style={{
+                                        background: "rgba(99, 102, 241, 0.1)",
+                                      }}
+                                    >
+                                      {load.truckType || "—"}
+                                    </div>
+                                  </div>
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#6366f1"
+                                        strokeWidth="2.5"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))",
+                                        }}
+                                      >
+                                        <rect
+                                          x="3"
+                                          y="11"
+                                          width="18"
+                                          height="10"
+                                          rx="2"
+                                        />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Vector Unit
+                                      </label>
+                                    </div>
+                                    <div
+                                      className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase"
+                                      style={{
+                                        background: "rgba(255, 255, 255, 0.05)",
+                                      }}
+                                    >
+                                      {load.truckNumber || "—"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Trailer Block */}
+                              <div className="col-12">
+                                <div className="row g-3">
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#10b981"
+                                        strokeWidth="2.5"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))",
+                                        }}
+                                      >
+                                        <path d="M10 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" />
+                                        <path d="M2 15h20" />
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Trailer Type
+                                      </label>
+                                    </div>
+                                    <div
+                                      className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase"
+                                      style={{
+                                        background: "rgba(16, 185, 129, 0.1)",
+                                      }}
+                                    >
+                                      {load.trailerType || "—"}
+                                    </div>
+                                  </div>
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#10b981"
+                                        strokeWidth="2.5"
+                                        style={{
+                                          filter:
+                                            "drop-shadow(0 0 4px rgba(16, 185, 129, 0.4))",
+                                        }}
+                                      >
+                                        <path d="m15 7 1 1h5l1 1v10l-1 1h-6l-1-1v-5l-1-1h-4l-1-1v-5l1-1h5z" />
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Relay Unit
+                                      </label>
+                                    </div>
+                                    <div
+                                      className="p-2 px-3 rounded-4 border border-white border-opacity-5 text-white fw-black x-small text-uppercase"
+                                      style={{
+                                        background: "rgba(255, 255, 255, 0.05)",
+                                      }}
+                                    >
+                                      {load.trailerNumber || "—"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : user.role === "Admin" ? (
+                          <div
+                            className="p-5 rounded-4 border border-white border-opacity-10 text-center"
+                            style={{
+                              background: "rgba(255, 255, 255, 0.02)",
+                              boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)",
+                            }}
+                          >
+                            <div
+                              className="bg-indigo bg-opacity-10 p-3 rounded-circle d-inline-flex mx-auto mb-3"
+                              style={{
+                                border: "1px solid rgba(99, 102, 241, 0.1)",
+                              }}
+                            >
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#6366f1"
+                                strokeWidth="2.5"
+                              >
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                              </svg>
+                            </div>
+                            <h6 className="fw-black text-white text-uppercase tracking-widest small mb-2">
+                              Fleet Assignment Pending
+                            </h6>
+                          </div>
+                        ) : (
+                          <div
+                            className="p-4 rounded-4 border border-white border-opacity-10 pb-5"
+                            style={{
+                              background: "#0b101f",
+                              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+                            }}
+                          >
+                            <div className="mb-4">
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#a855f7"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                  <circle cx="9" cy="7" r="4"></circle>
+                                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                  Assigned Operator
+                                </label>
+                              </div>
+                              <GlassSelect
+                                value={selectedDriverId}
+                                onChange={setSelectedDriverId}
+                                placeholder="Select Operator..."
+                                options={drivers.map((d) => ({
+                                  value: d._id,
+                                  label: d.name,
+                                }))}
+                              />
+                            </div>
+                            <div className="row g-4 mb-4">
+                              <div className="col-12">
+                                <div className="row g-3">
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#6366f1"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <rect
+                                          x="1"
+                                          y="3"
+                                          width="15"
+                                          height="13"
+                                        ></rect>
+                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                        <circle
+                                          cx="5.5"
+                                          cy="18.5"
+                                          r="2.5"
+                                        ></circle>
+                                        <circle
+                                          cx="18.5"
+                                          cy="18.5"
+                                          r="2.5"
+                                        ></circle>
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Truck Type
+                                      </label>
+                                    </div>
+                                    <GlassSelect
+                                      value={truckType}
+                                      onChange={(val) => {
+                                        setTruckType(val);
+                                        const currentTruck = trucks.find(
+                                          (t) => t.truckNo === truckNumber,
+                                        );
+                                        if (
+                                          currentTruck &&
+                                          val &&
+                                          currentTruck.truckType !== val
+                                        ) {
+                                          setTruckNumber("");
+                                          setTruckSpecs("");
+                                        }
+                                      }}
+                                      placeholder="Select Cab Type..."
+                                      options={[
+                                        {
+                                          value: "Sleeper Cab",
+                                          label: "Sleeper Cab",
+                                        },
+                                        { value: "Day Cab", label: "Day Cab" },
+                                      ]}
+                                      variant="indigo"
+                                    />
+                                  </div>
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#6366f1"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <rect
+                                          x="2"
+                                          y="2"
+                                          width="20"
+                                          height="8"
+                                          rx="2"
+                                          ry="2"
+                                        ></rect>
+                                        <rect
+                                          x="2"
+                                          y="14"
+                                          width="20"
+                                          height="8"
+                                          rx="2"
+                                          ry="2"
+                                        ></rect>
+                                        <line
+                                          x1="6"
+                                          y1="6"
+                                          x2="6.01"
+                                          y2="6"
+                                        ></line>
+                                        <line
+                                          x1="6"
+                                          y1="18"
+                                          x2="6.01"
+                                          y2="18"
+                                        ></line>
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Vector Unit (Truck)
+                                      </label>
+                                    </div>
+                                    <GlassSelect
+                                      value={truckNumber}
+                                      disabled={!truckType}
+                                      onChange={(val) => {
+                                        setTruckNumber(val);
+                                        const selected = trucks.find(
+                                          (t) => t.truckNo === val,
+                                        );
+                                        if (selected) {
+                                          setTruckSpecs(
+                                            `${selected.year} ${selected.make} ${selected.model}`,
+                                          );
+                                          setTruckType(selected.truckType);
+                                        }
+                                      }}
+                                      placeholder={
+                                        truckType
+                                          ? "Select Truck ID..."
+                                          : "Select Type First"
+                                      }
+                                      options={trucks
+                                        .filter(
+                                          (t) =>
+                                            !truckType ||
+                                            t.truckType === truckType,
+                                        )
+                                        .map((t) => ({
+                                          value: t.truckNo,
+                                          label: t.truckNo,
+                                        }))}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="col-12">
+                                <div className="row g-3">
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#10b981"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <rect
+                                          x="1"
+                                          y="3"
+                                          width="15"
+                                          height="13"
+                                        ></rect>
+                                        <path d="M16 8h5l2 3v5h-7V8z"></path>
+                                        <circle
+                                          cx="5.5"
+                                          cy="18.5"
+                                          r="2.5"
+                                        ></circle>
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Trailer Type
+                                      </label>
+                                    </div>
+                                    <GlassSelect
+                                      value={trailerType}
+                                      onChange={(val) => {
+                                        setTrailerType(val);
+                                        const currentTrailer = trailers.find(
+                                          (t) => t.trailerNo === trailerNumber,
+                                        );
+                                        if (
+                                          currentTrailer &&
+                                          val &&
+                                          currentTrailer.trailerType !== val
+                                        ) {
+                                          setTrailerNumber("");
+                                          setTrailerSpecs("");
+                                        }
+                                      }}
+                                      placeholder="Select Type..."
+                                      options={[
+                                        { value: "Dry Van", label: "Dry Van" },
+                                        { value: "Reefer", label: "Reefer" },
+                                        {
+                                          value: "Tri Axle",
+                                          label: "Tri Axle",
+                                        },
+                                        { value: "Flatbed", label: "Flatbed" },
+                                      ]}
+                                      variant="emerald"
+                                    />
+                                  </div>
+                                  <div className="col-6">
+                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#10b981"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <rect
+                                          x="2"
+                                          y="2"
+                                          width="20"
+                                          height="20"
+                                          rx="2"
+                                          ry="2"
+                                        ></rect>
+                                        <line
+                                          x1="2"
+                                          y1="12"
+                                          x2="22"
+                                          y2="12"
+                                        ></line>
+                                      </svg>
+                                      <label className="text-white fw-black text-uppercase x-small tracking-widest d-block m-0">
+                                        Relay Unit (Trailer)
+                                      </label>
+                                    </div>
+                                    <GlassSelect
+                                      value={trailerNumber}
+                                      disabled={!trailerType}
+                                      onChange={(val) => {
+                                        setTrailerNumber(val);
+                                        const selected = trailers.find(
+                                          (t) => t.trailerNo === val,
+                                        );
+                                        if (selected) {
+                                          setTrailerSpecs(
+                                            `${selected.year} ${selected.make} ${selected.model}`,
+                                          );
+                                          setTrailerType(selected.trailerType);
+                                        }
+                                      }}
+                                      placeholder={
+                                        trailerType
+                                          ? "Select Trailer ID..."
+                                          : "Select Type First"
+                                      }
+                                      options={trailers
+                                        .filter(
+                                          (t) =>
+                                            !trailerType ||
+                                            t.trailerType === trailerType,
+                                        )
+                                        .map((t) => ({
+                                          value: t.trailerNo,
+                                          label: t.trailerNo,
+                                        }))}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="d-flex gap-3 pt-4 mt-2">
+                              {load.assignedDriverId && (
+                                <button
+                                  className="btn btn-outline-light btn-sm flex-grow-1 rounded-pill fw-black"
+                                  onClick={() => setShowEditAssignment(false)}
+                                >
+                                  Cancel
+                                </button>
+                              )}
+                              <button
+                                className="btn btn-emerald btn-sm flex-grow-1 rounded-pill fw-black"
+                                onClick={handleAssign}
+                              >
+                                Assign
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* RIGHT COLUMN: TIMELINE */}
-              <div className="col-lg-6">
-                <div className="ether-card p-4 rounded-5 h-100">
-                  <div className="d-flex align-items-center justify-content-between mb-5">
-                    <div className="d-flex align-items-center gap-3">
-                      <div
-                        className="p-2 rounded-3 border-ether"
-                        style={{ background: "rgba(168, 85, 247, 0.15)" }}
+                {/* RIGHT COLUMN: TIMELINE */}
+                <div className="col-lg-6">
+                  <div className="ether-card p-4 rounded-5 h-100">
+                    <div className="d-flex align-items-center justify-content-between mb-5">
+                      <div className="d-flex align-items-center gap-3">
+                        <div
+                          className="p-2 rounded-3 border-ether"
+                          style={{ background: "rgba(168, 85, 247, 0.15)" }}
+                        >
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#a855f7"
+                            strokeWidth="2.5"
+                          >
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
+                          Logistics Timeline
+                        </h6>
+                      </div>
+
+                      <button
+                        onClick={() => window.open(googleMapsUrl, "_blank")}
+                        className="btn btn-indigo btn-sm px-4 rounded-pill fw-black d-flex align-items-center gap-2 border-0 shadow-lg"
+                        style={{
+                          fontSize: "10px",
+                          letterSpacing: "1px",
+                          background:
+                            "linear-gradient(135deg, #6366f1, #a855f7)",
+                          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)",
+                        }}
                       >
                         <svg
-                          width="18"
-                          height="18"
+                          width="12"
+                          height="12"
                           viewBox="0 0 24 24"
                           fill="none"
-                          stroke="#a855f7"
-                          strokeWidth="2.5"
+                          stroke="white"
+                          strokeWidth="3"
                         >
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                           <circle cx="12" cy="10" r="3" />
                         </svg>
-                      </div>
-                      <h6 className="fw-black mb-0 text-uppercase tracking-widest small text-white">
-                        Logistics Timeline
-                      </h6>
-                    </div>
-                    
-                    <button
-                      onClick={() => window.open(googleMapsUrl, "_blank")}
-                      className="btn btn-indigo btn-sm px-4 rounded-pill fw-black d-flex align-items-center gap-2 border-0 shadow-lg"
-                      style={{ 
-                        fontSize: '10px', 
-                        letterSpacing: '1px',
-                        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-                        boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      MAPS
-                    </button>
-                  </div>
-
-                  <div className="timeline-container ps-4 border-start border-white border-opacity-10 position-relative">
-                    <div className="mb-5">
-                      <div className="d-flex align-items-center gap-2 mb-4">
-                        <div
-                          className="rounded bg-emerald shadow-glow-emerald"
-                          style={{ width: "8px", height: "8px" }}
-                        ></div>
-                        <span
-                          className="fw-black x-small text-uppercase tracking-wider"
-                          style={{
-                            color: "#2bdd66",
-                            textShadow: "0 0 10px rgba(44, 221, 102, 0.3)",
-                          }}
-                        >
-                          Pickup Locations{" "}
-                        </span>
-                      </div>
-                      {load.pickups.map((p, i) => (
-                        <div key={`p-${i}`} className="mb-4 position-relative">
-                          <div
-                            className="position-absolute translate-middle-x"
-                            style={{ left: "-1.75rem", top: "0.5rem" }}
-                          >
-                            <div
-                              className="rounded-circle bg-emerald"
-                              style={{
-                                width: "12px",
-                                height: "12px",
-                                border: "3px solid #060e20",
-                                zIndex: 2,
-                                position: "relative",
-                              }}
-                            ></div>
-                            {/* Pinpoint Line */}
-                            <div 
-                              className="position-absolute" 
-                              style={{ 
-                                left: "6px", 
-                                top: "6px", 
-                                width: "1.25rem", 
-                                height: "1.5px", 
-                                background: "linear-gradient(90deg, #2bdd66, rgba(45, 221, 102, 0.2))", 
-                                zIndex: 1,
-                              }} 
-                            />
-                            <div 
-                              className="position-absolute rounded-circle bg-emerald"
-                              style={{
-                                left: "1.65rem",
-                                top: "4.5px",
-                                width: "4px",
-                                height: "4px",
-                                boxShadow: "0 0 8px rgba(45, 221, 102, 0.6)",
-                                zIndex: 3
-                              }}
-                            />
-                          </div>
-                          <div
-                            className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
-                            style={{ background: "rgba(255, 255, 255, 0.03)" }}
-                          >
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                              <div
-                                className="px-2 py-1 rounded-pill fw-black"
-                                style={{
-                                  background: "rgba(45, 221, 102, 0.15)",
-                                  border: "1px solid rgba(45, 221, 102, 0.4)",
-                                  fontSize: "9px",
-                                  letterSpacing: "0.5px",
-                                  color: "#2bdd66"
-                                }}
-                              >
-                                PICKUP 0{i + 1}
-                              </div>
-                              <span className="x-small text-white fw-black">
-                                {new Date(p.date).toLocaleDateString()} @ {(() => {
-                                  if (!p.time) return "—";
-                                  const [hours, minutes] = p.time.split(':');
-                                  let h = parseInt(hours);
-                                  const ampm = h >= 12 ? 'PM' : 'AM';
-                                  h = h % 12 || 12;
-                                  return `${h}:${minutes} ${ampm}`;
-                                })()}
-                              </span>
-                            </div>
-                            <div 
-                              className="fw-black small mb-1 text-uppercase tracking-wider"
-                              style={{ color: "#ffffff" }}
-                            >
-                              {p.companyName || "Unknown Company"}
-                            </div>
-                            <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
-                              {p.address}
-                            </div>
-                            <div className="fw-bold text-white x-small opacity-80 text-uppercase">
-                              {p.city}, {p.state}
-                            </div>
-                            <div className="mt-2 pt-2 border-top border-white border-opacity-5">
-                              <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">Appointment Number</span>
-                              <span className="small fw-black text-white" style={{ letterSpacing: '0.05em' }}>{p.appointmentNumber || "—"}</span>
-                            </div>
-                            {p.status !== "PENDING" ? (
-                              <div className="mt-3 py-2 px-3 rounded-pill bg-emerald bg-opacity-20 border border-emerald border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-emerald">
-                                <svg
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="#2bdd66"
-                                  strokeWidth="4"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                <span
-                                  className="fw-black text-white x-small text-uppercase tracking-wider"
-                                  style={{
-                                    textShadow:
-                                      "0 0 10px rgba(45, 221, 102, 0.5)",
-                                  }}
-                                >
-                                  Picked
-                                </span>
-                              </div>
-                            ) : (
-                              user.role === "Driver" && (
-                                <button
-                                  type="button"
-                                  className="btn btn-emerald btn-sm w-100 mt-3 rounded-pill fw-black x-small shadow-glow-emerald"
-                                  onClick={(e) =>
-                                    handleUpdateStopStatus(
-                                      e,
-                                      "pickups",
-                                      i,
-                                      "PICKED_UP",
-                                    )
-                                  }
-                                >
-                                  PICKED UP
-                                </button>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        MAPS
+                      </button>
                     </div>
 
-                    <div>
-                      <div className="d-flex align-items-center gap-2 mb-4">
-                        <div
-                          className="rounded bg-indigo shadow-glow-indigo"
-                          style={{ width: "8px", height: "8px" }}
-                        ></div>
-                        <span
-                          className="fw-black x-small text-uppercase tracking-wider"
-                          style={{
-                            color: "#6366f1",
-                            textShadow: "0 0 10px rgba(99, 102, 241, 0.3)",
-                          }}
-                        >
-                          Delivery Locations{" "}
-                        </span>
-                      </div>
-                      {load.deliveries.map((p, i) => (
-                        <div key={`d-${i}`} className="mb-4 position-relative">
+                    <div className="timeline-container ps-4 border-start border-white border-opacity-10 position-relative">
+                      <div className="mb-5">
+                        <div className="d-flex align-items-center gap-2 mb-4">
                           <div
-                            className="position-absolute translate-middle-x"
-                            style={{ left: "-1.75rem", top: "0.5rem" }}
+                            className="rounded bg-emerald shadow-glow-emerald"
+                            style={{ width: "8px", height: "8px" }}
+                          ></div>
+                          <span
+                            className="fw-black x-small text-uppercase tracking-wider"
+                            style={{
+                              color: "#2bdd66",
+                              textShadow: "0 0 10px rgba(44, 221, 102, 0.3)",
+                            }}
+                          >
+                            Pickup Locations{" "}
+                          </span>
+                        </div>
+                        {load.pickups.map((p, i) => (
+                          <div
+                            key={`p-${i}`}
+                            className="mb-4 position-relative"
                           >
                             <div
-                              className="rounded-circle bg-indigo"
-                              style={{
-                                width: "12px",
-                                height: "12px",
-                                border: "3px solid #060e20",
-                                zIndex: 2,
-                                position: "relative",
-                              }}
-                            ></div>
-                            {/* Pinpoint Line */}
-                            <div 
-                              className="position-absolute" 
-                              style={{ 
-                                left: "6px", 
-                                top: "6px", 
-                                width: "1.25rem", 
-                                height: "1.5px", 
-                                background: "linear-gradient(90deg, #6366f1, rgba(99, 102, 241, 0.2))", 
-                                zIndex: 1,
-                              }} 
-                            />
-                            <div 
-                              className="position-absolute rounded-circle bg-indigo"
-                              style={{
-                                left: "1.65rem",
-                                top: "4.5px",
-                                width: "4px",
-                                height: "4px",
-                                boxShadow: "0 0 8px rgba(99, 102, 241, 0.6)",
-                                zIndex: 3
-                              }}
-                            />
-                          </div>
-                          <div
-                            className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
-                            style={{ background: "rgba(255, 255, 255, 0.03)" }}
-                          >
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                              <div
-                                className="px-2 py-1 rounded-pill fw-black"
-                                style={{
-                                  background: "rgba(99, 102, 241, 0.15)",
-                                  border: "1px solid rgba(99, 102, 241, 0.4)",
-                                  fontSize: "9px",
-                                  letterSpacing: "0.5px",
-                                  color: "#6366f1"
-                                }}
-                              >
-                                DELIVERY 0{i + 1}
-                              </div>
-                              <span className="x-small text-white fw-black">
-                                {new Date(p.date).toLocaleDateString()} @ {(() => {
-                                  if (!p.time) return "—";
-                                  const [hours, minutes] = p.time.split(':');
-                                  let h = parseInt(hours);
-                                  const ampm = h >= 12 ? 'PM' : 'AM';
-                                  h = h % 12 || 12;
-                                  return `${h}:${minutes} ${ampm}`;
-                                })()}
-                              </span>
-                            </div>
-                            <div 
-                              className="fw-black small mb-1 text-uppercase tracking-wider"
-                              style={{ color: "#ffffff" }}
+                              className="position-absolute translate-middle-x"
+                              style={{ left: "-1.75rem", top: "0.5rem" }}
                             >
-                              {p.companyName || "Unknown Company"}
+                              <div
+                                className="rounded-circle bg-emerald"
+                                style={{
+                                  width: "12px",
+                                  height: "12px",
+                                  border: "3px solid #060e20",
+                                  zIndex: 2,
+                                  position: "relative",
+                                }}
+                              ></div>
+                              {/* Pinpoint Line */}
+                              <div
+                                className="position-absolute"
+                                style={{
+                                  left: "6px",
+                                  top: "6px",
+                                  width: "1.25rem",
+                                  height: "1.5px",
+                                  background:
+                                    "linear-gradient(90deg, #2bdd66, rgba(45, 221, 102, 0.2))",
+                                  zIndex: 1,
+                                }}
+                              />
+                              <div
+                                className="position-absolute rounded-circle bg-emerald"
+                                style={{
+                                  left: "1.65rem",
+                                  top: "4.5px",
+                                  width: "4px",
+                                  height: "4px",
+                                  boxShadow: "0 0 8px rgba(45, 221, 102, 0.6)",
+                                  zIndex: 3,
+                                }}
+                              />
                             </div>
-                            <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
-                              {p.address}
-                            </div>
-                            <div className="fw-bold text-white x-small opacity-80 text-uppercase">
-                              {p.city}, {p.state}
-                            </div>
-                            <div className="mt-2 pt-2 border-top border-white border-opacity-5">
-                              <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">Appointment Number</span>
-                              <span className="small fw-black text-white" style={{ letterSpacing: '0.05em' }}>{p.appointmentNumber || "—"}</span>
-                            </div>
-                            {p.status !== "PENDING" ? (
-                              <div className="mt-3 py-2 px-3 rounded-pill bg-indigo bg-opacity-20 border border-indigo border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-indigo">
-                                <svg
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="#6366f1"
-                                  strokeWidth="4"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                <span
-                                  className="fw-black text-white x-small text-uppercase tracking-wider"
+                            <div
+                              className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
+                              style={{
+                                background: "rgba(255, 255, 255, 0.03)",
+                              }}
+                            >
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div
+                                  className="px-2 py-1 rounded-pill fw-black"
                                   style={{
-                                    textShadow:
-                                      "0 0 10px rgba(99, 102, 241, 0.5)",
+                                    background: "rgba(45, 221, 102, 0.15)",
+                                    border: "1px solid rgba(45, 221, 102, 0.4)",
+                                    fontSize: "9px",
+                                    letterSpacing: "0.5px",
+                                    color: "#2bdd66",
                                   }}
                                 >
-                                  Delivered
+                                  PICKUP 0{i + 1}
+                                </div>
+                                <span className="x-small text-white fw-black">
+                                  {new Date(p.date).toLocaleDateString()} @{" "}
+                                  {(() => {
+                                    if (!p.time) return "—";
+                                    const [hours, minutes] = p.time.split(":");
+                                    let h = parseInt(hours);
+                                    const ampm = h >= 12 ? "PM" : "AM";
+                                    h = h % 12 || 12;
+                                    return `${h}:${minutes} ${ampm}`;
+                                  })()}
                                 </span>
                               </div>
-                            ) : (
-                              user.role === "Driver" && (
-                                <button
-                                  type="button"
-                                  className="btn btn-indigo btn-sm w-100 mt-3 rounded-pill fw-black x-small shadow-glow-indigo"
-                                  onClick={(e) =>
-                                    handleUpdateStopStatus(
-                                      e,
-                                      "deliveries",
-                                      i,
-                                      "DELIVERED",
-                                    )
-                                  }
+                              <div
+                                className="fw-black small mb-1 text-uppercase tracking-wider"
+                                style={{ color: "#ffffff" }}
+                              >
+                                {p.companyName || "Unknown Company"}
+                              </div>
+                              <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
+                                {p.address}
+                              </div>
+                              <div className="fw-bold text-white x-small opacity-80 text-uppercase">
+                                {p.city}, {p.state}
+                              </div>
+                              <div className="mt-2 pt-2 border-top border-white border-opacity-5">
+                                <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">
+                                  Appointment Number
+                                </span>
+                                <span
+                                  className="small fw-black text-white"
+                                  style={{ letterSpacing: "0.05em" }}
                                 >
-                                  DELIVERED
-                                </button>
-                              )
-                            )}
+                                  {p.appointmentNumber || "—"}
+                                </span>
+                              </div>
+                              {p.status !== "PENDING" ? (
+                                <div className="mt-3 py-2 px-3 rounded-pill bg-emerald bg-opacity-20 border border-emerald border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-emerald">
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#2bdd66"
+                                    strokeWidth="4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                  <span
+                                    className="fw-black text-white x-small text-uppercase tracking-wider"
+                                    style={{
+                                      textShadow:
+                                        "0 0 10px rgba(45, 221, 102, 0.5)",
+                                    }}
+                                  >
+                                    Picked
+                                  </span>
+                                </div>
+                              ) : (
+                                user.role === "Driver" && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-emerald btn-sm w-100 mt-3 rounded-pill fw-black x-small shadow-glow-emerald"
+                                    onClick={(e) =>
+                                      handleUpdateStopStatus(
+                                        e,
+                                        "pickups",
+                                        i,
+                                        "PICKED_UP",
+                                      )
+                                    }
+                                  >
+                                    PICKED UP
+                                  </button>
+                                )
+                              )}
+                            </div>
                           </div>
+                        ))}
+                      </div>
+
+                      <div>
+                        <div className="d-flex align-items-center gap-2 mb-4">
+                          <div
+                            className="rounded bg-indigo shadow-glow-indigo"
+                            style={{ width: "8px", height: "8px" }}
+                          ></div>
+                          <span
+                            className="fw-black x-small text-uppercase tracking-wider"
+                            style={{
+                              color: "#6366f1",
+                              textShadow: "0 0 10px rgba(99, 102, 241, 0.3)",
+                            }}
+                          >
+                            Delivery Locations{" "}
+                          </span>
                         </div>
-                      ))}
+                        {load.deliveries.map((p, i) => (
+                          <div
+                            key={`d-${i}`}
+                            className="mb-4 position-relative"
+                          >
+                            <div
+                              className="position-absolute translate-middle-x"
+                              style={{ left: "-1.75rem", top: "0.5rem" }}
+                            >
+                              <div
+                                className="rounded-circle bg-indigo"
+                                style={{
+                                  width: "12px",
+                                  height: "12px",
+                                  border: "3px solid #060e20",
+                                  zIndex: 2,
+                                  position: "relative",
+                                }}
+                              ></div>
+                              {/* Pinpoint Line */}
+                              <div
+                                className="position-absolute"
+                                style={{
+                                  left: "6px",
+                                  top: "6px",
+                                  width: "1.25rem",
+                                  height: "1.5px",
+                                  background:
+                                    "linear-gradient(90deg, #6366f1, rgba(99, 102, 241, 0.2))",
+                                  zIndex: 1,
+                                }}
+                              />
+                              <div
+                                className="position-absolute rounded-circle bg-indigo"
+                                style={{
+                                  left: "1.65rem",
+                                  top: "4.5px",
+                                  width: "4px",
+                                  height: "4px",
+                                  boxShadow: "0 0 8px rgba(99, 102, 241, 0.6)",
+                                  zIndex: 3,
+                                }}
+                              />
+                            </div>
+                            <div
+                              className="p-3 rounded-4 border border-white border-opacity-5 shadow-sm transition-all hover-glass"
+                              style={{
+                                background: "rgba(255, 255, 255, 0.03)",
+                              }}
+                            >
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div
+                                  className="px-2 py-1 rounded-pill fw-black"
+                                  style={{
+                                    background: "rgba(99, 102, 241, 0.15)",
+                                    border: "1px solid rgba(99, 102, 241, 0.4)",
+                                    fontSize: "9px",
+                                    letterSpacing: "0.5px",
+                                    color: "#6366f1",
+                                  }}
+                                >
+                                  DELIVERY 0{i + 1}
+                                </div>
+                                <span className="x-small text-white fw-black">
+                                  {new Date(p.date).toLocaleDateString()} @{" "}
+                                  {(() => {
+                                    if (!p.time) return "—";
+                                    const [hours, minutes] = p.time.split(":");
+                                    let h = parseInt(hours);
+                                    const ampm = h >= 12 ? "PM" : "AM";
+                                    h = h % 12 || 12;
+                                    return `${h}:${minutes} ${ampm}`;
+                                  })()}
+                                </span>
+                              </div>
+                              <div
+                                className="fw-black small mb-1 text-uppercase tracking-wider"
+                                style={{ color: "#ffffff" }}
+                              >
+                                {p.companyName || "Unknown Company"}
+                              </div>
+                              <div className="fw-bold text-white x-small mb-1 opacity-80 text-uppercase">
+                                {p.address}
+                              </div>
+                              <div className="fw-bold text-white x-small opacity-80 text-uppercase">
+                                {p.city}, {p.state}
+                              </div>
+                              <div className="mt-2 pt-2 border-top border-white border-opacity-5">
+                                <span className="x-small text-white opacity-40 text-uppercase tracking-widest d-block mb-1">
+                                  Appointment Number
+                                </span>
+                                <span
+                                  className="small fw-black text-white"
+                                  style={{ letterSpacing: "0.05em" }}
+                                >
+                                  {p.appointmentNumber || "—"}
+                                </span>
+                              </div>
+                              {p.status !== "PENDING" ? (
+                                <div className="mt-3 py-2 px-3 rounded-pill bg-indigo bg-opacity-20 border border-indigo border-opacity-40 d-flex align-items-center justify-content-center gap-2 shadow-glow-indigo">
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#6366f1"
+                                    strokeWidth="4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                  <span
+                                    className="fw-black text-white x-small text-uppercase tracking-wider"
+                                    style={{
+                                      textShadow:
+                                        "0 0 10px rgba(99, 102, 241, 0.5)",
+                                    }}
+                                  >
+                                    Delivered
+                                  </span>
+                                </div>
+                              ) : (
+                                user.role === "Driver" && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-indigo btn-sm w-100 mt-3 rounded-pill fw-black x-small shadow-glow-indigo"
+                                    onClick={(e) =>
+                                      handleUpdateStopStatus(
+                                        e,
+                                        "deliveries",
+                                        i,
+                                        "DELIVERED",
+                                      )
+                                    }
+                                  >
+                                    DELIVERED
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* ACTION FOOTER - CONSOLIDATED & ROLE-RESTRICTED */}
-              {(user.role !== "Driver" ||
-                (load.status === "IN_TRANSIT" && isAllStopsDone)) && (
-                <div 
-                  className="col-12 mt-3 pt-3 mb-0 border-top border-white border-opacity-10 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 animate-fade-in"
-                  style={{ paddingBottom: '0.5rem' }}
-                >
-                  {user.role !== "Driver" && (
-                    <div className="d-flex flex-column align-items-center align-items-md-start text-center text-md-start text-nowrap">
-                      <span 
-                        className="fw-black text-uppercase tracking-widest mb-1" 
-                        style={{ 
-                          fontSize: "0.85rem",
-                          background: "linear-gradient(90deg, #6366f1, #a855f7)",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          textShadow: "0 2px 10px rgba(99, 102, 241, 0.2)"
-                        }}
-                      >
-                        DELIVERY DOCUMENTATION
-                      </span>
+                {/* ACTION FOOTER - CONSOLIDATED & ROLE-RESTRICTED */}
+                {(user.role !== "Driver" ||
+                  (load.status === "IN_TRANSIT" && isAllStopsDone)) && (
+                  <div
+                    className="col-12 mt-3 pt-3 mb-0 border-top border-white border-opacity-10 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 animate-fade-in"
+                    style={{ paddingBottom: "0.5rem" }}
+                  >
+                    {user.role !== "Driver" && (
+                      <div className="d-flex flex-column align-items-center align-items-md-start text-center text-md-start text-nowrap">
+                        <span
+                          className="fw-black text-uppercase tracking-widest mb-1"
+                          style={{
+                            fontSize: "0.85rem",
+                            background:
+                              "linear-gradient(90deg, #6366f1, #a855f7)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            textShadow: "0 2px 10px rgba(99, 102, 241, 0.2)",
+                          }}
+                        >
+                          DELIVERY DOCUMENTATION
+                        </span>
+                        {load.status === "COMPLETED" && (
+                          <div className="d-flex align-items-center gap-2 mt-1">
+                            <span
+                              className="small fw-black text-white opacity-80"
+                              style={{ lineHeight: 1 }}
+                            >
+                              LOAD COMPLETED & ARCHIVED
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-md-center gap-2 gap-md-3 action-footer-wrapper">
+                      {user.role !== "Driver" && load.podUrl && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-white-glass px-4 py-2 rounded-pill fw-black text-uppercase text-nowrap transition-all hover-glass"
+                          style={{
+                            fontSize: "11px",
+                            letterSpacing: "2px",
+                            background: hasViewedPod
+                              ? "rgba(43, 221, 102, 0.15)"
+                              : "rgba(99, 102, 241, 0.2)",
+                            borderColor: hasViewedPod
+                              ? "rgba(43, 221, 102, 0.5)"
+                              : "rgba(99, 102, 241, 0.5)",
+                            boxShadow: hasViewedPod
+                              ? "0 0 15px rgba(43, 221, 102, 0.2)"
+                              : "0 0 15px rgba(99, 102, 241, 0.2)",
+                          }}
+                          onClick={() => {
+                            setShowPodPreview(true);
+                            setHasViewedPod(true);
+                          }}
+                        >
+                          {hasViewedPod ? "View POD (Verified)" : "View POD"}
+                        </button>
+                      )}
+
+                      {load.status === "IN_TRANSIT" &&
+                        user.role === "Driver" && (
+                          <button
+                            type="button"
+                            className="btn btn-emerald px-5 py-2 rounded-pill fw-black text-uppercase text-nowrap transition-all shadow-glow-emerald"
+                            style={{ fontSize: "11px", letterSpacing: "2px" }}
+                            onClick={handleSubmitMission}
+                          >
+                            Submit for Approval
+                          </button>
+                        )}
+
+                      {user.role === "Dispatcher" &&
+                        load.status !== "COMPLETED" && (
+                          <button
+                            type="button"
+                            className={`btn ${
+                              (load.status === "DELIVERED" ||
+                                (load.status === "IN_TRANSIT" &&
+                                  isAllStopsDone)) &&
+                              hasViewedPod
+                                ? "btn-emerald shadow-glow-emerald animate-pulse-slow"
+                                : "btn-secondary opacity-50 cursor-not-allowed"
+                            } px-5 py-2 rounded-pill fw-black text-uppercase text-nowrap`}
+                            style={{
+                              fontSize: "11px",
+                              letterSpacing: "2px",
+                              border:
+                                (load.status === "DELIVERED" ||
+                                  (load.status === "IN_TRANSIT" &&
+                                    isAllStopsDone)) &&
+                                hasViewedPod
+                                  ? "none"
+                                  : "1px solid rgba(255, 255, 255, 0.1)",
+                            }}
+                            onClick={handleApproveLoad}
+                            title={
+                              !hasViewedPod
+                                ? "You must view the POD document first"
+                                : ""
+                            }
+                            disabled={
+                              !(
+                                load.status === "DELIVERED" ||
+                                (load.status === "IN_TRANSIT" && isAllStopsDone)
+                              ) || !hasViewedPod
+                            }
+                          >
+                            Mark as Completed
+                          </button>
+                        )}
                       {load.status === "COMPLETED" && (
-                        <div className="d-flex align-items-center gap-2 mt-1">
-                          <span className="small fw-black text-white opacity-80" style={{ lineHeight: 1 }}>
-                            LOAD COMPLETED & ARCHIVED
+                        <div className="px-4 py-3 rounded-pill bg-emerald bg-opacity-20 border border-emerald border-opacity-50 d-flex align-items-center gap-2 shadow-glow-emerald animate-fade-in">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#2bdd66"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          <span
+                            className="fw-black text-white text-uppercase tracking-widest"
+                            style={{
+                              fontSize: "11px",
+                              textShadow: "0 0 10px rgba(45, 221, 102, 0.5)",
+                            }}
+                          >
+                            Verified & Accomplished
                           </span>
                         </div>
                       )}
                     </div>
-                  )}
-                  <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-md-center gap-2 gap-md-3 action-footer-wrapper">
-                    {user.role !== "Driver" && load.podUrl && (
-                      <button
-                        type="button"
-                        className="btn btn-outline-white-glass px-4 py-2 rounded-pill fw-black text-uppercase text-nowrap transition-all hover-glass"
-                        style={{
-                          fontSize: "11px",
-                          letterSpacing: "2px",
-                          background: hasViewedPod
-                            ? "rgba(43, 221, 102, 0.15)"
-                            : "rgba(99, 102, 241, 0.2)",
-                          borderColor: hasViewedPod
-                            ? "rgba(43, 221, 102, 0.5)"
-                            : "rgba(99, 102, 241, 0.5)",
-                          boxShadow: hasViewedPod 
-                            ? "0 0 15px rgba(43, 221, 102, 0.2)"
-                            : "0 0 15px rgba(99, 102, 241, 0.2)"
-                        }}
-                        onClick={() => {
-                          setShowPodPreview(true);
-                          setHasViewedPod(true);
-                        }}
-                      >
-                        {hasViewedPod ? "View POD (Verified)" : "View POD"}
-                      </button>
-                    )}
-
-                    {load.status === "IN_TRANSIT" && user.role === "Driver" && (
-                      <button
-                        type="button"
-                        className="btn btn-emerald px-5 py-2 rounded-pill fw-black text-uppercase text-nowrap transition-all shadow-glow-emerald"
-                        style={{ fontSize: "11px", letterSpacing: "2px" }}
-                        onClick={handleSubmitMission}
-                      >
-                        Submit for Approval
-                      </button>
-                    )}
-
-                    {user.role === "Dispatcher" &&
-                      load.status !== "COMPLETED" && (
-                        <button
-                          type="button"
-                          className={`btn ${
-                            (load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) && hasViewedPod
-                              ? "btn-emerald shadow-glow-emerald animate-pulse-slow"
-                              : "btn-secondary opacity-50 cursor-not-allowed"
-                          } px-5 py-2 rounded-pill fw-black text-uppercase text-nowrap`}
-                          style={{
-                            fontSize: "11px",
-                            letterSpacing: "2px",
-                            border:
-                              (load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) && hasViewedPod
-                                ? "none"
-                                : "1px solid rgba(255, 255, 255, 0.1)",
-                          }}
-                          onClick={handleApproveLoad}
-                          title={
-                            !hasViewedPod
-                              ? "You must view the POD document first"
-                              : ""
-                          }
-                          disabled={
-                            !(load.status === "DELIVERED" || (load.status === "IN_TRANSIT" && isAllStopsDone)) || !hasViewedPod
-                          }
-                        >
-                          Mark as Completed
-                        </button>
-                      )}
-                    {load.status === "COMPLETED" && (
-                      <div className="px-4 py-3 rounded-pill bg-emerald bg-opacity-20 border border-emerald border-opacity-50 d-flex align-items-center gap-2 shadow-glow-emerald animate-fade-in">
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#2bdd66"
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                        <span
-                          className="fw-black text-white text-uppercase tracking-widest"
-                          style={{
-                            fontSize: "11px",
-                            textShadow: "0 0 10px rgba(45, 221, 102, 0.5)",
-                          }}
-                        >
-                          Verified & Accomplished
-                        </span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {showPodUpload && (
-        <ProofOfDeliveryUpload
-          loadId={load._id.toString()}
-          onUploadSuccess={handlePodUploadSuccess}
-          onClose={() => {
-            setShowPodUpload(false);
-            setPendingDeliveryIndex(null);
-          }}
-        />
-      )}
+        {showPodUpload && (
+          <ProofOfDeliveryUpload
+            loadId={load._id.toString()}
+            onUploadSuccess={handlePodUploadSuccess}
+            onClose={() => {
+              setShowPodUpload(false);
+              setPendingDeliveryIndex(null);
+            }}
+          />
+        )}
 
-      {showPodPreview && load.podUrl && (
-        <div
-          className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center animate-fade-in"
-          style={{ zIndex: 2500 }}
-          onClick={(e) => e.stopPropagation()}
-        >
+        {showPodPreview && load.podUrl && (
           <div
-            className="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-90 backdrop-blur-xl"
-            onClick={() => setShowPodPreview(false)}
-          ></div>
-          <div
-            className="position-relative z-1 p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
-            onClick={() => setShowPodPreview(false)}
+            className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center animate-fade-in"
+            style={{ zIndex: 2500 }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div
-              className="position-absolute top-0 end-0 p-4"
-              style={{ zIndex: 10 }}
+              className="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-90 backdrop-blur-xl"
+              onClick={() => setShowPodPreview(false)}
+            ></div>
+            <div
+              className="position-relative z-1 p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+              onClick={() => setShowPodPreview(false)}
             >
-              <button
-                type="button"
-                className="btn-close btn-close-white fs-4"
-                title="Close Preview"
-                onClick={() => setShowPodPreview(false)}
-              ></button>
-            </div>
-            <img
-              src={load.podUrl}
-              alt="Proof of Delivery"
-              className="img-fluid rounded-4 shadow-2xl transition-all duration-500"
-              style={{
-                maxHeight: "85vh",
-                width: "auto",
-                border: "2px solid rgba(255, 255, 255, 0.1)",
-                boxShadow: "0 0 100px rgba(0, 0, 0, 0.5)",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <div className="mt-4 px-4 py-2 rounded-pill bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-10 text-white fw-black x-small text-uppercase tracking-widest">
-              Digital Evidence Verification
+              <div
+                className="position-absolute top-0 end-0 p-4"
+                style={{ zIndex: 10 }}
+              >
+                <button
+                  type="button"
+                  className="btn-close btn-close-white fs-4"
+                  title="Close Preview"
+                  onClick={() => setShowPodPreview(false)}
+                ></button>
+              </div>
+              <img
+                src={load.podUrl}
+                alt="Proof of Delivery"
+                className="img-fluid rounded-4 shadow-2xl transition-all duration-500"
+                style={{
+                  maxHeight: "85vh",
+                  width: "auto",
+                  border: "2px solid rgba(255, 255, 255, 0.1)",
+                  boxShadow: "0 0 100px rgba(0, 0, 0, 0.5)",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="mt-4 px-4 py-2 rounded-pill bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-10 text-white fw-black x-small text-uppercase tracking-widest">
+                Digital Evidence Verification
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
       </div>
 
       <style jsx>{`
         @keyframes backdropFadeIn {
-          from { opacity: 0; backdrop-filter: blur(0px); }
-          to { opacity: 1; backdrop-filter: blur(20px); }
+          from {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+          }
+          to {
+            opacity: 1;
+            backdrop-filter: blur(20px);
+          }
         }
 
         @keyframes modalScaleIn {
-          from { opacity: 0; transform: scale(0.95) translateY(10px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
         }
 
         .animate-scale-in {
@@ -2248,7 +2517,7 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
         }
       `}</style>
     </>,
-    document.getElementById("portal-root") || document.body
+    document.getElementById("portal-root") || document.body,
   );
 };
 

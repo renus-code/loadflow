@@ -1,5 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+/**
+ * ======================================================================================
+ * MODEL: Load
+ * ======================================================================================
+ * The core entity of the application. A "Load" represents a single logistics mission.
+ * Features:
+ * 1. Multi-Stop Routing: Supports multiple pickups and deliveries.
+ * 2. Resource Assignment: Links drivers, trucks, and trailers to a load.
+ * 3. Performance Analytics: Stores distance and duration for dashboard stats.
+ * 4. Status Lifecycle: PENDING -> ASSIGNED -> IN_TRANSIT -> DELIVERED -> COMPLETED.
+ * ======================================================================================
+ */
+
+/**
+ * Stop Schema: Represents a single geographical point in a mission (Pickup or Delivery)
+ */
 export interface IStop {
   companyName: string;
   address: string;
@@ -27,8 +43,10 @@ export interface ILoad extends Document {
   weight: number;
   weightUnit: 'lbs' | 'kg';
   
-  totalDistance?: number;       // In miles (mock feature)
-  estimatedDuration?: number;   // In hours (mock feature)
+  // PERFORMANCE TRACKING: These fields drive the Driver Dashboard analytics.
+  // They are used to calculate Miles and Service Hours.
+  totalDistance?: number;       // Calculated distance in miles
+  estimatedDuration?: number;   // Calculated time in hours
   
   truckType?: 'Sleeper Cab' | 'Day Cab' | null;
   trailerType?: 'Dry Van' | 'Reefer' | 'Tri Axle' | 'Flatbed' | null;

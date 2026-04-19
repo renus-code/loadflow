@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * CONFIG: Dynamic XML Sitemap (sitemap.xml)
+ * ======================================================================================
+ * Generates an automated, dynamic sitemap for search engine ingestion.
+ * 
+ * Features:
+ * 1. Priority Matrix: Assigns crawl priorities (e.g., Homepage: 1.0, Registration: 0.8).
+ * 2. Frequency Hints: Informs crawlers of expected content change rates.
+ * 3. Dynamic Hydration: Automatically generates the latest temporal timestamps.
+ * ======================================================================================
+ */
 import { MetadataRoute } from 'next'
  
 export default function sitemap(): MetadataRoute.Sitemap {

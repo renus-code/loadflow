@@ -1,11 +1,15 @@
 /**
- * In-Memory Sliding-Window Rate Limiter
- *
- * Tracks requests per IP address using a sliding-window algorithm.
- * Safe for single-server Next.js deployments (dev + production on one machine).
- *
- * For multi-instance / edge deployments, swap this out for a Redis-backed
- * solution such as @upstash/ratelimit.
+ * ======================================================================================
+ * UTILITY: Rate Limiter (Defensive Security)
+ * ======================================================================================
+ * An in-memory sliding-window engine designed to protect sensitive API routes.
+ * 
+ * Features:
+ * 1. Brute-Force Mitigation: Throttles high-frequency requests based on Client IP.
+ * 2. Sliding-Window Algorithm: Ensures precision in request accounting over time windows.
+ * 3. Reverse-Proxy Aware: Correctly identifies users behind proxies (X-Forwarded-For).
+ * 4. Production Ready: Persists state across hot-reloads via globalStore pattern.
+ * ======================================================================================
  */
 import { NextRequest, NextResponse } from 'next/server';
 

@@ -1,4 +1,16 @@
-// Contact Page: Lets users send a message to the LoadFlow team via email, phone, or the contact form.
+/**
+ * ======================================================================================
+ * PAGE: Contact & Support (User Engagement)
+ * ======================================================================================
+ * The centralized hub for user inquiries, technical support, and demo requests.
+ * 
+ * Features:
+ * 1. Intelligent Routing: Categorizes inquiries (Demo, Support, Billing) via CustomSelect.
+ * 2. Visual Quality: Features a custom-engineered dropdown and hero banner with radial glows.
+ * 3. Responsive Layout: Dual-column architecture optimized for desktop and mobile viewing.
+ * 4. Contact Vectors: Provides direct access to email, phone, and physical office intelligence.
+ * ======================================================================================
+ */
 "use client";
 
 import { useState, useRef, useEffect } from "react";

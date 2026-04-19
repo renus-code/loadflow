@@ -1,6 +1,18 @@
 "use client";
 
-// Admin Panel: Let admins manage staff members, roles, and passwords.
+/**
+ * ======================================================================================
+ * COMPONENT: UserManagement (Admin/Dispatcher Control Panel)
+ * ======================================================================================
+ * A robust administrative interface for managing the system's human resources.
+ * Features:
+ * 1. Multi-Role UI: Context-aware interface (Admins manage everyone; Dispatchers manage driver requests).
+ * 2. Security Controls: Global session revocation, account unlocking, and password reset approvals.
+ * 3. Optimistic Concurrency: Tracks document versions (__v) to prevent data overwrites.
+ * 4. Advanced Search & Pagination: High-performance filtering for large datasets.
+ * 5. Adaptive Layout: Switches between desktop tables and mobile cards for perfect responsiveness.
+ * ======================================================================================
+ */
 
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";

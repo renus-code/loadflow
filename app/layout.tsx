@@ -1,3 +1,17 @@
+/**
+ * ======================================================================================
+ * CORE: Root Layout (Global Shell)
+ * ======================================================================================
+ * The architectural foundation of the entire application.
+ * 
+ * Features:
+ * 1. Global Context: Orchestrates the AuthProvider and GlobalErrorBoundary.
+ * 2. SEO & PWA: Manages mission-critical metadata, manifest discovery, and app shortcuts.
+ * 3. Typography Engine: Injects premium Plus Jakarta Sans and Outfit font variables.
+ * 4. Performance Optimization: Preloads LCP assets and initializes the Bootstrap client.
+ * 5. Portal System: Provides the #portal-root for z-index stable modals.
+ * ======================================================================================
+ */
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";

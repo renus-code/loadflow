@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * COMPONENT: Premium UI Skeleton Library
+ * ======================================================================================
+ * Delivers structural wireframes during asynchronous data fetching.
+ * 
+ * Features:
+ * 1. Visual Stability: Prevents Cumulative Layout Shift (CLS) during API hydration.
+ * 2. Contextual Shapes: Provides specialized loaders for Data Tables, Cards, and Mobile Views.
+ * 3. Brand Consistency: Employs the 'Stitch' glassmorphism aesthetic even in loading states.
+ * ======================================================================================
+ */
 "use client";
 
 import React from "react";

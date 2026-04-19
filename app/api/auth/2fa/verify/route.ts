@@ -1,3 +1,15 @@
+/**
+ * ======================================================================================
+ * API ROUTE: 2FA Activation Handshake (Verify)
+ * ======================================================================================
+ * Validates the user's first TOTP code to permanently enable 2FA on their account.
+ * 
+ * Features:
+ * 1. Synchronous Validation: Uses `otplib` to compare the provided code against the pending secret.
+ * 2. Permanent Lock-in: Flips `isTwoFactorEnabled` to true upon successful verification.
+ * 3. Audit Integration: Emits a '2FA_SETUP_COMPLETED' event to the system ledger.
+ * ======================================================================================
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { verify } from 'otplib';
 import connectToDatabase from '@/lib/mongodb';
