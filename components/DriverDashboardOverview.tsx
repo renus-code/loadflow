@@ -393,45 +393,45 @@ export default function DriverDashboardOverview({
 
                             {/* Mission Metrics */}
                             <div className="mb-4">
-                              <div className="row g-4">
-                                <div className="col-4 border-end border-white border-opacity-10">
+                              <div className="row g-0">
+                                <div className="col-3 border-end border-white border-opacity-10">
                                   <div className="x-small text-uppercase tracking-widest text-white opacity-30 fw-black mb-1">
                                     MILES
                                   </div>
                                   <div
-                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-1"
+                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-2"
                                     style={{ fontFamily: "var(--font-syne)" }}
                                   >
                                     {Math.round(totalDistance)}
-                                    <span className="fs-6 ms-1 text-white">
+                                    <span className="fs-6 text-white opacity-40 fw-bold">
                                       mi
                                     </span>
                                   </div>
                                 </div>
-                                <div className="col-4 border-end border-white border-opacity-10">
+                                <div className="col-5 border-end border-white border-opacity-10 px-3">
                                   <div className="x-small text-uppercase tracking-widest text-white opacity-30 fw-black mb-1">
                                     WEIGHT
                                   </div>
                                   <div
-                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-1"
+                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-2"
                                     style={{ fontFamily: "var(--font-syne)" }}
                                   >
-                                    {activeLoad.weight || "12.5k"}
-                                    <span className="fs-6 ms-1 text-white">
+                                    {activeLoad.weight || "0"}
+                                    <span className="fs-6 text-white opacity-40 fw-bold">
                                       lbs
                                     </span>
                                   </div>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-4 ps-3">
                                   <div className="x-small text-uppercase tracking-widest text-white opacity-30 fw-black mb-1">
                                     DURATION
                                   </div>
                                   <div
-                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-1"
+                                    className="h4 fw-black text-white m-0 d-flex align-items-baseline gap-2"
                                     style={{ fontFamily: "var(--font-syne)" }}
                                   >
                                     {totalDuration.toFixed(1)}
-                                    <span className="fs-6 ms-1 text-white">
+                                    <span className="fs-6 text-white opacity-40 fw-bold">
                                       hrs
                                     </span>
                                   </div>

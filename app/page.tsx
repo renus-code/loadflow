@@ -3,7 +3,7 @@
  * PAGE: Landing Hub (Hero Experience)
  * ======================================================================================
  * The high-conversion public face of the LoadFlow platform.
- * 
+ *
  * Features:
  * 1. Performance-First: Implements LCP preloading and decoding:async for background assets.
  * 2. Visual Storytelling: Multi-section parallax-ready layout with kinetic mesh gradients.
@@ -45,8 +45,8 @@ export default function Home() {
           />
 
           {/* Core Dark Gradient Overlay (Replaces the background-image linear-gradient) */}
-          <div 
-            className="position-absolute top-0 start-0 w-100 h-100" 
+          <div
+            className="position-absolute top-0 start-0 w-100 h-100"
             style={{ backgroundColor: "rgba(0,0,0,0.45)", zIndex: 1 }}
           ></div>
 
@@ -54,25 +54,30 @@ export default function Home() {
           <div
             className="position-absolute w-50 h-100 d-none d-lg-block"
             style={{
-              background: "linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
+              background:
+                "linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
               left: 0,
               top: 0,
-              zIndex: 1
+              zIndex: 1,
             }}
           ></div>
-          
+
           {/* Bottom Fading Gradient Overlay (Mobile) */}
           <div
             className="position-absolute w-100 h-100 d-block d-lg-none"
             style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)",
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)",
               left: 0,
               bottom: 0,
-              zIndex: 1
+              zIndex: 1,
             }}
           ></div>
 
-          <div className="container position-relative py-5 mt-5" style={{ zIndex: 2 }}>
+          <div
+            className="container position-relative py-5 mt-5"
+            style={{ zIndex: 2 }}
+          >
             <div className="row align-items-center">
               <div className="col-12 col-lg-7 text-center text-lg-start pt-5 mt-4">
                 <h1
@@ -134,13 +139,29 @@ export default function Home() {
         {/* HYPER-PREMIUM STATISTICS SECTION */}
         <section className="py-5 bg-white position-relative overflow-hidden">
           {/* Glowing Top & Bottom Gradient Borders */}
-          <div className="position-absolute top-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 2px 10px rgba(43,221,102,0.3)" }}></div>
-          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div
+            className="position-absolute top-0 start-0 w-100 z-2"
+            style={{
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)",
+              boxShadow: "0 2px 10px rgba(43,221,102,0.3)",
+            }}
+          ></div>
+          <div
+            className="position-absolute bottom-0 start-0 w-100 z-2"
+            style={{
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)",
+              boxShadow: "0 -2px 10px rgba(43,221,102,0.3)",
+            }}
+          ></div>
           <div className="container py-4 position-relative z-1">
             <div className="row text-center g-4">
               {/* Stat 1: Multi-Stop Loads */}
               <div className="col-12 col-sm-6 col-lg-3">
-                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                <div className="p-4 rounded-4 glass-card-light h-100 d-flex flex-column align-items-center justify-content-center">
                   <div className="icon-orb glow-primary mb-3">
                     <i className="bi bi-truck text-white fs-3"></i>
                   </div>
@@ -154,7 +175,7 @@ export default function Home() {
               </div>
               {/* Stat 2: Sync Rate */}
               <div className="col-12 col-sm-6 col-lg-3">
-                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                <div className="p-4 rounded-4 glass-card-light h-100 d-flex flex-column align-items-center justify-content-center">
                   <div className="icon-orb glow-success mb-3">
                     <i className="bi bi-arrow-repeat text-white fs-3"></i>
                   </div>
@@ -168,12 +189,12 @@ export default function Home() {
               </div>
               {/* Stat 3: Verified Drivers */}
               <div className="col-12 col-sm-6 col-lg-3">
-                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                <div className="p-4 rounded-4 glass-card-light h-100 d-flex flex-column align-items-center justify-content-center">
                   <div className="icon-orb glow-warning mb-3">
                     <i className="bi bi-person-check text-white fs-3"></i>
                   </div>
                   <div className="stat-value-premium display-6 mb-1 fw-bold text-dark">
-                    30
+                    30+
                   </div>
                   <p className="text-secondary small fw-bold text-uppercase tracking-wider mb-0">
                     Certified Drivers
@@ -182,7 +203,7 @@ export default function Home() {
               </div>
               {/* Stat 4: Digital POD Value */}
               <div className="col-12 col-sm-6 col-lg-3">
-                <div className="p-4 rounded-4 glass-card-premium h-100 d-flex flex-column align-items-center justify-content-center">
+                <div className="p-4 rounded-4 glass-card-light h-100 d-flex flex-column align-items-center justify-content-center">
                   <div className="icon-orb glow-danger mb-3">
                     <i className="bi bi-file-earmark-check text-white fs-3"></i>
                   </div>
@@ -199,9 +220,20 @@ export default function Home() {
         </section>
 
         {/* HYPER-PREMIUM FEATURES SECTION */}
-        <section id="features" className="py-5 bg-white position-relative overflow-hidden">
+        <section
+          id="features"
+          className="py-5 bg-white position-relative overflow-hidden"
+        >
           {/* Glowing Bottom Gradient Border */}
-          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div
+            className="position-absolute bottom-0 start-0 w-100 z-2"
+            style={{
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)",
+              boxShadow: "0 -2px 10px rgba(43,221,102,0.3)",
+            }}
+          ></div>
           <div className="container py-5 position-relative z-1">
             <div className="text-center mb-5 max-w-700 mx-auto">
               <p
@@ -228,7 +260,7 @@ export default function Home() {
             <div className="row g-4 pt-4">
               {/* Feature 1: Multi-Stop Dispatching */}
               <div className="col-md-4">
-                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-light">
                   <div className="card-body p-2">
                     <div className="icon-orb glow-primary mb-4 shadow-primary-glow">
                       <i className="bi bi-layers-half text-white fs-2"></i>
@@ -253,7 +285,7 @@ export default function Home() {
 
               {/* Feature 2: Real-Time Sync */}
               <div className="col-md-4">
-                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-light">
                   <div className="card-body p-2">
                     <div className="icon-orb glow-success mb-4 shadow-success-glow">
                       <i className="bi bi-arrow-repeat text-white fs-2"></i>
@@ -278,7 +310,7 @@ export default function Home() {
 
               {/* Feature 3: Digital POD */}
               <div className="col-md-4">
-                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-premium">
+                <div className="card h-100 border-0 rounded-5 p-4 text-start glass-card-light">
                   <div className="card-body p-2">
                     <div className="icon-orb glow-info mb-4 shadow-info-glow">
                       <i className="bi bi-file-earmark-check text-white fs-2"></i>
@@ -313,7 +345,15 @@ export default function Home() {
           }}
         >
           {/* Glowing Bottom Gradient Border */}
-          <div className="position-absolute bottom-0 start-0 w-100 z-2" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div
+            className="position-absolute bottom-0 start-0 w-100 z-2"
+            style={{
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)",
+              boxShadow: "0 -2px 10px rgba(43,221,102,0.3)",
+            }}
+          ></div>
           {/* Animated Nebula Glows */}
           <div className="position-absolute top-0 start-0 w-100 h-100 z-0 opacity-50">
             <div
@@ -442,7 +482,10 @@ export default function Home() {
                 <div className="position-relative">
                   <div
                     className="position-absolute translate-middle top-50 start-50 w-75 h-75 rounded-circle z-0"
-                    style={{ background: "radial-gradient(circle, rgba(43,221,102,0.2) 0%, transparent 75%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, rgba(43,221,102,0.2) 0%, transparent 75%)",
+                    }}
                   ></div>
 
                   <div className="rounded-5 overflow-hidden shadow-2xl border border-white border-opacity-20 z-1 position-relative hover-tilt ripple-effect">
@@ -461,8 +504,6 @@ export default function Home() {
                         filter: "brightness(0.9) contrast(1.1)",
                       }}
                     />
-
-
                   </div>
                 </div>
               </div>
@@ -479,78 +520,172 @@ export default function Home() {
           }}
         >
           {/* Glowing Bottom Gradient Border */}
-          <div className="position-absolute bottom-0 start-0 w-100" style={{ height: "2px", background: "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)", boxShadow: "0 -2px 10px rgba(43,221,102,0.3)" }}></div>
+          <div
+            className="position-absolute bottom-0 start-0 w-100"
+            style={{
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(43,221,102,0.5) 50%, transparent 100%)",
+              boxShadow: "0 -2px 10px rgba(43,221,102,0.3)",
+            }}
+          ></div>
 
           {/* Subtle background texture & glows */}
-          <div className="position-absolute top-50 start-50 translate-middle rounded-circle" style={{ width: "800px", height: "500px", background: "radial-gradient(ellipse, rgba(43,221,102,0.12) 0%, transparent 70%)", filter: "blur(60px)", zIndex: 0 }}></div>
-          <div className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
+          <div
+            className="position-absolute top-50 start-50 translate-middle rounded-circle"
+            style={{
+              width: "800px",
+              height: "500px",
+              background:
+                "radial-gradient(ellipse, rgba(43,221,102,0.12) 0%, transparent 70%)",
+              filter: "blur(60px)",
+              zIndex: 0,
+            }}
+          ></div>
+          <div
+            className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+              zIndex: 0,
+            }}
+          ></div>
 
           <div className="container position-relative z-1 py-5">
             <div className="row align-items-center justify-content-between g-5">
-
               {/* Left Column: Title & Subtitle */}
               <div className="col-lg-4 text-center text-lg-start pe-lg-3 position-relative z-1">
-                <span className="badge bg-success bg-opacity-25 text-success fw-bold px-3 py-2 rounded-pill border border-success border-opacity-50 mb-4 d-inline-flex align-items-center gap-2" style={{ letterSpacing: "1px", fontSize: "0.75rem", boxShadow: "0 0 20px rgba(43, 221, 102, 0.2)" }}>
-                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#2bdd66", display: "inline-block" }}></span>
+                <span
+                  className="badge bg-success bg-opacity-25 text-success fw-bold px-3 py-2 rounded-pill border border-success border-opacity-50 mb-4 d-inline-flex align-items-center gap-2"
+                  style={{
+                    letterSpacing: "1px",
+                    fontSize: "0.75rem",
+                    boxShadow: "0 0 20px rgba(43, 221, 102, 0.2)",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      backgroundColor: "#2bdd66",
+                      display: "inline-block",
+                    }}
+                  ></span>
                   INDUSTRY STANDARD
                 </span>
-                <h2 className="fw-bold text-white mb-3" style={{ fontFamily: "var(--font-syne)", fontSize: "3rem", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>Dispatcher Pro</h2>
-                <p className="text-white text-opacity-50 mb-0" style={{ fontSize: "1.1rem" }}>No hidden fees. Direct, high-octane logistics power.</p>
+                <h2
+                  className="fw-bold text-white mb-3"
+                  style={{
+                    fontFamily: "var(--font-syne)",
+                    fontSize: "3rem",
+                    textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  Dispatcher Pro
+                </h2>
+                <p
+                  className="text-white text-opacity-50 mb-0"
+                  style={{ fontSize: "1.1rem" }}
+                >
+                  No hidden fees. Direct, high-octane logistics power.
+                </p>
               </div>
 
               {/* Middle Column: Features */}
               <div className="col-lg-5 p-lg-5 border-start border-end border-white border-opacity-10 my-4 my-lg-0 position-relative z-1">
                 <div className="row g-4">
                   <div className="col-sm-6 d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+                      style={{ width: "32px", height: "32px" }}
+                    >
                       <i className="bi bi-check-lg text-success fs-5"></i>
                     </div>
-                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Unlimited Dispatch Board</span>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">
+                      Unlimited Dispatch Board
+                    </span>
                   </div>
                   <div className="col-sm-6 d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+                      style={{ width: "32px", height: "32px" }}
+                    >
                       <i className="bi bi-check-lg text-success fs-5"></i>
                     </div>
-                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Real-Time Board Sync</span>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">
+                      Real-Time Board Sync
+                    </span>
                   </div>
                   <div className="col-sm-6 d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+                      style={{ width: "32px", height: "32px" }}
+                    >
                       <i className="bi bi-check-lg text-success fs-5"></i>
                     </div>
-                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Digital POD Management</span>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">
+                      Digital POD Management
+                    </span>
                   </div>
                   <div className="col-sm-6 d-flex align-items-center gap-3">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10" style={{ width: "32px", height: "32px" }}>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+                      style={{ width: "32px", height: "32px" }}
+                    >
                       <i className="bi bi-check-lg text-success fs-5"></i>
                     </div>
-                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">Priority Fleet Support</span>
+                    <span className="text-white fw-medium text-opacity-90 small pb-0 mb-0">
+                      Priority Fleet Support
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: CTA */}
               <div className="col-lg-3 text-center text-lg-end ps-lg-4 d-flex flex-column gap-3 justify-content-center position-relative z-1">
-                <button 
+                <button
                   className="btn w-100 fw-bold py-3 rounded-pill shadow-success-glow border-0 d-flex justify-content-center align-items-center gap-2 hover-zoom"
-                  style={{ backgroundColor: "#2bdd66", color: "#000", fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.5px" }}
-                  data-bs-toggle="modal" 
+                  style={{
+                    backgroundColor: "#2bdd66",
+                    color: "#000",
+                    fontSize: "0.95rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                  data-bs-toggle="modal"
                   data-bs-target="#requestDemoModal"
                 >
-                  Request Demo 
-                  <span className="d-flex align-items-center justify-content-center rounded-circle" style={{ width: "26px", height: "26px", backgroundColor: "rgba(0, 0, 0, 0.15)", marginLeft: "4px" }}>
-                    <i className="bi bi-arrow-right" style={{ fontSize: "1rem" }}></i>
+                  Request Demo
+                  <span
+                    className="d-flex align-items-center justify-content-center rounded-circle"
+                    style={{
+                      width: "26px",
+                      height: "26px",
+                      backgroundColor: "rgba(0, 0, 0, 0.15)",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    <i
+                      className="bi bi-arrow-right"
+                      style={{ fontSize: "1rem" }}
+                    ></i>
                   </span>
                 </button>
-                <button 
+                <button
                   className="btn w-100 fw-bold py-2 rounded-pill ghost-btn text-white"
-                  style={{ fontSize: "0.9rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{
+                    fontSize: "0.9rem",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
                   data-bs-toggle="modal"
                   data-bs-target="#checkPricesModal"
                 >
                   Check Prices
                 </button>
               </div>
-
             </div>
           </div>
         </section>
@@ -560,32 +695,74 @@ export default function Home() {
       </main>
 
       {/* FOOTER */}
-      <footer className="position-relative" style={{ background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 100%)" }}>
+      <footer
+        className="position-relative"
+        style={{
+          background: "linear-gradient(180deg, #080c14 0%, #0a0f1e 100%)",
+        }}
+      >
         <div className="container px-4 py-5">
           <div className="row g-5">
             {/* Brand */}
             <div className="col-lg-5">
-              <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none mb-3">
-                <div className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm bg-white p-1" style={{ width: 40, height: 40, flexShrink: 0 }}>
-                  <Image 
-                    src="/truck-logo.png" 
-                    alt="LoadFlow Logo" 
-                    width={32} 
-                    height={32} 
-                    style={{ objectFit: "contain" }} 
+              <Link
+                href="/"
+                className="d-flex align-items-center gap-2 text-decoration-none mb-3"
+              >
+                <div
+                  className="rounded overflow-hidden d-flex align-items-center justify-content-center shadow-sm bg-white p-1"
+                  style={{ width: 40, height: 40, flexShrink: 0 }}
+                >
+                  <Image
+                    src="/truck-logo.png"
+                    alt="LoadFlow Logo"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: "contain" }}
                   />
                 </div>
-                <span className="fs-4 fw-bold d-flex align-items-center" style={{ fontFamily: "var(--font-syne)" }}>
+                <span
+                  className="fs-4 fw-bold d-flex align-items-center"
+                  style={{ fontFamily: "var(--font-syne)" }}
+                >
                   <span className="brand-text-load text-white">Load</span>
-                  <span className="brand-text-flow" style={{ color: '#2bdd66' }}>Flow</span>
+                  <span
+                    className="brand-text-flow"
+                    style={{ color: "#2bdd66" }}
+                  >
+                    Flow
+                  </span>
                 </span>
               </Link>
-              <p className="mb-4" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", maxWidth: 320, lineHeight: 1.7 }}>
-                The enterprise dispatch platform built for modern trucking teams. Secure, fast, and built to scale across every border.
+              <p
+                className="mb-4"
+                style={{
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: "0.9rem",
+                  maxWidth: 320,
+                  lineHeight: 1.7,
+                }}
+              >
+                The enterprise dispatch platform built for modern trucking
+                teams. Secure, fast, and built to scale across every border.
               </p>
               <div className="d-flex gap-2">
                 {["bi-twitter-x", "bi-linkedin", "bi-github"].map((icon) => (
-                  <a key={icon} href="#" aria-label={`Follow us on ${icon}`} className="d-flex align-items-center justify-content-center rounded-3" style={{ width: 44, height: 44, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.9rem" }}>
+                  <a
+                    key={icon}
+                    href="#"
+                    aria-label={`Follow us on ${icon}`}
+                    className="d-flex align-items-center justify-content-center rounded-3"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      color: "rgba(255,255,255,0.5)",
+                      textDecoration: "none",
+                      fontSize: "0.9rem",
+                    }}
+                  >
                     <i className={`bi ${icon}`} />
                   </a>
                 ))}
@@ -593,39 +770,132 @@ export default function Home() {
             </div>
             {/* Platform */}
             <div className="col-6 col-md-3 col-lg-2">
-              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Platform</p>
+              <p
+                className="fw-semibold mb-4 text-uppercase"
+                style={{
+                  color: "#10b981",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.1em",
+                  fontWeight: 700,
+                }}
+              >
+                Platform
+              </p>
               <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
-                {[{ label: "Features", href: "#features" }, { label: "Solutions", href: "#solutions" }, { label: "Pricing", href: "#pricing" }, { label: "Dashboard", href: "/dashboard" }].map(({ label, href }) => (
-                  <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
+                {[
+                  { label: "Features", href: "#features" },
+                  { label: "Solutions", href: "#solutions" },
+                  { label: "Pricing", href: "#pricing" },
+                  { label: "Dashboard", href: "/dashboard" },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      className="text-decoration-none"
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
             {/* Company */}
             <div className="col-6 col-md-3 col-lg-2">
-              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Company</p>
+              <p
+                className="fw-semibold mb-4 text-uppercase"
+                style={{
+                  color: "#10b981",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.1em",
+                  fontWeight: 700,
+                }}
+              >
+                Company
+              </p>
               <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
-                {[{ label: "Contact", href: "/contact" }, { label: "Register", href: "/register" }, { label: "Sign In", href: "/login" }].map(({ label, href }) => (
-                  <li key={label}><Link href={href} className="text-decoration-none" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem" }}>{label}</Link></li>
+                {[
+                  { label: "Contact", href: "/contact" },
+                  { label: "Register", href: "/register" },
+                  { label: "Sign In", href: "/login" },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      className="text-decoration-none"
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
             {/* Contact */}
             <div className="col-lg-3">
-              <p className="fw-semibold mb-4 text-uppercase" style={{ color: "#10b981", fontSize: "0.7rem", letterSpacing: "0.1em", fontWeight: 700 }}>Get In Touch</p>
+              <p
+                className="fw-semibold mb-4 text-uppercase"
+                style={{
+                  color: "#10b981",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.1em",
+                  fontWeight: 700,
+                }}
+              >
+                Get In Touch
+              </p>
               <div className="d-flex flex-column gap-3">
-                {[{ icon: "bi-envelope", text: "support@loadflow.ca" }, { icon: "bi-telephone", text: "+1 (437) 383-1996" }, { icon: "bi-geo-alt", text: "Toronto, Ontario, Canada" }].map(({ icon, text }) => (
+                {[
+                  { icon: "bi-envelope", text: "support@loadflow.ca" },
+                  { icon: "bi-telephone", text: "+1 (437) 383-1996" },
+                  { icon: "bi-geo-alt", text: "Toronto, Ontario, Canada" },
+                ].map(({ icon, text }) => (
                   <div key={text} className="d-flex align-items-center gap-2">
-                    <i className={`bi ${icon}`} style={{ color: "#10b981", fontSize: "0.85rem", flexShrink: 0 }} />
-                    <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>{text}</span>
+                    <i
+                      className={`bi ${icon}`}
+                      style={{
+                        color: "#10b981",
+                        fontSize: "0.85rem",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      {text}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
           {/* Bottom bar */}
-          <div className="mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <p className="mb-0" style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>&copy; 2026 LoadFlow Inc. · CargoConnect Team · All rights reserved.</p>
-            <p className="mb-0" style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}>Precision. Power. Performance.</p>
+          <div
+            className="mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            <p
+              className="mb-0"
+              style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}
+            >
+              &copy; 2026 LoadFlow Inc. · CargoConnect Team · All rights
+              reserved.
+            </p>
+            <p
+              className="mb-0"
+              style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}
+            >
+              Precision. Power. Performance.
+            </p>
           </div>
         </div>
       </footer>

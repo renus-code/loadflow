@@ -901,9 +901,9 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                               <label className="text-white opacity-70 fw-black text-uppercase x-small tracking-widest mb-1 d-block">
                                 Weight
                               </label>
-                              <div className="fw-black fs-3 text-white">
-                                {load.weight.toLocaleString()}{" "}
-                                <span className="opacity-40 fs-6 fw-medium">
+                              <div className="fw-black fs-3 text-white d-flex align-items-baseline gap-2">
+                                {load.weight.toLocaleString()}
+                                <span className="opacity-40 fs-6 fw-bold">
                                   lbs
                                 </span>
                               </div>
@@ -937,13 +937,13 @@ const LoadDetailsModal: React.FC<LoadDetailsModalProps> = ({
                                 Route Distance
                               </label>
                             </div>
-                            <div className="fw-black fs-4 text-white">
+                            <div className="fw-black fs-4 text-white d-flex align-items-baseline gap-2">
                               {load.totalDistance ||
                                 calculateMockRouteStatsSync(
                                   load.pickups,
                                   load.deliveries,
-                                ).distance}{" "}
-                              <span className="opacity-40 fs-6 fw-medium">
+                                ).distance}
+                              <span className="opacity-40 fs-6 fw-bold">
                                 mi
                               </span>
                             </div>
