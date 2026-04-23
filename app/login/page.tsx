@@ -13,9 +13,9 @@
  */
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
@@ -28,7 +28,7 @@ type LoginFormData = {
 
 export default function Login() {
   const router = useRouter();
-  const [serverError, setServerError] = useState("");
+  const [serverError, setServerError] = useState<React.ReactNode>("");
   const [isLocked, setIsLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [requires2FA, setRequires2FA] = useState(false);
@@ -55,6 +55,22 @@ export default function Login() {
       if (!res.ok) {
         if (json.locked) {
           setIsLocked(true);
+        } else if (json.isPending) {
+          setServerError(
+            <div className="d-flex flex-column gap-2">
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-info-circle-fill"></i>
+                <span>{json.message}</span>
+              </div>
+              <Link 
+                href={`/register?email=${encodeURIComponent(data.email)}`} 
+                className="btn btn-sm btn-warning mt-2 fw-bold d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
+                style={{ width: 'fit-content' }}
+              >
+                Complete Registration <i className="bi bi-arrow-right"></i>
+              </Link>
+            </div>
+          );
         } else {
           setServerError(json.error || "Invalid credentials");
         }

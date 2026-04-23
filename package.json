@@ -49,6 +49,7 @@
     "dotenv": "^17.4.1",
     "eslint": "^10.2.0",
     "eslint-config-next": "^16.2.3",
+    "pptxgenjs": "^4.0.1",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",

@@ -55,6 +55,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── REGISTRATION STATUS CHECK ────────────────────────────────────────────
+    if (user.isPending) {
+      return NextResponse.json(
+        {
+          error: "Registration incomplete",
+          isPending: true,
+          message: "Your account registration is not yet complete. Please check your email for the activation link to finalize your profile before logging in.",
+        },
+        { status: 403 },
+      );
+    }
+
     // ── LOCKOUT CHECK ────────────────────────────────────────────────────────
     if (user.isLocked && user.role !== "Admin") {
       return NextResponse.json(
