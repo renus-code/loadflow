@@ -397,33 +397,102 @@ export default function DispatchTable({
         )}
       </div>
 
-      {/* PREMIUM PAGINATION CONTROLS */}
+      {/* PREMIUM CIRCULAR PAGINATION (Aligned with Global Design System) */}
       {totalPages > 1 && (
-        <div className="mt-4 d-flex justify-content-center align-items-center gap-2 pb-4">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="btn btn-sm glass-pagination-btn"
-            title="Previous Page"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
-          
-          <div className="d-flex align-items-center gap-1 px-3 py-1 rounded-pill bg-white bg-opacity-5 border border-white border-opacity-10 shadow-sm">
-            <span className="fw-black text-white x-small opacity-100">PAGE</span>
-            <span className="fw-black text-emerald x-small">{currentPage}</span>
-            <span className="fw-black text-white x-small opacity-40">OF</span>
-            <span className="fw-black text-white x-small">{totalPages}</span>
-          </div>
+        <div className="mt-5 d-flex justify-content-center align-items-center gap-3 pb-5 animate-slide-up">
+          <div className="d-flex align-items-center gap-2">
+            {/* First Page */}
+            <button
+              title="First Page"
+              aria-label="First Page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(1)}
+              className="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center border-0 transition-all pagination-nav-btn"
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "rgba(255, 255, 255, 0.05)",
+                color: currentPage === 1 ? "rgba(255,255,255,0.15)" : "#fff",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5" /></svg>
+            </button>
 
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="btn btn-sm glass-pagination-btn"
-            title="Next Page"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
+            {/* Prev Page */}
+            <button
+              title="Previous Page"
+              aria-label="Previous Page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              className="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center border-0 transition-all pagination-nav-btn"
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "rgba(255, 255, 255, 0.05)",
+                color: currentPage === 1 ? "rgba(255,255,255,0.15)" : "#fff",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+
+            {/* Current Page Circle */}
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center fw-black shadow-lg current-page-glow"
+              style={{
+                width: "48px",
+                height: "48px",
+                background: "#2bdd66",
+                color: "#000",
+                fontSize: "16px",
+                boxShadow: "0 0 20px -2px rgba(43,221,102,0.5)",
+                border: "2px solid rgba(255,255,255,0.2)",
+              }}
+            >
+              {currentPage}
+            </div>
+
+            {/* Next Page */}
+            <button
+              title="Next Page"
+              aria-label="Next Page"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              className="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center border-0 transition-all pagination-nav-btn"
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "rgba(255, 255, 255, 0.05)",
+                color: currentPage === totalPages ? "rgba(255,255,255,0.15)" : "#fff",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+
+            {/* Last Page */}
+            <button
+              title="Last Page"
+              aria-label="Last Page"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              className="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center border-0 transition-all pagination-nav-btn"
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "rgba(255, 255, 255, 0.05)",
+                color: currentPage === totalPages ? "rgba(255,255,255,0.15)" : "#fff",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m13 17 5-5-5-5M6 17l5-5-5-5" /></svg>
+            </button>
+          </div>
         </div>
       )}
       <style jsx>{`
@@ -490,26 +559,42 @@ export default function DispatchTable({
         .fw-black { font-weight: 900; }
         .x-small { font-size: 0.8rem; }
         
-        .glass-pagination-btn {
+        .pagination-nav-btn {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.12);
           color: white;
           padding: 8px;
-          border-radius: 12px;
-          transition: all 0.2s ease;
+          border-radius: 50%;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .glass-pagination-btn:hover:not(:disabled) {
-          background: rgba(43, 221, 102, 0.1);
-          border-color: rgba(43, 221, 102, 0.3);
+        .pagination-nav-btn:hover:not(:disabled) {
+          background: rgba(43, 221, 102, 0.15);
+          border-color: rgba(43, 221, 102, 0.4);
           color: #2bdd66;
           transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(43, 221, 102, 0.2);
         }
-        .glass-pagination-btn:disabled {
-          opacity: 0.3;
+        .pagination-nav-btn:disabled {
+          opacity: 0.2;
           cursor: not-allowed;
+        }
+        .current-page-glow {
+          box-shadow: 0 0 25px -5px rgba(43, 221, 102, 0.5);
+          transition: all 0.3s ease;
+        }
+        .current-page-glow:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 30px -2px rgba(43, 221, 102, 0.6);
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+          animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .btn-glass-disabled {

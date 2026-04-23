@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Truck from '@/models/Truck';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -64,6 +65,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await truck.save();
 
+    // AUDIT LOG TRUCK UPDATE
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'TRUCK_UPDATED', 
+      entityType: 'Truck', 
+      entityId: id,
+      details: { updatedFields: Object.keys(updateData) }
+    });
+
     return NextResponse.json(truck, { status: 200 });
   } catch (error: any) {
     if (error.name === 'VersionError') {
@@ -89,6 +100,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     if (!deletedTruck) {
       return NextResponse.json({ error: 'Truck not found' }, { status: 404 });
     }
+
+    // AUDIT LOG TRUCK DELETION
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'TRUCK_DELETED', 
+      entityType: 'Truck', 
+      entityId: id,
+      details: { truckNo: deletedTruck.truckNo }
+    });
 
     return NextResponse.json({ message: 'Truck deleted successfully' }, { status: 200 });
   } catch (error: any) {

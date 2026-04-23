@@ -15,6 +15,7 @@ import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { checkRateLimit } from '@/lib/ratelimit';
 import Notification from '@/models/Notification';
+import { logAction } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,6 +50,15 @@ export async function POST(req: NextRequest) {
     user.resetPasswordRequested = true;
     user.resetPasswordApproved = false; // Reset approval if it was previously approved but not used
     await user.save();
+
+    // AUDIT LOG PASSWORD RESET REQUEST
+    await logAction({ 
+      req, 
+      userId: user._id.toString(), 
+      action: 'USER_PASSWORD_RESET_REQUESTED', 
+      entityType: 'User', 
+      entityId: user._id.toString() 
+    });
 
     // Create a notification for Admins
     try {

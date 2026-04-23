@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -79,6 +80,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await user.save();
     
+    // AUDIT LOG USER UPDATE
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'USER_UPDATED', 
+      entityType: 'User', 
+      entityId: resolvedParams.id,
+      details: { updatedFields: Object.keys(body) }
+    });
+
     // Return user without passwordHash
     const userResponse = user.toObject();
     delete userResponse.passwordHash;
@@ -114,6 +125,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     await User.findByIdAndDelete(resolvedParams.id);
     
+    // AUDIT LOG USER DELETION
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'USER_DELETED', 
+      entityType: 'User', 
+      entityId: resolvedParams.id,
+      details: { deletedUserEmail: user.email }
+    });
+
     return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error(error);

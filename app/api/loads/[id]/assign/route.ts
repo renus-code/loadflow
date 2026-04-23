@@ -15,6 +15,7 @@ import dbConnect from "@/lib/mongodb";
 import Load from "@/models/Load";
 import Notification from "@/models/Notification";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -57,6 +58,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     try {
       await load.save();
+
+      // AUDIT LOG LOAD ASSIGNMENT
+      await logAction({ 
+        req, 
+        userId: user!.id, 
+        action: 'LOAD_ASSIGNED', 
+        entityType: 'Load', 
+        entityId: id,
+        details: { 
+          assignedDriverId, 
+          truckNumber, 
+          trailerNumber,
+          loadNumber: load.loadNumber 
+        }
+      });
       
       // Create notification for driver
       try {

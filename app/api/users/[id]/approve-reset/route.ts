@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function POST(
   req: NextRequest, 
@@ -46,6 +47,16 @@ export async function POST(
     user.resetPasswordApproved = true;
     user.resetPasswordRequested = false;
     await user.save();
+
+    // AUDIT LOG PASSWORD RESET APPROVAL
+    await logAction({
+      req,
+      userId: userPayload!.id,
+      action: 'PASSWORD_RESET_APPROVED',
+      entityType: 'User',
+      entityId: id,
+      details: { email: user.email }
+    });
 
     return NextResponse.json({ 
       message: `Password reset has been approved for ${user.name}.` 

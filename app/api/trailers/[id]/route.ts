@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Trailer from '@/models/Trailer';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -64,6 +65,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await trailer.save();
 
+    // AUDIT LOG TRAILER UPDATE
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'TRAILER_UPDATED', 
+      entityType: 'Trailer', 
+      entityId: id,
+      details: { updatedFields: Object.keys(updateData) }
+    });
+
     return NextResponse.json(trailer, { status: 200 });
   } catch (error: any) {
     if (error.name === 'VersionError') {
@@ -89,6 +100,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     if (!deletedTrailer) {
       return NextResponse.json({ error: 'Trailer not found' }, { status: 404 });
     }
+
+    // AUDIT LOG TRAILER DELETION
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'TRAILER_DELETED', 
+      entityType: 'Trailer', 
+      entityId: id,
+      details: { trailerNo: deletedTrailer.trailerNo }
+    });
 
     return NextResponse.json({ message: 'Trailer deleted successfully' }, { status: 200 });
   } catch (error: any) {

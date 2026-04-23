@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { logAction } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,6 +57,15 @@ export async function POST(req: NextRequest) {
     user.resetPasswordApproved = false;
     user.resetPasswordRequested = false;
     await user.save();
+
+    // AUDIT LOG PASSWORD RESET SUCCESS
+    await logAction({ 
+      req, 
+      userId: user._id.toString(), 
+      action: 'USER_PASSWORD_RESET_SUCCESS', 
+      entityType: 'User', 
+      entityId: user._id.toString() 
+    });
 
     return NextResponse.json({ 
       message: 'Password reset successful. You can now sign in with your new password.' 
