@@ -19,6 +19,7 @@ import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 import Notification from "@/models/Notification";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { logAction } from "@/lib/audit";
 
 const MAX_ATTEMPTS = 3; // Lock after 3 failed attempts
 
@@ -91,6 +92,17 @@ export async function POST(req: NextRequest) {
           loginAttempts: newAttempts,
           isLocked: true,
         });
+
+        // AUDIT LOG ACCOUNT LOCKOUT
+        await logAction({ 
+          req, 
+          userId: user._id.toString(), 
+          action: 'USER_ACCOUNT_LOCKED', 
+          entityType: 'User', 
+          entityId: user._id.toString(),
+          details: { attempts: newAttempts }
+        });
+
         return NextResponse.json(
           {
             error: "Account locked",
@@ -143,6 +155,15 @@ export async function POST(req: NextRequest) {
     await User.findByIdAndUpdate(user._id, {
       loginAttempts: 0,
       isLocked: false,
+    });
+
+    // AUDIT LOG SUCCESSFUL LOGIN
+    await logAction({ 
+      req, 
+      userId: user._id.toString(), 
+      action: 'USER_LOGIN_SUCCESS', 
+      entityType: 'User', 
+      entityId: user._id.toString() 
     });
 
     // Generate JWT

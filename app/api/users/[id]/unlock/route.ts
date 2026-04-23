@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function POST(
   req: NextRequest,
@@ -45,6 +46,16 @@ export async function POST(
     targetUser.isLocked = false;
     targetUser.loginAttempts = 0;
     await targetUser.save();
+
+    // AUDIT LOG ACCOUNT UNLOCK
+    await logAction({
+      req,
+      userId: userPayload!.id,
+      action: 'USER_UNLOCKED',
+      entityType: 'User',
+      entityId: id,
+      details: { email: targetUser.email }
+    });
 
     return NextResponse.json({ message: 'Account unlocked successfully', user: targetUser });
   } catch (error) {

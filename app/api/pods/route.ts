@@ -17,6 +17,7 @@ import dbConnect from "@/lib/mongodb";
 import ProofOfDelivery from "@/models/ProofOfDelivery";
 import Load from "@/models/Load";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -90,6 +91,16 @@ export async function POST(req: NextRequest) {
     // Save the podUrl to the Load document so it's easily accessible in all load queries
     load.podUrl = uploadResult.secure_url;
     await load.save();
+
+    // AUDIT LOG POD UPLOAD
+    await logAction({ 
+      req, 
+      userId: user!.id, 
+      action: 'POD_UPLOADED', 
+      entityType: 'Load', 
+      entityId: loadId,
+      details: { podId: pod._id.toString() }
+    });
 
     // NOTE: We no longer auto-complete the load. 
     // Dispatchers must verify and complete manually in the dashboard.

@@ -16,6 +16,7 @@ import Load from "@/models/Load";
 import { getUserFromRequest } from "@/lib/auth";
 import ProofOfDelivery from "@/models/ProofOfDelivery";
 import Notification from "@/models/Notification";
+import { logAction } from "@/lib/audit";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -42,6 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const stops = stopType === 'pickups' ? loadCheck.pickups : loadCheck.deliveries;
       if (!stops[stopIndex]) return NextResponse.json({ error: "Stop not found" }, { status: 400 });
       
+      const oldStopStatus = stops[stopIndex].status;
       stops[stopIndex].status = stopStatus;
       
       // Auto-update overall load status based on new requirements:
@@ -63,6 +65,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
 
       await loadCheck.save();
+
+      // AUDIT LOG STOP UPDATE
+      await logAction({ 
+        req, 
+        userId: user.id, 
+        action: 'LOAD_STOP_UPDATED', 
+        entityType: 'Load', 
+        entityId: id,
+        details: { 
+          loadNumber: loadCheck.loadNumber,
+          stopType, 
+          stopIndex, 
+          oldStatus: oldStopStatus, 
+          newStatus: stopStatus 
+        }
+      });
 
       // Notify dispatcher if a pickup occurred
       if (stopType === 'pickups' && stopStatus === 'PICKED_UP') {
@@ -132,6 +150,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     // Handle overall status update OR driver/truck/trailer assignment
+    const oldLoadStatus = loadCheck.status;
     if (status) {
       const allStatuses = ['PENDING', 'ASSIGNED', 'IN_TRANSIT', 'PICKED_UP', 'DELIVERED', 'CANCELLED', 'COMPLETED'];
       if (!allStatuses.includes(status)) {
@@ -167,6 +186,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     try {
       await loadCheck.save();
+
+      // AUDIT LOG STATUS UPDATE
+      if (oldLoadStatus !== loadCheck.status) {
+        await logAction({ 
+          req, 
+          userId: user.id, 
+          action: 'LOAD_STATUS_UPDATED', 
+          entityType: 'Load', 
+          entityId: id,
+          details: { 
+            loadNumber: loadCheck.loadNumber,
+            oldStatus: oldLoadStatus, 
+            newStatus: loadCheck.status 
+          }
+        });
+      }
+
       const finalLoad = await Load.findById(id).populate('assignedDriverId', 'name email');
       return NextResponse.json({ ...finalLoad?.toObject(), podUrl: pod?.imageUrl });
     } catch (saveError: any) {

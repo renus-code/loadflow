@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import { logAction } from '@/lib/audit';
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
@@ -33,6 +34,16 @@ export async function POST(req: NextRequest) {
         // Increment tokenVersion in the database
         // This instantly invalidates this token (and any other active ones) on the server side
         await User.findByIdAndUpdate(payload.id, { $inc: { tokenVersion: 1 } });
+        
+        // AUDIT LOG LOGOUT
+        await logAction({ 
+          req, 
+          userId: payload.id as string, 
+          action: 'USER_LOGOUT', 
+          entityType: 'User', 
+          entityId: payload.id as string 
+        });
+
         console.log(`Server-side hard revocation completed for user ${payload.id}`);
       }
     } catch (error) {

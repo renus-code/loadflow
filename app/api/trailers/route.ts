@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Trailer from '@/models/Trailer';
 import { getUserFromRequest, requireRole } from '@/lib/auth';
+import { logAction } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
   try {
@@ -63,6 +64,16 @@ export async function POST(req: NextRequest) {
       make,
       model,
       trailerType,
+    });
+
+    // AUDIT LOG TRAILER CREATION
+    await logAction({ 
+      req, 
+      userId: userPayload!.id, 
+      action: 'TRAILER_CREATED', 
+      entityType: 'Trailer', 
+      entityId: newTrailer._id.toString(),
+      details: { trailerNo, plate }
     });
 
     return NextResponse.json(newTrailer, { status: 201 });
